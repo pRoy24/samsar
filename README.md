@@ -28,6 +28,7 @@ Batch multiple scene renditions by chaining prompts.
 * Magic eraser to delete parts of the image and expose layers below.
 ![Magic eraser demo](https://im-embeddings.s3.us-west-2.amazonaws.com/eraser_low_res_1.gif)
 
+
 * Easy frame-by-frame scene manipulation
 ![Scene manipulation demo](https://im-embeddings.s3.us-west-2.amazonaws.com/layer_seek.gif)
 
