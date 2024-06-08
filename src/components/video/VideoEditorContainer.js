@@ -98,9 +98,6 @@ export default function VideoEditorContainer(props) {
   const [selectedLayerSelectShape, setSelectedLayerSelectShape] = useState(null);
 
 
-
-
-
   const [textConfig, setTextConfig] = useState({
     fontSize: 40,
     fontFamily: 'Times New Roman',
@@ -404,6 +401,7 @@ export default function VideoEditorContainer(props) {
       const generatedImageUrlName = pollStatus.activeGeneratedImage;
       const generatedURL = `/generations/${generatedImageUrlName}`;
       const nImageList: any = Object.assign([], activeItemList);
+
       nImageList.push({ src: generatedURL, id: `item_${nImageList.length}`, type: 'image' });
 
       setActiveItemList(nImageList);

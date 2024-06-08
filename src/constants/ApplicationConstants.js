@@ -1,2 +1,2 @@
-export const STRIPE_PUBLIC_KEY='pk_test_KajiNmtvucpan2Z8TE3ZBVp1';
+export const STRIPE_PUBLIC_KEY='pk_live_qlGsnk0t4o7Vp4Yd05FrBPYv';
 

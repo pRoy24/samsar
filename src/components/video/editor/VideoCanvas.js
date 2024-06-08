@@ -244,12 +244,23 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const moveItem = (index, direction) => {
     const newIndex = index + direction;
     if (newIndex < 0 || newIndex >= activeItemList.length) return; // Out of bounds, do nothing
+  
     const newList = [...activeItemList];
-    const [item] = newList.splice(index, 1);
-    newList.splice(newIndex, 0, item);
+    
+    // Swap the items
+    const temp = newList[newIndex];
+    newList[newIndex] = newList[index];
+    newList[index] = temp;
+  
+    // Swap their IDs
+    const tempId = newList[newIndex].id;
+    newList[newIndex].id = newList[index].id;
+    newList[index].id = tempId;
+  
     setActiveItemList(newList);
+    updateSessionActiveItemList(newList); // Make sure to update the session active item list
   };
-
+  
   const setSelectedLayer = (item) => {
     setSelectedId(item.id);
     if (item.type === 'image') {
@@ -645,8 +656,9 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       } else if (shape.attrs.type === 'rectangle') {
         transformer = shapeSelectTransformerRectangleRef.current; // Add this line to get transformer reference
       }
-
-      transformer.hide(); // Hide transformer boundaries
+      if (transformer) {
+        transformer.hide(); // Hide transformer boundaries
+      }
       const boundingBox = shape.getClientRect();
       const offscreenCanvas = document.createElement('canvas');
       offscreenCanvas.width = boundingBox.width;
@@ -694,7 +706,9 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         const newActiveItemList = [...activeItemList, newItem];
         setActiveItemList(newActiveItemList);
         updateSessionActiveItemList(newActiveItemList);
-        transformer.show(); // Show transformer boundaries again
+        if (transformer) {
+          transformer.show(); // Show transformer boundaries again
+        }
       };
       imageObj.src = dataURL;
     }
@@ -847,8 +861,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   if (activeItemList && activeItemList.length > 0) {
     imageStackList = activeItemList.map((item, index) => {
       if (item.type === 'image') {
-        console.log(item);
-        console.log("ETEMTETR");
 
         return (
           <ResizableImage
@@ -984,8 +996,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   }
 
   if (ref.current) {
-    const stage = ref.current.getStage();
-    console.log(stage);
+   //  const stage = ref.current.getStage();
   }
 
   return (
