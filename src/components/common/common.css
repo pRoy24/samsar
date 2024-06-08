@@ -1,0 +1,20 @@
+.fc-authkit-signin-button {
+
+  button {
+    span  {
+      display: none;
+    }
+    height: 50px;
+    background-color: #171717;
+  }
+
+  button::after {
+    content: "Farcaster";
+    color: white;
+    padding-left: 8px; /* Space between the text and the arrow */
+}
+}
+
+
+
+

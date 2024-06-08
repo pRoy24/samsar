@@ -1,0 +1,140 @@
+/* Add these styles to your toolbar.css or another CSS file */
+
+.vertical-slider {
+
+  width: 20px;
+
+  background-color: #0f172a; /* Custom background color */
+  border-radius: 10px;
+  position: relative;
+  overflow-y: auto;
+}
+
+.vertical-slider .track {
+  background: transparent;
+  height: 100%;
+  width: 8px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.vertical-slider .track-0 {
+  background: #4a90e2;
+  border-radius: 10px;
+  height: 100%;
+  width: 8px;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.vertical-slider .thumb {
+  height: 20px;
+  width: 20px;
+  background-color: #1e40af;
+  border-radius: 50%;
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+
+.vertical-slider .thumb:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.5);
+}
+
+
+
+
+
+
+/* src/components/util/DualThumbSlider.css */
+
+.dual-thumb-slider {
+  width: 60px;
+
+  display: flex;
+  justify-content: center;
+}
+
+.dual-thumb-slider .thumb {
+  background-color: black;
+  width: 30px; /* Adjust thumb width as needed */
+  height: 12px; /* Adjust thumb height as needed */
+  cursor: pointer;
+  border-radius: 50%;
+  position: relative;
+}
+
+.dual-thumb-slider .thumb-0 {
+  border-radius: 12px 12px 0px 0px;
+}
+
+.dual-thumb-slider .thumb-1 {
+  border-radius: 0px 0px 12px 12px;
+}
+
+
+.dual-thumb-slider .track {
+  background-color: grey;
+  width: 10px; /* Adjust track width as needed */
+
+  position: relative;
+}
+
+.time-ruler {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  padding: 10px 0;
+  color: #fff; /* Adjust color based on your theme */
+  width: 15px; /* Reduced width */
+}
+
+.time-ruler-tick {
+  position: relative;
+  font-size: 10px; /* Adjust font size as needed */
+  font-weight: bold; /* Make the text bold */
+  text-align: right;
+  width: 100%; /* Ensure the tick spans the full width of the time ruler */
+  border-bottom: 1px solid #fff; /* Adjust color based on your theme */
+}
+
+
+.range-overlay-slider {
+  width: 50px;
+
+  display: flex;
+  justify-content: center;
+}
+
+.range-overlay-slider .thumb {
+  background-color: #404040;
+  width: 66px; /* Adjust thumb width as needed */
+  height: 8px; /* Adjust thumb height as needed */
+  box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.8);
+  display: block;
+  
+  cursor: pointer;
+  border-radius: 6px;
+  position: relative;
+  pointer-events: all !important;
+}
+
+
+.range-overlay-slider .track {
+  background-color: grey;
+  width: 10px; /* Adjust track width as needed */
+
+  position: relative;
+}
+
+
+.range-overlay-slider .track-1 {
+  background-color: rgba(3, 7, 18, 0.3);
+  width: 80px; /* Adjust track width as needed */
+
+  position: relative;
+}

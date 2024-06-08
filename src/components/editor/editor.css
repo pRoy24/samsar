@@ -1,0 +1,12 @@
+.konvajs-content {
+  margin: auto;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background-color: #ccc; /* Light gray, visible as one color of the checker */
+  background-image:
+    linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff),
+    linear-gradient(45deg, #fff 25%, transparent 25%, transparent 75%, #fff 75%, #fff);
+  background-size: 40px 40px; /* Size of each square */
+  background-position: 0 0, 20px 20px; /* Offset positions to create the check pattern */
+}
+

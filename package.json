@@ -1,0 +1,70 @@
+{
+  "name": "studio",
+  "version": "0.1.9",
+  "private": true,
+  "dependencies": {
+    "@dynamic-labs/ethereum": "^1.4.5",
+    "@dynamic-labs/sdk-react-core": "^1.4.5",
+    "@farcaster/auth-kit": "^0.2.1",
+    "@stripe/stripe-js": "^3.4.1",
+    "@tensorflow-models/body-pix": "^2.2.1",
+    "@tensorflow-models/coco-ssd": "^2.2.3",
+    "@tensorflow-models/deeplab": "^0.2.2",
+    "@tensorflow/tfjs": "^4.19.0",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^20.12.4",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.24",
+    "axios": "^1.6.8",
+    "bson-objectid": "^2.0.4",
+    "konva": "^9.3.6",
+    "pinata-fdk": "^3.6.1",
+    "react": "^18.2.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-dom": "^18.2.0",
+    "react-draggable": "^4.4.6",
+    "react-icons": "^5.1.0",
+    "react-konva": "^18.2.10",
+    "react-konva-utils": "^1.0.6",
+    "react-qr-code": "^2.0.12",
+    "react-router-dom": "^6.22.3",
+    "react-scripts": "5.0.1",
+    "react-select": "^5.8.0",
+    "react-slider": "^2.0.6",
+    "thirdweb": "^5.19.0",
+    "uuid": "^9.0.1",
+    "viem": "^2.9.15",
+    "web-vitals": "^2.1.4"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.3",
+    "typescript": "^5.0.4"
+  }
+}
