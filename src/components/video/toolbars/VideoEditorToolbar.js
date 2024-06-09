@@ -348,20 +348,6 @@ export default function VideoEditorToolbar(props: any) {
     setCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_TEMPLATES_DISPLAY)
   }
 
-  const toggleCursorSelectOptions = () => {
-    setCursorSelectOptionVisible(!cursorSelectOptionVisible);
-    // setPencilOptionsVisible(false);
-    // setEraserOptionsVisible(false);
-  };
-
-
-  const toggleObjectSelect = () => {
-    setCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_OBJECT_SELECT_DISPLAY)
-  }
-
-
-
-
 
   let bgSelectedColor = colorMode === 'dark' ? "bg-gray-800" : "bg-gray-200";
   let actionsOptionsDisplay = <span />;
@@ -378,6 +364,16 @@ export default function VideoEditorToolbar(props: any) {
               className="w-full" value={pencilWidth} onChange={(e) => setPencilWidth(e.target.value)} />
             <label className="block mt-2 mb-2">Color:</label>
             <input type="color" value={pencilColor} onChange={(e) => setPencilColor(e.target.value)} />
+          </div>
+        </div>
+      )
+    } else if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_ERASER_DISPLAY) {
+      actionsSubOptionsDisplay = (
+        <div>
+          <div className="static mt-2  rounded shadow-lg ">
+            <label className="block mb-2">Width:</label>
+            <input type="range" min="1" max="100" className="w-full"
+              value={eraserWidth} onChange={(e) => setEraserWidth(e.target.value)} />
           </div>
         </div>
       )

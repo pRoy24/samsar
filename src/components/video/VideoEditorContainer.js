@@ -89,7 +89,7 @@ export default function VideoEditorContainer(props) {
   const [pencilColor, setPencilColor] = useState('#000000');
   const [eraserWidth, setEraserWidth] = useState(30);
   const [pencilOptionsVisible, setPencilOptionsVisible] = useState(false);
-  // const [eraserOptionsVisible, setEraserOptionsVisible] = useState(false);
+   const [eraserOptionsVisible, setEraserOptionsVisible] = useState(false);
   const [cursorSelectOptionVisible, setCursorSelectOptionVisible] = useState(false);
 
   const [generationError, setGenerationError] = useState(null);
@@ -522,32 +522,6 @@ export default function VideoEditorContainer(props) {
 
   const updateTargetActiveLayerConfig = (id) => {
 
-    // const canvasRef = canvasRef.current;
-    // const stage = canvasRef.getStage();
-    // const node = stage.findOne(`#${id}`);
-
-    // console.log(node);
-    // console.log("EMEMEMEM");
-
-    // if (node) {
-    //   const clientRect = node.getClientRect();
-
-    //    updatedConfig = {
-    //     x: clientRect.x,
-    //     y: clientRect.y,
-    //     width: clientRect.width,
-    //     height: clientRect.height
-    //   }
-    // }
-
-    // const updatedItemList = activeItemList.map((item) => {
-    //   if (item.id === id) {
-    //     return { ...item, ...updatedConfig };
-    //   }
-    //   return item;
-    // });
-
-    // updateSessionActiveItemList(updatedItemList);
   }
 
   const updateSessionActiveItemList = (newActiveItemList) => {
@@ -791,6 +765,7 @@ export default function VideoEditorContainer(props) {
           selectedLayerSelectShape={selectedLayerSelectShape}
           setSelectedLayerSelectShape={setSelectedLayerSelectShape}
           updateSessionLayerActiveItemList={updateSessionLayerActiveItemList}
+          eraserOptionsVisible={eraserOptionsVisible}
 
         />
       </div>
