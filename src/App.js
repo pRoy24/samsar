@@ -12,7 +12,7 @@ const RPC_URL = process.env.REACT_APP_RPC_URL;
 const config = {
   rpcUrl: RPC_URL,
   domain: 'samsar.gg',
-  siweUri: 'https://samsr.gg/',
+  siweUri: 'https://samsar.gg/',
 };
 
 

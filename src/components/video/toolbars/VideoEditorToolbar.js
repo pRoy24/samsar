@@ -179,11 +179,13 @@ export default function VideoEditorToolbar(props: any) {
         <div className='mt-2'>
           <div className='grid grid-cols-2 gap-2 m-auto text-center'>
             <div>
-              <input type='text' placeholder='Start Scale' onChange={(e) => updateAnimationParams('startScale', e.target.value)} className='w-[60px]' />
+              <input type='text' placeholder='Start Scale'
+               onChange={(e) => updateAnimationParams('startScale', e.target.value)} className='w-full'  />
               <div>Start Scale</div>
             </div>
             <div>
-              <input type='text' placeholder='End Scale' onChange={(e) => updateAnimationParams('endScale', e.target.value)} className='w-[60px]' />
+              <input type='text' placeholder='End Scale'
+               onChange={(e) => updateAnimationParams('endScale', e.target.value)} className='w-full' />
               <div>End Scale</div>
             </div>
           </div>
