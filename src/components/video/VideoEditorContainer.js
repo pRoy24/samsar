@@ -719,10 +719,7 @@ export default function VideoEditorContainer(props) {
         />
       )
     } else {
-
-
       viewDisplay = <LoadingImage />
-      
     }
   }
 
@@ -777,8 +774,6 @@ export default function VideoEditorContainer(props) {
           outpaintError={outpaintError}
           selectedId={selectedId}
           exportAnimationFrames={exportAnimationFrames}
-
-
           showMoveAction={showMoveAction}
           showResizeAction={showResizeAction}
           showSaveAction={showSaveAction}
@@ -789,10 +784,8 @@ export default function VideoEditorContainer(props) {
           setPencilColor={setPencilColor}
           eraserWidth={eraserWidth}
           setEraserWidth={setEraserWidth}
-
           cursorSelectOptionVisible={cursorSelectOptionVisible}
           setCursorSelectOptionVisible={setCursorSelectOptionVisible}
-
           setCurrentCanvasAction={setCurrentCanvasAction}
           currentCanvasAction={currentCanvasAction}
           selectedLayerSelectShape={selectedLayerSelectShape}

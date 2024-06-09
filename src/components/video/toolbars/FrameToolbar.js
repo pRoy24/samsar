@@ -18,7 +18,7 @@ export default function FrameToolbar(props) {
     setLayerDuration, currentLayerSeek, setCurrentLayerSeek, totalDuration,
     showAddAudioToProjectDialog, audioFileTrack, selectedLayerIndex,
     startPlayFrames, downloadVideoDisplay, renderedVideoPath, sessionId,
-    updateSessionLayerActiveItemList, updateSessionLayer, setIsLayerSeeking,
+    updateSessionLayer, setIsLayerSeeking,
     isVideoGenerating
   } = props;
 
@@ -91,7 +91,13 @@ export default function FrameToolbar(props) {
     let layer = layers[selectedLayerIndex];
     layer.duration = newDuration;
     updateSessionLayer(layer);
+  }
 
+  const layerDurationCellUpdated = (value, index) => {
+    setLayerDuration(value, index);
+    let layer = layers[index];
+    layer.duration = value;
+    updateSessionLayer(layer);
   }
 
   let layersList = <span />;
@@ -105,7 +111,7 @@ export default function FrameToolbar(props) {
           <div>
             <div>
               <input type="number" value={layer.duration}
-                onChange={(e) => setLayerDuration(e.target.value, index)}
+                onChange={(e) => layerDurationCellUpdated(e.target.value, index)}
                 className={`w-[60px] p-1 rounded-lg ${textColor} ${bg2Color}`} />
             </div>
             <div className='text-[10px]'>Duration</div>
