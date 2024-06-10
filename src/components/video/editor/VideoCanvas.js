@@ -638,8 +638,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     }
   };
 
-
-
   const shapeSelectTransformerCircleRef = useRef();
   const shapeSelectTransformerRectangleRef = useRef();
 
@@ -970,6 +968,13 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
 
   if (currentView === CURRENT_TOOLBAR_VIEW.SHOW_SELECT_DISPLAY) {
+
+
+    if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SELECT_OBJECT_DISPLAY) {
+      console.log("BE HERE 2");
+
+      
+    }
     if (selectedLayerSelectShape === 'circle') {
       currentShapeSelectDisplay = (
         <DraggableToolbarCircle

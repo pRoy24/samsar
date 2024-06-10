@@ -19,6 +19,8 @@ import { IoTriangleOutline } from "react-icons/io5";
 import { FaPencilAlt, FaEraser, FaCrosshairs, FaUpload } from 'react-icons/fa';
 import { HiRefresh } from "react-icons/hi";
 import { FaRegCircle } from "react-icons/fa";
+import { GrRadialSelected } from "react-icons/gr";
+
 
 export default function VideoEditorToolbar(props: any) {
   const {
@@ -445,8 +447,6 @@ export default function VideoEditorToolbar(props: any) {
   }
 
   let selectSubObjectionsDisplay = <span />;
-
-
 
   if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SELECT_SHAPE_DISPLAY &&
     currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_SELECT_DISPLAY
