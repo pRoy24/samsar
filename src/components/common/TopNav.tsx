@@ -163,7 +163,7 @@ export default function TopNav(props) {
       h-[50px] fixed w-[100vw] shadow-lg z-10`}>
       <div className='grid grid-cols-4'>
         <div>
-          <img src={'/logo.png'} className='cursor-pointer' onClick={() => gotoHome()} />
+          <img src={'/one.png'} className='cursor-pointer' onClick={() => gotoHome()} />
         </div>
         <div>
 
