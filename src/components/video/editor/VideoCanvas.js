@@ -965,14 +965,9 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   let currentShapeSelectDisplay = null;
 
-
-
   if (currentView === CURRENT_TOOLBAR_VIEW.SHOW_SELECT_DISPLAY) {
 
-
     if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SELECT_OBJECT_DISPLAY) {
-      console.log("BE HERE 2");
-
       
     }
     if (selectedLayerSelectShape === 'circle') {

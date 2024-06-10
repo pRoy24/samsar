@@ -401,7 +401,8 @@ export default function VideoEditorContainer(props) {
       const generatedImageUrlName = pollStatus.activeGeneratedImage;
       const generatedURL = `/generations/${generatedImageUrlName}`;
       const nImageList: any = Object.assign([], activeItemList);
-      const newItem = { src: generatedURL, id: `item_${nImageList.length}`, type: 'image' };
+      const newItem = { src: generatedURL, id: `item_${nImageList.length}`, type: 'image',
+           x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height};
 
       nImageList.push(newItem);
 
