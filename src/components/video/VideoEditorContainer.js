@@ -401,15 +401,16 @@ export default function VideoEditorContainer(props) {
       const generatedImageUrlName = pollStatus.activeGeneratedImage;
       const generatedURL = `/generations/${generatedImageUrlName}`;
       const nImageList: any = Object.assign([], activeItemList);
+      const newItem = { src: generatedURL, id: `item_${nImageList.length}`, type: 'image' };
 
-      nImageList.push({ src: generatedURL, id: `item_${nImageList.length}`, type: 'image' });
+      nImageList.push(newItem);
 
       setActiveItemList(nImageList);
+      updateSessionActiveItemList(nImageList);
       setSessionDetails(pollStatus);
       setIsGenerationPending(false);
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
-      updateSessionActiveItemList(nImageList);
-
+      
       return;
     } else if (pollStatus.generationStatus === 'FAILED') {
       setIsGenerationPending(false);
@@ -572,7 +573,6 @@ export default function VideoEditorContainer(props) {
     if (!imageNode) {
       return;
     }
-
     imageNode.cache();
     imageNode.filters([filter]);
 

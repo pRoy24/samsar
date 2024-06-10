@@ -1001,7 +1001,9 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   }
 
   if (ref.current) {
-   //  const stage = ref.current.getStage();
+    const stage = ref.current.getStage();
+
+
   }
 
   return (
