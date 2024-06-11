@@ -22,11 +22,18 @@ export default function VideoEditorLanding() {
 
     let promptListArray = promptList.split('\n');
     promptListArray = promptListArray.filter((prompt) => prompt && prompt.trim().length > 0);
+    let durationPerScene = 2;
+    try {
+      durationPerScene = parseInt(formData.get('durationPerScene'));
+    } catch (e) {
+    
+    }
 
     const sessionTheme = imageGenerationTheme ? imageGenerationTheme.trim() : null;
     const payload = {
       imageGenerationTheme: sessionTheme,
-      prompts: promptListArray
+      prompts: promptListArray,
+      durationPerScene: durationPerScene
     };
 
     const headers = getHeaders();
@@ -49,7 +56,7 @@ export default function VideoEditorLanding() {
               <textarea className={`bg-neutral-800
          h-auto h-32 overflow-y-scroll min-w-[512px]
           p-4 rounded-sm ${textColor} mb-4`}
-          name="imageGenerationTheme"
+                name="imageGenerationTheme"
                 placeholder='Enter a theme, an optional set of keywords that will get applied to all generations in this session' />
 
             </div>
@@ -57,14 +64,39 @@ export default function VideoEditorLanding() {
 
           <div>
             <div className={`${textColor}  bg-neutral-900 align-center pt-2 pb-2 w-[512px] m-auto`}>
-              Intial Scene Prompts
+              <div className='flex flex-row'>
+                <div className='basis-1/2'>
+                  Intial Scene Prompts
+                </div>
+                <div className='basis-1/2'>
+
+                  <div className='inline-flex'>
+                    <div className='text-left mr-2'>
+                      Duration/scene
+                      <div className='text-[12px]'>
+                        seconds
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <input type="number" name="durationPerScene" className={`${bgColor}
+                   inline-flex w-[60px] pl-2 rounded-sm `}
+                  defaultValue={2} />
+
+
+
+                </div>
+              </div>
+
+
             </div>
 
             <textarea className={`bg-neutral-800
            h-auto min-h-64 overflow-y-scroll min-w-[512px]
           p-4 rounded-sm ${textColor}`}
-          name="promptList"
-          placeholder='Enter the list of prompts separated by newlines.'></textarea>
+              name="promptList"
+              placeholder='Enter the list of prompts separated by newlines.'></textarea>
             <div className='mt-8 mb-8'>
               <CommonButton>
                 Submit
