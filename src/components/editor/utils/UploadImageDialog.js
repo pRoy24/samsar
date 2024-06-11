@@ -1,10 +1,11 @@
 import React, { useState, useCallback } from 'react';
 import { useAlertDialog } from '../../../contexts/AlertDialogContext';
+import { STAGE_DIMENSIONS } from '../../../constants/Image.js';
 
 export default function UploadImageDialog({ setUploadURL }) {
   const [image, setImage] = useState(null);
   const [uploadStatus, setUploadStatus] = useState('');
-  const { alertDialogSubmit }  = useAlertDialog();
+  const { alertDialogSubmit } = useAlertDialog();
 
   // Handler for file input change
   const handleFileChange = (event) => {
@@ -52,11 +53,33 @@ export default function UploadImageDialog({ setUploadURL }) {
   }, []);
 
   const handleAddToCanvas = () => {
-    if (image) {
-      setUploadURL({ url: image });  // Assuming setUploadURL expects an object with a url property
-    }
+    const img = new Image();
+    img.src = image;
+    img.onload = () => {
+      const stageHeight = STAGE_DIMENSIONS.height;
+      const stageWidth = STAGE_DIMENSIONS.width;
+  
+      let imageWidth = img.width;
+      let imageHeight = img.height;
+  
+      // Ensure width and height are within the bounds of 128 and 1024
+      imageWidth = Math.max(128, Math.min(1024, imageWidth));
+      imageHeight = Math.max(128, Math.min(1024, imageHeight));
+  
+      const x = (stageWidth - imageWidth) / 2;
+      const y = (stageHeight - imageHeight) / 2;
+  
+      setUploadURL({
+        url: image,
+        width: imageWidth,
+        height: imageHeight,
+        x,
+        y,
+      });
+    };
   };
   
+
   return (
     <div
       onDrop={handleDrop}

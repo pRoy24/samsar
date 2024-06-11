@@ -199,7 +199,11 @@ export default function VideoEditorContainer(props) {
     let newItem = {
       src: data.url,
       id: newItemId,
-      type: 'image'
+      type: 'image',
+      x: data.x,
+      y: data.y,
+      width: data.width,
+      height: data.height
     };
 
     const newItemList = [...activeItemList, newItem];
