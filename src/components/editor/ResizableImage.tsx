@@ -70,7 +70,7 @@ export default function ResizableImage({
     if (!animations || animations.length === 0 || !isLayerSeeking) {
       return;
     }
-    const translateAnimationFound = animations.find((animation) => animation.type === 'zoom' || animation.type === 'rotate');
+    const translateAnimationFound = animations.find((animation) =>  animation.type === 'rotate');
     if (translateAnimationFound) {
       const node = shapeRef.current;
       const clientRect = node.getClientRect();

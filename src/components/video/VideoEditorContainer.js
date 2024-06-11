@@ -153,7 +153,8 @@ export default function VideoEditorContainer(props) {
 
 
         const nImageList: any = Object.assign([], activeItemList);
-        nImageList.push({ src: activeSelectedImageURL, id: `item_${nImageList.length}`, type: 'image' });
+        nImageList.push({ src: activeSelectedImageURL, id: `item_${nImageList.length}`, type: 'image' ,
+        width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height, x: 0, y: 0});
 
         setActiveItemList(nImageList);
 
@@ -404,7 +405,11 @@ export default function VideoEditorContainer(props) {
       const newItem = { src: generatedURL, id: `item_${nImageList.length}`, type: 'image',
            x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height};
 
+      console.log(newItem);
+
       nImageList.push(newItem);
+
+      console.log(nImageList);
 
       setActiveItemList(nImageList);
       updateSessionActiveItemList(nImageList);

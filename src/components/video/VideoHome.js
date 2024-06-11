@@ -197,16 +197,10 @@ export default function VideoHome(props) {
     axios.post(`${PROCESSOR_API_URL}/video_sessions/request_render_video`, { id: id }, getHeaders()).then(function (dataRes) {
 
       const sesionFileName = dataRes.data;
-      
-      console.log(sesionFileName);
+
       setIsVideoGenerating(true);
       startVideoRenderPoll();
 
-      //const sessionVideoURL = `${PROCESSOR_API_URL}/video/output/${sesionFileName}`;
-
-
-     // setRenderedVideoPath(sessionVideoURL);
-    //  setDownloadVideoDisplay(true);
 
     });
   }

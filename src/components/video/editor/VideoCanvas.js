@@ -30,7 +30,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     setButtonPositions, selectedLayerType, setSelectedLayerType, applyFilter,
     onChange, pencilColor, pencilWidth, eraserWidth, sessionId, selectedFrameId,
     exportAnimationFrames, currentLayer, currentLayerSeek, updateSessionActiveItemList,
-     selectedLayerSelectShape, isLayerSeeking, 
+    selectedLayerSelectShape, isLayerSeeking,
   } = props;
 
   const [showMask, setShowMask] = useState(false);
@@ -116,13 +116,39 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         applyAnimationsToNode(node, item, elapsedTime, duration, durationOffset);
       }
     });
-    layer.draw();
+   // layer.draw();
   }, [currentLayerSeek, currentLayer, activeItemList]);
 
   const applyAnimationsToNode = (node, item, elapsedTime, duration, durationOffset) => {
 
     if (!item.animations) return;
     let isAnimating = false;
+
+
+
+    const { x, y, width, height } = item;
+
+    let requiresTranslation = false;
+    let initialX = x;
+    let initialY = y;
+
+
+
+    // Check if translation is required
+    item.animations?.forEach(animation => {
+      if (animation.type === 'rotate' || animation.type === 'zoom') {
+        requiresTranslation = true;
+      }
+    });
+
+    if (requiresTranslation) {
+      initialX += width / 2;
+      initialY += height / 2;
+     // node.offsetX(initialX);
+     // node.offsetY(initialY); 
+    }
+
+
 
     item.animations.forEach(animation => {
       const { type, params } = animation;
@@ -133,15 +159,21 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       if (animationElapsed >= 0 && animationElapsed <= (endTime - startTime)) {
         isAnimating = true;
 
+        const { startX, endX, startY, endY , } = params;
+        const totalDuration = endTime - startTime;
+
+        let translateX = startX + (endX - startX) * (animationElapsed / totalDuration);
+        let translateY = startY + (endY - startY) * (animationElapsed / totalDuration);
+
         switch (type) {
           case 'fade':
             node.opacity((params.startFade + (params.endFade - params.startFade) * animationElapsed / (endTime - startTime)) / 100);
             break;
           case 'slide':
-            node.x(params.startX + (params.endX - params.startX) * animationElapsed / (endTime - startTime));
-            node.y(params.startY + (params.endY - params.startY) * animationElapsed / (endTime - startTime));
+            node.x(translateX);
+            node.y(translateY);
             break;
-          case 'zoom': 
+          case 'zoom':
             node.scaleX((params.startScale + (params.endScale - params.startScale) * animationElapsed / (endTime - startTime)) / 100);
             node.scaleY((params.startScale + (params.endScale - params.startScale) * animationElapsed / (endTime - startTime)) / 100);
             break;
@@ -159,10 +191,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
     if (!isAnimating && initialParamsRef.current[item.id]) {
       const { x, y, offsetX, offsetY } = initialParamsRef.current[item.id];
-      node.offsetX(offsetX);
-      node.offsetY(offsetY);
-      node.x(x);
-      node.y(y);
+      // node.offsetX(offsetX);
+      // node.offsetY(offsetY);
+      // node.x(x);
+      // node.y(y);
     }
   };
 
@@ -244,23 +276,23 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const moveItem = (index, direction) => {
     const newIndex = index + direction;
     if (newIndex < 0 || newIndex >= activeItemList.length) return; // Out of bounds, do nothing
-  
+
     const newList = [...activeItemList];
-    
+
     // Swap the items
     const temp = newList[newIndex];
     newList[newIndex] = newList[index];
     newList[index] = temp;
-  
+
     // Swap their IDs
     const tempId = newList[newIndex].id;
     newList[newIndex].id = newList[index].id;
     newList[index].id = tempId;
-  
+
     setActiveItemList(newList);
     updateSessionActiveItemList(newList); // Make sure to update the session active item list
   };
-  
+
   const setSelectedLayer = (item) => {
     setSelectedId(item.id);
     if (item.type === 'image') {
@@ -563,7 +595,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     if (isDrawing && !shapeSet) {
       const startX = startPosRef.current.x;
       const startY = startPosRef.current.y;
-  
+
       if (selectedLayerSelectShape === 'rectangle') {
         const newProps = {
           ...toolbarShapeProps,
@@ -584,7 +616,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         };
         setToolbarShapeProps(newProps);
       }
-  
+
       return;
     }
     if (!isPainting) return;
@@ -711,7 +743,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       imageObj.src = dataURL;
     }
   };
-  
+
 
   const onReplaceShapeLayer = () => {
     setIsShapeVisible(false);
@@ -968,7 +1000,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   if (currentView === CURRENT_TOOLBAR_VIEW.SHOW_SELECT_DISPLAY) {
 
     if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SELECT_OBJECT_DISPLAY) {
-      
+
     }
     if (selectedLayerSelectShape === 'circle') {
       currentShapeSelectDisplay = (
@@ -997,6 +1029,8 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   if (ref.current) {
     const stage = ref.current.getStage();
+
+    console.log(stage);
 
 
   }
