@@ -136,16 +136,13 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
     // Check if translation is required
     item.animations?.forEach(animation => {
-      if (animation.type === 'rotate' || animation.type === 'zoom') {
+      if (animation.type === 'rotate') {
         requiresTranslation = true;
       }
     });
 
     if (requiresTranslation) {
-      initialX += width / 2;
-      initialY += height / 2;
-     // node.offsetX(initialX);
-     // node.offsetY(initialY); 
+
     }
 
 
@@ -1029,8 +1026,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   if (ref.current) {
     const stage = ref.current.getStage();
-
-    console.log(stage);
 
 
   }
