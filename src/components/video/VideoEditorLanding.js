@@ -5,10 +5,18 @@ import CommonButton from '../common/CommonButton.tsx';
 import axios from 'axios';
 import { getHeaders } from '../../utils/web.js';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../contexts/UserContext.js';
+import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
+
+import AuthContainer from '../auth/AuthContainer.js';
+
+
 const API_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
 export default function VideoEditorLanding() {
   const { colorMode } = useColorMode();
+  const { user } = useUser();
+  const { openAlertDialog, closeAlertDialog } = useAlertDialog();
   const bgColor = colorMode === 'light' ? 'bg-cyber-white' : 'bg-gray-800';
   const textColor = colorMode === 'light' ? 'text-cyber-black' : 'text-neutral-100';
 
@@ -16,6 +24,17 @@ export default function VideoEditorLanding() {
 
   const submitPromptList = (evt) => {
     evt.preventDefault();
+
+    if (!user || !user._id) {
+
+      openAlertDialog(
+        <AuthContainer />
+      );
+
+      return;
+    }
+
+
     const formData = new FormData(evt.target);
     const imageGenerationTheme = formData.get('imageGenerationTheme');
     const promptList = formData.get('promptList');
@@ -26,7 +45,7 @@ export default function VideoEditorLanding() {
     try {
       durationPerScene = parseInt(formData.get('durationPerScene'));
     } catch (e) {
-    
+
     }
 
     const sessionTheme = imageGenerationTheme ? imageGenerationTheme.trim() : null;
@@ -77,21 +96,13 @@ export default function VideoEditorLanding() {
                         seconds
                       </div>
                     </div>
-
                   </div>
-
                   <input type="number" name="durationPerScene" className={`${bgColor}
                    inline-flex w-[60px] pl-2 rounded-sm `}
-                  defaultValue={2} />
-
-
-
+                    defaultValue={2} />
                 </div>
               </div>
-
-
             </div>
-
             <textarea className={`bg-neutral-800
            h-auto min-h-64 overflow-y-scroll min-w-[512px]
           p-4 rounded-sm ${textColor}`}

@@ -22,8 +22,6 @@ import VideoCanvas from './editor/VideoCanvas.js';
 import VideoEditorToolbar from './toolbars/VideoEditorToolbar.js'
 import LoadingImage from './util/LoadingImage.js';
 
-import FrameDisplay from './FrameDisplay.js';
-
 const PUBLISHER_URL = process.env.REACT_APP_PUBLISHER_URL;
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 const IPFS_URL_BASE = process.env.REACT_APP_IPFS_URL_BASE;
@@ -36,6 +34,9 @@ export default function VideoEditorContainer(props) {
   } = props;
 
   let { id } = useParams();
+
+
+
 
   const resetSession = () => {
     if (props.resetCurrentSession) {

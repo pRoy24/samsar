@@ -8,8 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import QRCode from "react-qr-code";
 import { useAlertDialog } from '../../contexts/AlertDialogContext';
 import { IoMdLogIn } from "react-icons/io";
-import { AlertDialog } from './AlertDialog.tsx';
-import { SiFarcaster } from "react-icons/si";
 import ToggleButton from './ToggleButton.tsx';
 import {
   ConnectButton,
