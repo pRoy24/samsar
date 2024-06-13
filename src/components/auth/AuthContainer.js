@@ -37,6 +37,8 @@ export default function AuthContainer() {
       <Login setCurrentLoginView={setCurrentLoginView} 
       siginToTwitter={siginToTwitter}
       verifyAndSetUserProfile={verifyAndSetUserProfile}
+      setUser={setUser}
+      closeAlertDialog={closeAlertDialog}
       />
     )
   }
@@ -44,6 +46,9 @@ export default function AuthContainer() {
     <Register setCurrentLoginView={setCurrentLoginView} 
     siginToTwitter={siginToTwitter}
     verifyAndSetUserProfile={verifyAndSetUserProfile} 
+    setUser={setUser}
+    closeAlertDialog={closeAlertDialog}
     />
+
   )
 }

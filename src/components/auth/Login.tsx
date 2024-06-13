@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaTwitter } from 'react-icons/fa6';
 
 import '@farcaster/auth-kit/styles.css';
@@ -19,9 +19,13 @@ const config = {
 
 
 export default function Login(props) {
-  const { setCurrentLoginView , siginToTwitter, verifyAndSetUserProfile} = props;
+  const { setCurrentLoginView , siginToTwitter, verifyAndSetUserProfile, setUser,
+    closeAlertDialog
+  } = props;
 
   const { colorMode } = useColorMode();
+  const [ error, setError ] = useState(null);
+
 
   const submitUserLogin = (e) => {
     e.preventDefault();
@@ -37,7 +41,12 @@ export default function Login(props) {
       const userData = dataRes.data;
       const authToken = userData.authToken;
       localStorage.setItem('authToken', authToken);
-      // setUser(userData);
+       setUser(userData);
+       closeAlertDialog();
+    }).catch(function(err) {
+      console.log(err);
+      setError('Invalid email or password');
+
     });
   }
 
@@ -47,9 +56,13 @@ export default function Login(props) {
     <div>
       <div>
         <div className='mt-4 mb-4 text-center font-bold'>
-          Choose a social provider to login
+          Login via email
         </div>
-
+        <div>
+          {error && <div className='text-red-500 text-center'>
+            {error}
+          </div>}
+        </div>  
         <div>
           <form onSubmit={submitUserLogin} >
             <div className='form-group'>
@@ -79,7 +92,7 @@ export default function Login(props) {
           </div>
         </div>
         <div className='flex flex-row text-center mb-4'>
-          <div className='basis-1/2 pl-4 pr-4'>
+          <div className='basis-full pl-4 pr-4'>
             <div className='bg-neutral-900 text-neutral-100 p-2 rounded-lg cursor-pointer h-[50px]
             text-center m-auto' onClick={() => siginToTwitter()}>
               <div className='text-center text-lg font-bold pt-[2px]'>
@@ -92,11 +105,7 @@ export default function Login(props) {
 
             </div>
           </div>
-          <div className='basis-1/2 pl-4 pr-4'>
-            <SignInButton
-              onSuccess={verifyAndSetUserProfile}
-            />
-          </div>
+
         </div>
         <div>
 

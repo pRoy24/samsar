@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { FaTwitter } from 'react-icons/fa6';
 
 import '@farcaster/auth-kit/styles.css';
@@ -18,11 +18,13 @@ const config = {
 
 
 export default function Register (props) {
-  const { setCurrentLoginView , siginToTwitter, verifyAndSetUserProfile} = props;
+  const { setCurrentLoginView , siginToTwitter, verifyAndSetUserProfile,
+     setUser, closeAlertDialog} = props;
   const { colorMode } = useColorMode();
   const formBgColor = colorMode === 'light' ? 'bg-neutral-50' : 'bg-neutral-900';
   const formTextColor = colorMode === 'light' ? 'text-neutral-900' : 'text-neutral-50';
-  
+  const [ error, setError ] = useState(null);
+
 
   const submitUserRegister = (evt) => {
     evt.preventDefault();
@@ -41,7 +43,13 @@ export default function Register (props) {
       const userData = dataRes.data;
       const authToken = userData.authToken;
       localStorage.setItem('authToken', authToken);
-      // setUser(userData);
+       setUser(userData);
+        closeAlertDialog();
+
+
+    }).catch(function (error) {
+      console.log('error: ', error);
+      setError('Unable to register user');
     });
   }
   return (
@@ -50,6 +58,12 @@ export default function Register (props) {
         <div className='mt-4 mb-4 text-center font-bold'>
           Add your email and password
         </div>
+
+        <div>
+          {error && <div className='text-red-500 text-center'>
+            {error}
+          </div>}
+        </div>  
 
         <div>
           <form onSubmit={submitUserRegister}>
