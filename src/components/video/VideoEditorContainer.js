@@ -97,6 +97,9 @@ export default function VideoEditorContainer(props) {
 
   const [selectedLayerSelectShape, setSelectedLayerSelectShape] = useState(null);
 
+  const [audioGenerationPending, setAudioGenerationPending] = useState(false);
+
+
 
   const [textConfig, setTextConfig] = useState({
     fontSize: 40,
@@ -464,6 +467,31 @@ export default function VideoEditorContainer(props) {
     }
   }
 
+  const startAudioGenerationPoll = async () => {
+
+
+    const sessionId = id
+    const pollStatusData = await axios.get(`${PROCESSOR_API_URL}/audio/generate_status?sessionId=${sessionId}`);
+    const pollStatus = pollStatusData.data;
+
+
+    if (pollStatus.generationStatus === 'COMPLETED') {
+      setSessionDetails(pollStatus.videoSession);
+      setAudioGenerationPending(false);
+      setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_PREVIEW_MUSIC_DISPLAY);
+      return;
+    } else if (pollStatus.generationStatus === 'FAILED') {
+      setAudioGenerationPending(false);
+
+
+      return;
+    } else {
+      setTimeout(() => {
+        startAudioGenerationPoll();
+      }, 1000);
+    }
+  }
+
   const showTemplatesSelect = () => {
     setIsTemplateSelectViewSelected(!isTemplateSelectViewSelected);
   }
@@ -626,6 +654,18 @@ export default function VideoEditorContainer(props) {
 
 
 
+  const submitGenerateMusicRequest = (payload) => {
+    const headers = getHeaders();
+    payload.sessionId = id;
+    axios.post(`${PROCESSOR_API_URL}/audio/request_generate_audio`, payload, headers).then((response) => {
+      const audioGeneration = response.data;
+      setAudioGenerationPending(true);
+      startAudioGenerationPoll(audioGeneration);
+    });
+  }
+
+
+
 
   let viewDisplay = <span />;
 
@@ -651,6 +691,32 @@ export default function VideoEditorContainer(props) {
   const exportAnimationFrames = async (updatedItemList) => {
 
   };
+
+  const submitAddTrackToProject = (index, payload) => {
+    const headers = getHeaders();
+    const sessionId = id;
+
+    const audioLayers = sessionDetails.audioLayers;
+    const latestAudioLayer = audioLayers[audioLayers.length - 1];
+    const layerId = latestAudioLayer._id.toString();
+
+    const requestPayload = {
+      sessionId,
+      trackIndex: index,
+      audioLayerId: layerId,
+      ...payload
+    }
+
+    axios.post(`${PROCESSOR_API_URL}/audio/add_track_to_project`, requestPayload, headers).then((response) => {
+      console.log(response);
+      const sessionData = response.data;
+      if (sessionData && sessionData.videoSession) {
+        setSessionDetails(sessionData.videoSession);
+        setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY)
+      }
+      
+    });
+  }
 
   useEffect(() => {
     if (cursorSelectOptionVisible) {
@@ -776,6 +842,11 @@ export default function VideoEditorContainer(props) {
           setSelectedLayerSelectShape={setSelectedLayerSelectShape}
           updateSessionLayerActiveItemList={updateSessionLayerActiveItemList}
           eraserOptionsVisible={eraserOptionsVisible}
+          submitGenerateMusicRequest={submitGenerateMusicRequest}
+          audioLayers={sessionDetails.audioLayers}
+          audioGenerationPending={audioGenerationPending}
+          submitAddTrackToProject={submitAddTrackToProject}
+
 
         />
       </div>

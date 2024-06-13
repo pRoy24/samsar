@@ -20,6 +20,13 @@ import { FaPencilAlt, FaEraser, FaCrosshairs, FaUpload } from 'react-icons/fa';
 import { HiRefresh } from "react-icons/hi";
 import { FaRegCircle } from "react-icons/fa";
 import { GrRadialSelected } from "react-icons/gr";
+import { FaMusic } from 'react-icons/fa6';
+import { RiSpeakLine } from "react-icons/ri";
+import MusicSelectToolbar from './audio/MusicSelectToolbar.js';
+
+import { SPEAKER_TYPES } from '../../../constants/Types.ts';
+
+
 
 
 export default function VideoEditorToolbar(props: any) {
@@ -62,7 +69,11 @@ export default function VideoEditorToolbar(props: any) {
     currentCanvasAction,
     setCurrentCanvasAction,
     setSelectedLayerSelectShape,
-    updateSessionLayerActiveItemList
+    updateSessionLayerActiveItemList,
+    submitGenerateMusicRequest,
+    audioLayers,
+    audioGenerationPending,
+    submitAddTrackToProject
   } = props;
 
 
@@ -182,12 +193,12 @@ export default function VideoEditorToolbar(props: any) {
           <div className='grid grid-cols-2 gap-2 m-auto text-center'>
             <div>
               <input type='text' placeholder='Start Scale'
-               onChange={(e) => updateAnimationParams('startScale', e.target.value)} className='w-full'  />
+                onChange={(e) => updateAnimationParams('startScale', e.target.value)} className='w-full' />
               <div>Start Scale</div>
             </div>
             <div>
               <input type='text' placeholder='End Scale'
-               onChange={(e) => updateAnimationParams('endScale', e.target.value)} className='w-full' />
+                onChange={(e) => updateAnimationParams('endScale', e.target.value)} className='w-full' />
               <div>End Scale</div>
             </div>
           </div>
@@ -342,6 +353,39 @@ export default function VideoEditorToolbar(props: any) {
     )
   }
 
+  const submitGenerateMusic = (evt) => {
+    evt.preventDefault();
+
+    const formData = new FormData(evt.target);
+    const promptText = formData.get('promptText');
+
+    const body = {
+      prompt: promptText,
+      generationType: 'music',
+      isInstrumental: false,
+    }
+
+    submitGenerateMusicRequest(body);
+
+  }
+
+  const submitGenerateSpeech = (evt) => {
+    evt.preventDefault();
+
+    const formData = new FormData(evt.target);
+    const promptText = formData.get('promptText');
+
+    const speaker = formData.get('speakerOptions');
+
+    const body = {
+      prompt: promptText,
+      generationType: 'speech',
+      speaker: speaker
+    };
+
+    submitGenerateMusicRequest(body);
+  }
+
 
   const showTemplateAction = () => {
     //   setPencilOptionsVisible(false);
@@ -427,17 +471,17 @@ export default function VideoEditorToolbar(props: any) {
     selectOptionsDisplay = (
       <div className={`grid grid-cols-2 ${text2Color} h-auto`}>
         <div>
-          <div className={`text-center m-auto align-center p-1 h-[50px]  rounded-sm ${cursorSelectOptionVisible ? bgSelectedColor : bgColor}`} 
+          <div className={`text-center m-auto align-center p-1 h-[50px]  rounded-sm ${cursorSelectOptionVisible ? bgSelectedColor : bgColor}`}
             onClick={() => setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SELECT_LAYER_DISPLAY)}>
-            <FaCrosshairs className="text-2xl m-auto cursor-pointer"  />
+            <FaCrosshairs className="text-2xl m-auto cursor-pointer" />
             <div className="text-[10px] tracking-tight m-auto text-center">
               Select Layer
             </div>
           </div>
         </div>
-        <div className={`text-center m-auto align-center p-1 h-[50px]  rounded-sm `} 
+        <div className={`text-center m-auto align-center p-1 h-[50px]  rounded-sm `}
           onClick={() => setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SELECT_SHAPE_DISPLAY)} >
-          <PiSelectionAll className="text-2xl m-auto cursor-pointer"/>
+          <PiSelectionAll className="text-2xl m-auto cursor-pointer" />
           <div className="text-[10px] tracking-tight m-auto text-center">
             Select Shape
           </div>
@@ -480,6 +524,113 @@ export default function VideoEditorToolbar(props: any) {
     )
   }
 
+  let audioOptionsDisplay = <span />;
+  let audioSubOptionsDisplay = <span />;
+  if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_AUDIO_DISPLAY) {
+    audioOptionsDisplay = (
+      <div className={`grid grid-cols-2 ${text2Color} h-auto`}>
+        <div onClick={() => (setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_MUSIC_GENERATE_DISPLAY))}>
+          <FaMusic />
+          Music
+        </div>
+        <div onClick={() => { setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SPEECH_GENERATE_DISPLAY) }}>
+          <RiSpeakLine />
+          Speech
+        </div>
+      </div>
+    )
+
+
+    if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_MUSIC_GENERATE_DISPLAY) {
+      audioSubOptionsDisplay = (
+        <div>
+          <form name="audioGenerateForm" className="w-full" onSubmit={submitGenerateMusic}>
+            <textarea className={`w-full h-20 ${bgColor} ${text2Color}`}
+              name="promptText" placeholder="Enter prompt text here" />
+            <div className='flex flex-row'>
+              <div className='basis-1/3'>
+                <input type='checkbox' name='isInstrumental' />
+              </div>
+              <div className='basis-2/3 m-auto'>
+                <SecondaryButton type='submit' isPending={audioGenerationPending}>
+                  Generate
+                </SecondaryButton>
+              </div>
+            </div>
+
+
+          </form>
+        </div>
+      )
+    }
+    if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SPEECH_GENERATE_DISPLAY) {
+      const speakerOptions = SPEAKER_TYPES.map(speaker => {
+        return {
+          value: speaker,
+          label: speaker
+        }
+      });
+      audioSubOptionsDisplay = (
+        <div>
+          <form name="audioGenerateForm" className="w-full" onSubmit={submitGenerateSpeech}>
+            <textarea className={`w-full h-20 ${bgColor} ${text2Color}`}
+              name="promptText" placeholder="Enter prompt text here" />
+            <div className='flex flex-row'>
+              <div className='basis-1/2'>
+                <Select name="speakerOptions" options={speakerOptions} 
+                
+                styles={{
+                  control: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: 'white',
+                    borderColor: state.isFocused ? '#007BFF' : '#ced4da',
+                    '&:hover': {
+                      borderColor: state.isFocused ? '#007BFF' : '#ced4da'
+                    },
+                    boxShadow: state.isFocused ? '0 0 0 0.2rem rgba(0, 123, 255, 0.25)' : null,
+                    minHeight: '38px',
+                    height: '38px'
+                  }),
+                  option: (provided, state) => ({
+                    ...provided,
+                    backgroundColor: state.isSelected ? '#007BFF' : state.isFocused ? '#e7f3ff' : null,
+                    color: state.isSelected ? 'white' : 'black',
+                    '&:hover': {
+                      backgroundColor: '#e7f3ff'
+                    }
+                  })
+                }}
+                defaultValue={speakerOptions[0]} 
+                />
+              </div>
+              <div className='basis-1/2 m-auto'>
+                <SecondaryButton type='submit' isPending={audioGenerationPending}>
+                  Generate
+                </SecondaryButton>
+              </div>
+            </div>
+
+
+          </form>
+
+        </div>
+      )
+    }
+
+    if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_PREVIEW_MUSIC_DISPLAY) {
+      if (audioLayers.length === 0) {
+        return;
+      }
+      const latestAudioLayer = audioLayers[audioLayers.length - 1];
+      audioOptionsDisplay = <MusicSelectToolbar audioLayer={latestAudioLayer}
+        submitAddTrackToProject={submitAddTrackToProject}
+      />;
+
+      audioSubOptionsDisplay = <span />;
+
+    }
+  }
+
   return (
     <div className={`border-l-2 ${bgColor}  h-full m-auto fixed top-0 overflow-y-auto pl-2 r-4 w-[16%] pr-2`}>
       <div className='mt-[80px] '>
@@ -497,6 +648,21 @@ export default function VideoEditorToolbar(props: any) {
             {actionsSubOptionsDisplay}
           </div>
         </div>
+        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
+          <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_AUDIO_DISPLAY)}>
+            <div className='inline-flex ml-4 pl-4'>
+              Generate Audio
+            </div>
+            <FaChevronDown className='inline-flex float-right mr-4 mt-2 text-sm' />
+          </div>
+          <div className={`${textInnerColor}`}>
+            {audioOptionsDisplay}
+          </div>
+          <div>
+            {audioSubOptionsDisplay}
+          </div>
+        </div>
+
         <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_SELECT_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
