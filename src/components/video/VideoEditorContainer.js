@@ -258,7 +258,8 @@ export default function VideoEditorContainer(props) {
     }
     setGenerationError(null);
 
-    const generateStatus = await axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate`, payload);
+    const headers = getHeaders();
+    const generateStatus = await axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate`, payload, headers);
     startGenerationPoll();
   }
 
