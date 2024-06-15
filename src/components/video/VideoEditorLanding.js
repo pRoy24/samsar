@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import CommonContainer from '../common/CommonContainer.tsx';
 import { useColorMode } from '../../contexts/ColorMode';
 import CommonButton from '../common/CommonButton.tsx';
@@ -17,13 +17,18 @@ export default function VideoEditorLanding() {
   const { colorMode } = useColorMode();
   const { user } = useUser();
   const { openAlertDialog, closeAlertDialog } = useAlertDialog();
+  const [error, setError] = useState(null);
+
   const bgColor = colorMode === 'light' ? 'bg-cyber-white' : 'bg-gray-800';
   const textColor = colorMode === 'light' ? 'text-cyber-black' : 'text-neutral-100';
 
   const navigate = useNavigate();
 
   const submitPromptList = (evt) => {
+
     evt.preventDefault();
+
+    setError(null);
 
     if (!user || !user._id) {
 
@@ -48,6 +53,14 @@ export default function VideoEditorLanding() {
 
     }
 
+    const promptListLength = promptListArray.length;
+    const totalDuration = promptListLength * durationPerScene;
+
+    if (totalDuration > 120) {
+      setError('Total duration of the video cannot exceed 2 mins.');
+      return;
+    }
+
     const sessionTheme = imageGenerationTheme ? imageGenerationTheme.trim() : null;
     const payload = {
       imageGenerationTheme: sessionTheme,
@@ -60,13 +73,27 @@ export default function VideoEditorLanding() {
       console.log(dataResponse);
       const sessionData = dataResponse.data;
       navigate(`/video/${sessionData._id}`);
+    }).catch(function(err) {
+
+      console.log(err);
+      setError('Error creating video session. Please try again later.');
     });
+  }
+
+  let errorMessageDisplay = <span />;
+  if (error) {
+    errorMessageDisplay = <div className='text-red-500 text-center'>
+      {error}
+    </div>;
   }
 
   return (
     <CommonContainer>
       <div className={`w-full mt-[60px] md:w-[90%] md:ml-[5%] m-auto ${bgColor} p-8`}>
         <form onSubmit={submitPromptList}>
+          <div>
+            {errorMessageDisplay}
+          </div>
           <div className=''>
             <div className={`${textColor} pt-2 pb-2 bg-neutral-900 w-[512px] m-auto`}>
               Theme

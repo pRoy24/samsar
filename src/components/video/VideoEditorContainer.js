@@ -291,8 +291,9 @@ export default function VideoEditorContainer(props) {
       strength: strength
     }
     setOutpaintError(null);
+    const headers = getHeaders();
 
-    const outpaintStatus = await axios.post(`${PROCESSOR_API_URL}/video_sessions/request_outpaint`, payload);
+    const outpaintStatus = await axios.post(`${PROCESSOR_API_URL}/video_sessions/request_outpaint`, payload, headers);
     startOutpaintPoll();
   }
 
