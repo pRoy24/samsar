@@ -713,7 +713,64 @@ export default function VideoEditorContainer(props) {
     });
     setActiveItemList(updatedBubbles);
   };
+  const combineCurrentLayerItems = async () => {
+    const stage = canvasRef.current.getStage();
+    const originalLayer = stage.getLayers()[0];
+  
+    // Remove transformers before combining
+    stage.find('Transformer').forEach(transformer => {
+      transformer.destroy();
+    });
+  
+    // Create a new Konva layer to combine all items
+    const combinedLayer = new Konva.Layer();
+    originalLayer.children.forEach(child => {
+      combinedLayer.add(child.clone());
+    });
+  
+    // Draw the combined layer
+    combinedLayer.draw();
+  
+    // Convert the combined layer to a data URL
+    const combinedImageDataUrl = combinedLayer.toDataURL();
+  
+    // Create a new item for the combined image
+    const combinedItem = {
+      src: combinedImageDataUrl,
+      id: `item_${activeItemList.length}`,
+      type: 'image',
+      x: 0,
+      y: 0,
+      width: STAGE_DIMENSIONS.width,
+      height: STAGE_DIMENSIONS.height,
+    };
+  
+    // Update the activeItemList with the combined image
+    const updatedItemList = [combinedItem];
+  
+    setActiveItemList(updatedItemList);
+    updateSessionLayerActiveItemList(updatedItemList);
+  
+    // Send a backend request to update the session layer
+    const headers = getHeaders();
+    const payload = {
+      sessionId: id,
+      activeItemList: updatedItemList,
+      layerId: currentLayer._id.toString(),
+    };
+  
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_active_item_list`, payload, headers)
+      .then(response => {
+        const updatedSession = response.data;
+        setActiveItemList(updatedSession.activeItemList);
+      })
+      .catch(error => {
+        console.error('Error updating active item list:', error);
+      });
+  };
 
+  
+  
 
 
   const submitGenerateMusicRequest = (payload) => {
@@ -904,7 +961,7 @@ export default function VideoEditorContainer(props) {
           audioLayers={sessionDetails.audioLayers}
           audioGenerationPending={audioGenerationPending}
           submitAddTrackToProject={submitAddTrackToProject}
-
+          combineCurrentLayerItems={combineCurrentLayerItems}
 
         />
       </div>

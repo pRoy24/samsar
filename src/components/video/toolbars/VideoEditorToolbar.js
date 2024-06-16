@@ -23,6 +23,8 @@ import { GrRadialSelected } from "react-icons/gr";
 import { FaMusic } from 'react-icons/fa6';
 import { RiSpeakLine } from "react-icons/ri";
 import MusicSelectToolbar from './audio/MusicSelectToolbar.js';
+import { LuCombine } from "react-icons/lu";
+
 
 import { SPEAKER_TYPES } from '../../../constants/Types.ts';
 
@@ -73,7 +75,8 @@ export default function VideoEditorToolbar(props: any) {
     submitGenerateMusicRequest,
     audioLayers,
     audioGenerationPending,
-    submitAddTrackToProject
+    submitAddTrackToProject,
+    combineCurrentLayerItems
   } = props;
 
 
@@ -463,6 +466,28 @@ export default function VideoEditorToolbar(props: any) {
             </div>
           )}
         </div>
+
+        <div className={`text-center m-auto align-center p-1 h-[50px]  rounded-sm ${cursorSelectOptionVisible ? bgSelectedColor : bgColor}`} onClick={() => setCursorSelectOptionVisible(!cursorSelectOptionVisible)}>
+
+
+        <div onClick={() => combineCurrentLayerItems()}>
+            <LuCombine className="text-2xl m-auto cursor-pointer" />
+            <div className="text-[10px] tracking-tight m-auto text-center">
+              Combine
+            </div>
+          </div>
+
+          {eraserOptionsVisible && (
+            <div className="static mt-2  rounded shadow-lg ">
+              <label className="block mb-2">Width:</label>
+              <input type="range" min="1" max="100" className="w-full"
+                value={eraserWidth} onChange={(e) => setEraserWidth(e.target.value)} />
+            </div>
+          )}
+
+
+          
+        </div>  
       </div>
     )
   }
