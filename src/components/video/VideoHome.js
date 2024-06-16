@@ -204,7 +204,7 @@ export default function VideoHome(props) {
     if (videoSessionDetails && videoSessionDetails.audioLayers) {
 
       const audioLayerMap = videoSessionDetails.audioLayers.filter(function(layer) {
-        return layer.isEnabled;
+        return layer && layer.isEnabled;
       }).map(audioLayer => {
         return {isSelected: false, ...audioLayer};
       });
