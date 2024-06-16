@@ -713,6 +713,7 @@ export default function VideoEditorContainer(props) {
     });
     setActiveItemList(updatedBubbles);
   };
+  
   const combineCurrentLayerItems = async () => {
     const stage = canvasRef.current.getStage();
     const originalLayer = stage.getLayers()[0];

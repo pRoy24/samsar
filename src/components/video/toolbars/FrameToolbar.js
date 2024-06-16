@@ -26,7 +26,7 @@ export default function FrameToolbar(props) {
     audioLayers, updateAudioLayer, isAudioLayerDirty,
     removeAudioLayer, handleVolumeChange,
     updateChangesToActiveLayers, addLayerToComposition,
-    copyCurrentLayerBelow
+    copyCurrentLayerBelow, removeSessionLayer
   } = props;
 
   const { colorMode } = useColorMode();
@@ -101,12 +101,22 @@ export default function FrameToolbar(props) {
     updateSessionLayer(layer);
   };
 
+  const removeLayer = (index) => {
+    let newLayers = layers.slice();
+    newLayers.splice(index, 1);
+    removeSessionLayer(index);
+   // updateSessionLayer(newLayers);
+  }
+
   let layersList = <span />;
   if (layers) {
     layersList = layers.map(function (layer, index) {
       let bgSelected = selectedLayerIndex === index ? bgSelectedColor : '';
-      return <div className={`p-2 cursor-pointer ${bg3Color} ${bgSelected} mt-1 ml-1 mr-1`}
+      return <div className={`p-2 cursor-pointer ${bg3Color} ${bgSelected} mt-1 ml-1 mr-1 relative`}
         onClick={() => setSelectedLayer(layer)} key={`layer_duration_set_${index}`}>
+          <div className='absolute right-2 t-0 cursor-pointer'>
+            <FaTimes className='' onClick={() => removeLayer(index)}/>
+          </div>
         <div className='m-auto pl-2'>
           <div>Layer {index + 1}</div>
           <div>
@@ -291,22 +301,20 @@ export default function FrameToolbar(props) {
               </div>
             </div>
             <div className='grow basis-2/3'>
-
               {audioSelectedTrackViewDisplay}
-
               <div className='absolute right-0 top-0'>
                 <SecondaryButton onClick={showAudioTrackView}>
                   Audio
                   <FaChevronRight className='inline-flex ml-1 mr-1' />
                 </SecondaryButton>
               </div>
-
-
             </div>
           </div>
         </div>
         <div className='flex flex-row w-full h-[95vh]'>
-          <div className='text-xs font-bold basis-1/4'>{layersList}</div>
+          <div className='text-xs font-bold basis-1/2'>
+            {layersList}
+          </div>
           <div className='basis-1/2'>
             <div className='flex flex-row h-[80vh]'>
               <div className='inline-flex h-full'>
@@ -328,10 +336,7 @@ export default function FrameToolbar(props) {
                   defaultValue={[0, totalDurationInFrames]}
                   onChange={handleViewRangeSliderChange} />
               </div>
-
               {audioTrackViewDisplay}
-
-
               <div className='inline-flex h-full'>
                 <TimeRuler totalDuration={totalDuration} />
               </div>

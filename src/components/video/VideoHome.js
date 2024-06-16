@@ -378,6 +378,21 @@ export default function VideoHome(props) {
 
   }
 
+  const removeSessionLayer = (layerIndex) => {
+    const headers = getHeaders();
+    const layerId = layers[layerIndex]._id.toString();
+    const reqPayload = {
+      sessionId: id,
+      layerId: layerId
+    }
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/remove_layer`, reqPayload, headers).then((response) => {
+      const videoSessionData = response.data;
+      const updatedLayers = videoSessionData.layers;
+      setLayers(updatedLayers);
+    });
+
+  }
+
   const updateSessionLayerActiveItemList = (newActiveItemList) => {
 
     const headers = getHeaders();
@@ -522,6 +537,8 @@ export default function VideoHome(props) {
   };
   
 
+
+
   return (
     <CommonContainer >
       <div className='m-auto'>
@@ -559,6 +576,7 @@ export default function VideoHome(props) {
               updateChangesToActiveLayers={updateChangesToActiveLayers}
               addLayerToComposition={addLayerToComposition}
               copyCurrentLayerBelow={copyCurrentLayerBelow}
+              removeSessionLayer={removeSessionLayer}
 
             />
           </div>
