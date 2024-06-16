@@ -415,11 +415,7 @@ export default function VideoEditorContainer(props) {
       const newItem = { src: generatedURL, id: `item_${nImageList.length}`, type: 'image',
            x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height};
 
-      console.log(newItem);
-
       nImageList.push(newItem);
-
-      console.log(nImageList);
 
       setActiveItemList(nImageList);
       updateSessionActiveItemList(nImageList);
