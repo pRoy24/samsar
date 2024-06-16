@@ -496,6 +496,32 @@ export default function VideoHome(props) {
       setCurrentLayer(newLayers[newLayers.length - 1]);
     });
   }
+
+  const copyCurrentLayerBelow = () => {
+    const headers = getHeaders();
+    const newLayer = { ...currentLayer, _id: undefined }; // Create a copy of the current layer without the _id
+  
+    const currentIndex = layers.findIndex((layer) => layer._id === currentLayer._id);
+    const newLayerIndex = currentIndex + 1;
+  
+    const payload = {
+      sessionId: id,
+      newLayer,
+      index: newLayerIndex, // Pass the index to the API function
+    };
+  
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/copy_layer`, payload, headers).then((dataRes) => {
+      const resData = dataRes.data;
+      const videoSessionDetails = resData.videoSession;
+      const newLayers = videoSessionDetails.layers;
+  
+      setLayers(newLayers);
+      setSelectedLayerIndex(newLayerIndex);
+      setCurrentLayer(newLayers[newLayerIndex]);
+    });
+  };
+  
+
   return (
     <CommonContainer >
       <div className='m-auto'>
@@ -532,6 +558,7 @@ export default function VideoHome(props) {
               handleVolumeChange={handleVolumeChange}
               updateChangesToActiveLayers={updateChangesToActiveLayers}
               addLayerToComposition={addLayerToComposition}
+              copyCurrentLayerBelow={copyCurrentLayerBelow}
 
             />
           </div>

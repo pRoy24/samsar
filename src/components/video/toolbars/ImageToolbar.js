@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { FaChevronCircleDown, FaChevronCircleUp , FaTimesCircle } from 'react-icons/fa';
+import { FaChevronCircleDown, FaChevronCircleUp, FaTimesCircle } from 'react-icons/fa';
 import Konva from 'konva';
 import Select from 'react-select';
-import { GiHorizontalFlip , GiVerticalFlip} from "react-icons/gi";
-
-
-
+import { GiHorizontalFlip, GiVerticalFlip } from "react-icons/gi";
 
 const filters = [
   { label: 'Blur', value: Konva.Filters.Blur, min: 0, max: 20, step: 1 },
@@ -22,8 +19,8 @@ const filters = [
 ];
 
 export default function ImageToolbar(props) {
-  const { pos, moveItem, index, applyFilter, removeItem , colorMode , flipImageVertical,
-    flipImageHorizontal, itemId
+  const { pos, moveItem, index, applyFilter, removeItem, colorMode, flipImageVertical,
+    flipImageHorizontal, itemId, applyFinalFilter,
   } = props;
   const [selectedFilter, setSelectedFilter] = useState(null);
   const [filterValue, setFilterValue] = useState(0);
@@ -39,6 +36,13 @@ export default function ImageToolbar(props) {
     setFilterValue(value);
     if (selectedFilter) {
       applyFilter(index, selectedFilter.value, value);
+    }
+  };
+
+  const handleSliderChangeEnd = (e) => {
+    const value = parseFloat(e.target.value);
+    if (selectedFilter) {
+      applyFinalFilter(index, selectedFilter.value, value);
     }
   };
 
@@ -72,13 +76,33 @@ export default function ImageToolbar(props) {
                 marginBottom: '10px',
                 width: '100%',
                 backgroundColor: colorMode === 'dark' ? '#1a202c' : '#f7fafc',
+                color: colorMode === 'dark' ? 'white' : 'black',
               }),
               menu: (provided) => ({
                 ...provided,
-                zIndex: 9999
-              })
+                zIndex: 9999,
+                backgroundColor: colorMode === 'dark' ? '#1a202c' : '#f7fafc',
+                color: colorMode === 'dark' ? 'white' : 'black',
+              }),
+              option: (provided, state) => ({
+                ...provided,
+                backgroundColor: state.isSelected ? (colorMode === 'dark' ? '#2d3748' : '#e2e8f0') : (colorMode === 'dark' ? '#1a202c' : '#f7fafc'),
+                color: colorMode === 'dark' ? 'white' : 'black',
+                '&:hover': {
+                  backgroundColor: colorMode === 'dark' ? '#2d3748' : '#e2e8f0',
+                },
+              }),
+              singleValue: (provided) => ({
+                ...provided,
+                color: colorMode === 'dark' ? 'white' : 'black',
+              }),
+              placeholder: (provided) => ({
+                ...provided,
+                color: colorMode === 'dark' ? 'white' : 'black',
+              }),
             }}
           />
+
           {selectedFilter && (
             <input
               type="range"
@@ -87,18 +111,18 @@ export default function ImageToolbar(props) {
               step={selectedFilter.step}
               value={filterValue}
               onChange={handleSliderChange}
+              onMouseUp={handleSliderChangeEnd}
+              onTouchEnd={handleSliderChangeEnd}
               style={{ width: '100%' }}
             />
           )}
-        </div> 
+        </div>
         <div className='basis-1/3 flex'>
-          <GiVerticalFlip className={`${iconColor}  mr-2 mt-2 text-xl cursor-hover inline-flex`} onClick={() => flipImageVertical(itemId)}/>
-          <GiHorizontalFlip className={`${iconColor}  mr-2 mt-2 text-xl cursor-hover inline-flex`} onClick={() => flipImageHorizontal(itemId)}/>
-          <FaTimesCircle className={`${iconColor} ml-4 mt-2 text-xl cursor-hover `} onClick={() => removeItem(index)}  />
-        </div>  
-
+          <GiVerticalFlip className={`${iconColor} mr-2 mt-2 text-xl cursor-hover inline-flex`} onClick={() => flipImageVertical(itemId)} />
+          <GiHorizontalFlip className={`${iconColor} mr-2 mt-2 text-xl cursor-hover inline-flex`} onClick={() => flipImageHorizontal(itemId)} />
+          <FaTimesCircle className={`${iconColor} ml-4 mt-2 text-xl cursor-hover`} onClick={() => removeItem(index)} />
+        </div>
       </div>
-
     </div>
   );
 }

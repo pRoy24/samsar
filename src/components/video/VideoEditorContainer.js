@@ -612,7 +612,7 @@ export default function VideoEditorContainer(props) {
     }
     imageNode.cache();
     imageNode.filters([filter]);
-
+  
     if (filter === Konva.Filters.Blur) {
       imageNode.blurRadius(value);
     } else if (filter === Konva.Filters.Brighten) {
@@ -637,9 +637,72 @@ export default function VideoEditorContainer(props) {
       // Assuming the slider controls alpha for RGBA
       imageNode.alpha(value);
     }
-
+  
     stage.batchDraw();
   };
+  
+  const applyFinalFilter = async (index, filter, value) => {
+    const nodeId = `item_${index}`;
+    const stage = canvasRef.current.getStage();
+    const imageNode = stage.findOne(`#${nodeId}`);
+    if (!imageNode) {
+      return;
+    }
+  
+    // Apply the filter to the image node
+    imageNode.cache();
+    imageNode.filters([filter]);
+  
+    if (filter === Konva.Filters.Blur) {
+      imageNode.blurRadius(value);
+    } else if (filter === Konva.Filters.Brighten) {
+      imageNode.brightness(value);
+    } else if (filter === Konva.Filters.Contrast) {
+      imageNode.contrast(value);
+    } else if (filter === Konva.Filters.Grayscale) {
+      // No value needed for grayscale
+    } else if (filter === Konva.Filters.HSL) {
+      imageNode.hue(value * 360); // Example adjustment for HSL filter
+    } else if (filter === Konva.Filters.Invert) {
+      // No value needed for invert
+    } else if (filter === Konva.Filters.Pixelate) {
+      imageNode.pixelSize(Math.round(value));
+    } else if (filter === Konva.Filters.Posterize) {
+      imageNode.levels(Math.round(value));
+    } else if (filter === Konva.Filters.Sepia) {
+      // No value needed for sepia
+    } else if (filter === Konva.Filters.Solarize) {
+      // No value needed for solarize
+    } else if (filter === Konva.Filters.RGBA) {
+      // Assuming the slider controls alpha for RGBA
+      imageNode.alpha(value);
+    }
+  
+    stage.batchDraw();
+  
+    // Convert the updated image node to a data URL
+    const updatedImageDataUrl = imageNode.toDataURL();
+  
+    // Update the activeItemList with the new data URL
+    const updatedItemList = activeItemList.map((item, idx) => {
+      if (idx === index) {
+        return {
+          ...item,
+          src: updatedImageDataUrl,
+        };
+      }
+      return item;
+    });
+  
+    setActiveItemList(updatedItemList);
+  
+    // Send a backend request to update the session layer
+    updateSessionLayerActiveItemList(updatedItemList);
+  };
+  
+
+  
+  
 
   const handleBubbleChange = (newAttrs) => {
     const updatedBubbles = activeItemList.map((item) => {
@@ -663,12 +726,7 @@ export default function VideoEditorContainer(props) {
     });
   }
 
-
-
-
   let viewDisplay = <span />;
-
-
 
   if (currentView === CURRENT_TOOLBAR_VIEW.SHOW_TEMPLATES_DISPLAY) {
     viewDisplay = (
@@ -749,6 +807,7 @@ export default function VideoEditorContainer(props) {
           selectedLayerType={selectedLayerType}
           setSelectedLayerType={setSelectedLayerType}
           applyFilter={applyFilter}
+          applyFinalFilter={applyFinalFilter}
           onChange={handleBubbleChange}
           pencilColor={pencilColor}
           pencilWidth={pencilWidth}

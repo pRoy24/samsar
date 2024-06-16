@@ -13,6 +13,7 @@ import RangeOverlaySlider from '../util/RangeOverlaySlider.js';
 import { FRAME_TOOLBAR_VIEW } from '../../../constants/Types.ts';
 import AudioTrackSlider from '../util/AudioTrackSlider.js';
 import { FaEdit, FaTimes } from 'react-icons/fa';
+import DropdownButton from '../util/DropdownButton.js';
 
 export default function FrameToolbar(props) {
   const {
@@ -24,7 +25,8 @@ export default function FrameToolbar(props) {
     isVideoGenerating, showAudioTrackView, frameToolbarView,
     audioLayers, updateAudioLayer, isAudioLayerDirty,
     removeAudioLayer, handleVolumeChange,
-    updateChangesToActiveLayers, addLayerToComposition
+    updateChangesToActiveLayers, addLayerToComposition,
+    copyCurrentLayerBelow
   } = props;
 
   const { colorMode } = useColorMode();
@@ -235,6 +237,7 @@ export default function FrameToolbar(props) {
 
   }
 
+
   useEffect(() => {
     if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
 
@@ -282,15 +285,8 @@ export default function FrameToolbar(props) {
               <div className='flex'>
                 Scenes
                 <div className='inline-flex ml-2'>
-
-                  <SecondaryButton onClick={addLayerToComposition}>
-                    <div className='flex'>
-                      <FaPlus className='inline-flex' />
-                      <div className='inline-flex text-xs'>
-                        Add
-                      </div>
-                    </div>
-                  </SecondaryButton>
+                  <DropdownButton addLayerToComposition={addLayerToComposition}
+                  copyCurrentLayerBelow={copyCurrentLayerBelow} />
                 </div>
               </div>
             </div>

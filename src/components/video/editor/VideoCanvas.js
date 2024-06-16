@@ -30,7 +30,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     setButtonPositions, selectedLayerType, setSelectedLayerType, applyFilter,
     onChange, pencilColor, pencilWidth, eraserWidth, sessionId, selectedFrameId,
     exportAnimationFrames, currentLayer, currentLayerSeek, updateSessionActiveItemList,
-    selectedLayerSelectShape, isLayerSeeking,
+    selectedLayerSelectShape, isLayerSeeking, applyFinalFilter,
   } = props;
 
   const [showMask, setShowMask] = useState(false);
@@ -1074,6 +1074,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
               index={index}
               moveItem={moveItem}
               applyFilter={applyFilter}
+              applyFinalFilter={applyFinalFilter}
               colorMode={colorMode}
               removeItem={removeItem}
               itemId={selectedId}
