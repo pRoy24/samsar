@@ -313,14 +313,66 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   const flipImageHorizontal = (id) => {
     const stage = ref.current.getStage();
-    transformImageHorizontal(stage, id);
+    const imageNode = stage.findOne(`#${id}`);
+    if (!imageNode) {
+      return;
+    }
+  
+    // Flip the image horizontally
+    imageNode.scaleX(imageNode.scaleX() * -1);
+    stage.batchDraw();
+  
+    // Convert the updated image node to a data URL
+    const updatedImageDataUrl = imageNode.toDataURL();
+  
+    // Update the activeItemList with the new data URL
+    const updatedItemList = activeItemList.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          src: updatedImageDataUrl,
+        };
+      }
+      return item;
+    });
+  
+    setActiveItemList(updatedItemList);
+  
+    // Send a backend request to update the session layer
+    updateSessionActiveItemList(updatedItemList);
   };
-
+  
   const flipImageVertical = (id) => {
     const stage = ref.current.getStage();
-    transformImageVertical(stage, id);
+    const imageNode = stage.findOne(`#${id}`);
+    if (!imageNode) {
+      return;
+    }
+  
+    // Flip the image vertically
+    imageNode.scaleY(imageNode.scaleY() * -1);
+    stage.batchDraw();
+  
+    // Convert the updated image node to a data URL
+    const updatedImageDataUrl = imageNode.toDataURL();
+  
+    // Update the activeItemList with the new data URL
+    const updatedItemList = activeItemList.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          src: updatedImageDataUrl,
+        };
+      }
+      return item;
+    });
+  
+    setActiveItemList(updatedItemList);
+  
+    // Send a backend request to update the session layer
+    updateSessionActiveItemList(updatedItemList);
   };
-
+  
   const previousActionViewRef = useRef();
 
   useEffect(() => {
