@@ -3,7 +3,7 @@ import { useColorMode } from '../../../contexts/ColorMode.js';
 import CommonButton from '../../common/CommonButton.tsx';
 import './toolbar.css';
 import ReactSlider from 'react-slider';
-import { FaMusic, FaPause, FaPlay, FaStop, FaChevronRight } from 'react-icons/fa6';
+import { FaMusic, FaPause, FaPlay, FaStop, FaChevronRight, FaPlus } from 'react-icons/fa6';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import VerticalWaveform from '../util/VerticalWaveform.js';
 import DualThumbSlider from '../util/DualThumbSlider.js';
@@ -24,7 +24,7 @@ export default function FrameToolbar(props) {
     isVideoGenerating, showAudioTrackView, frameToolbarView,
     audioLayers, updateAudioLayer, isAudioLayerDirty,
     removeAudioLayer, handleVolumeChange,
-    updateChangesToActiveLayers
+    updateChangesToActiveLayers, addLayerToComposition
   } = props;
 
   const { colorMode } = useColorMode();
@@ -192,42 +192,42 @@ export default function FrameToolbar(props) {
     if (selectedAudioTrack) {
       return (
         <form onSubmit={updateChangesToActiveLayers}>
-        <div className={`grid grid-cols-5 gap-1 `}>
-          <div>
+          <div className={`grid grid-cols-5 gap-1 `}>
+            <div>
 
-            <input type="text" value={selectedAudioTrack.startTime.toFixed(2)} className={`w-[50px] ${bgColor}`} />
-            <div className="text-xs">
-              Start
-            </div>
-          </div>
-
-          <div>
-            <input type="text" defaultValue={selectedAudioTrack.volume.toFixed(2)} className={`w-[50px] ${bgColor}`}
-             onChange={handleVolumeChange}/>
-            <div className="text-xs">
-              Volume
-            </div>
-          </div>
-          <div>
-            <SecondaryButton type="submit">Update</SecondaryButton>
-          </div>
-
-          
-          <div>
-            <button className='bg-neutral-800 rounded-sm text-white' onClick={() => removeAudioLayer(selectedAudioTrack)}>
-              <FaTimes className='inline-flex' />
-              <div className='text-xs pl-1 pr-1 pb-1'>
-                Remove
+              <input type="text" value={selectedAudioTrack.startTime.toFixed(2)} className={`w-[50px] ${bgColor}`} />
+              <div className="text-xs">
+                Start
               </div>
-            </button>
+            </div>
+
+            <div>
+              <input type="text" defaultValue={selectedAudioTrack.volume.toFixed(2)} className={`w-[50px] ${bgColor}`}
+                onChange={handleVolumeChange} />
+              <div className="text-xs">
+                Volume
+              </div>
+            </div>
+            <div>
+              <SecondaryButton type="submit">Update</SecondaryButton>
+            </div>
+
+
+            <div>
+              <button className='bg-neutral-800 rounded-sm text-white' onClick={() => removeAudioLayer(selectedAudioTrack)}>
+                <FaTimes className='inline-flex' />
+                <div className='text-xs pl-1 pr-1 pb-1'>
+                  Remove
+                </div>
+              </button>
+            </div>
+
+
+            <div>
+
+            </div>
+
           </div>
-
-
-          <div>
-
-          </div>
-
-        </div>
         </form>
       )
     }
@@ -278,9 +278,20 @@ export default function FrameToolbar(props) {
         </div>
         <div >
           <div className={`flex w-full ${bg2Color} p-1`}>
-            <div className='inline-flex w-14'>
-              <div>
+            <div className='inline-flex w-30'>
+              <div className='flex'>
                 Scenes
+                <div className='inline-flex ml-2'>
+
+                  <SecondaryButton onClick={addLayerToComposition}>
+                    <div className='flex'>
+                      <FaPlus className='inline-flex' />
+                      <div className='inline-flex text-xs'>
+                        Add
+                      </div>
+                    </div>
+                  </SecondaryButton>
+                </div>
               </div>
             </div>
             <div className='grow basis-2/3'>
@@ -321,10 +332,10 @@ export default function FrameToolbar(props) {
                   defaultValue={[0, totalDurationInFrames]}
                   onChange={handleViewRangeSliderChange} />
               </div>
-          
+
               {audioTrackViewDisplay}
-        
-              
+
+
               <div className='inline-flex h-full'>
                 <TimeRuler totalDuration={totalDuration} />
               </div>

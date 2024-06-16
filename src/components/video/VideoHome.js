@@ -480,6 +480,20 @@ export default function VideoHome(props) {
     });
   }
   
+  const addLayerToComposition = () => {
+    const headers = getHeaders();
+    const payload = {
+      sessionId: id,
+      duration: 2,
+    }
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/add_layer`, payload, headers).then(function (dataRes) {
+      const resData = dataRes.data;
+      const videoSessionDetails = resData.videoSession;
+      const newLayers = videoSessionDetails.layers;
+      setLayers(newLayers);
+      setCurrentLayer(newLayers[newLayers.length - 1]);
+    });
+  }
   return (
     <CommonContainer >
       <div className='m-auto'>
@@ -515,6 +529,7 @@ export default function VideoHome(props) {
               removeAudioLayer={removeAudioLayer}
               handleVolumeChange={handleVolumeChange}
               updateChangesToActiveLayers={updateChangesToActiveLayers}
+              addLayerToComposition={addLayerToComposition}
 
             />
           </div>

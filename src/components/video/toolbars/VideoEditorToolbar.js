@@ -358,11 +358,12 @@ export default function VideoEditorToolbar(props: any) {
 
     const formData = new FormData(evt.target);
     const promptText = formData.get('promptText');
+    const isInstrumental = formData.get('isInstrumental') === 'on';
 
     const body = {
       prompt: promptText,
       generationType: 'music',
-      isInstrumental: false,
+      isInstrumental: isInstrumental,
     }
 
     submitGenerateMusicRequest(body);
@@ -550,6 +551,9 @@ export default function VideoEditorToolbar(props: any) {
             <div className='flex flex-row'>
               <div className='basis-1/3'>
                 <input type='checkbox' name='isInstrumental' />
+                <div className='inline-flex text-xs'>
+                  Instr
+                </div>
               </div>
               <div className='basis-2/3 m-auto'>
                 <SecondaryButton type='submit' isPending={audioGenerationPending}>
