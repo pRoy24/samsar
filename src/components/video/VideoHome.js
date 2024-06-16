@@ -4,7 +4,7 @@ import CommonContainer from '../common/CommonContainer.tsx';
 import FrameToolbar from './toolbars/FrameToolbar.js';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { CURRENT_EDITOR_VIEW } from '../../constants/Types.ts';
+import { CURRENT_EDITOR_VIEW, FRAME_TOOLBAR_VIEW } from '../../constants/Types.ts';
 
 import { getHeaders } from '../../utils/web.js';
 import VideoEditorContainer from './VideoEditorContainer.js';
@@ -12,6 +12,7 @@ import FrameDisplay from './FrameDisplay.js';
 import AddAudioDialog from './util/AddAudioDialog.js';
 import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
 import { Stage, Layer } from 'react-konva';
+
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -39,6 +40,12 @@ export default function VideoHome(props) {
   const [isLayerSeeking, setIsLayerSeeking] = useState(false);
 
   const [ isVideoGenerating, setIsVideoGenerating ] = useState(false);
+
+  const [ frameToolbarView, setFrameToolbarView ] = useState(FRAME_TOOLBAR_VIEW.DEFAULT);
+
+  const [audioLayers, setAudioLayers] = useState([]);
+
+  const [isAudioLayerDirty, setIsAudioLayerDirty] = useState(false);
 
   let { id } = useParams();
 
@@ -191,6 +198,17 @@ export default function VideoHome(props) {
 
     
   }
+
+  useEffect(() => {
+
+    if (videoSessionDetails && videoSessionDetails.audioLayers) {
+
+      const audioLayerMap = videoSessionDetails.audioLayers.map(audioLayer => {
+        return {isSelected: false, ...audioLayer};
+      });
+      setAudioLayers(audioLayerMap);
+    }
+  }, [videoSessionDetails]);
 
 
   const submitRenderVideo = () => {
@@ -375,12 +393,98 @@ export default function VideoHome(props) {
     });
   }
 
+  const showAudioTrackView = () => {
+   // setCurrentEditorView(CURRENT_EDITOR_VIEW.AUDIO);
+   if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
+    setFrameToolbarView(FRAME_TOOLBAR_VIEW.DEFAULT);
+   } else {
+    setFrameToolbarView(FRAME_TOOLBAR_VIEW.AUDIO);
+   }
 
+  }
+
+
+  const updateAudioLayer = (audioLayerId, startTime, duration) => {
+    const updatedAudioLayers = audioLayers.map(audioLayer => {
+      if (audioLayer._id.toString() === audioLayerId.toString()) {
+
+        audioLayer.startTime = startTime;
+     
+        audioLayer.isSelected = true;
+      } else {
+        audioLayer.isSelected = false;
+
+      }
+      return audioLayer;
+    });
+
+    setAudioLayers(updatedAudioLayers);
+    setIsAudioLayerDirty(true);
+
+    const headers = getHeaders();
+    const reqPayload = {
+      sessionId: id,
+      audioLayers: updatedAudioLayers
+    }
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_audio_layers`, reqPayload, headers).then((response) => {
+      setIsAudioLayerDirty(false);
+    });
+
+
+
+  };
+
+  const handleVolumeChange = (e) => {
+    const selectedAudioTrack = audioLayers.find(audioLayer => audioLayer.isSelected);
+    const newVolume = parseFloat(e.target.value);
+    const updatedAudioLayer = {
+      ...selectedAudioTrack,
+      volume: newVolume,
+    };
+    setAudioLayers(audioLayers.map(audioLayer => {
+      if (audioLayer._id.toString() === updatedAudioLayer._id.toString()) {
+        return updatedAudioLayer;
+      }
+      return audioLayer;
+    }));
+    //setAudioLayers()
+   // updateAudioLayer(updatedAudioLayer);
+  };
+
+
+  const removeAudioLayer = (audtioLayer) => {
+    const updatedAudioLayers = audioLayers.filter(audioLayer => audioLayer._id.toString() !== audtioLayer._id.toString());
+    setAudioLayers(updatedAudioLayers);
+    setIsAudioLayerDirty(true);
+
+    const headers = getHeaders();
+    const reqPayload = {
+      sessionId: id,
+      audioLayers: updatedAudioLayers
+    }
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_audio_layers`, reqPayload, headers).then((response) => {
+      setIsAudioLayerDirty(false);
+    });
+  }
+
+  const updateChangesToActiveLayers = (e) => {
+    e.preventDefault();
+
+    const headers = getHeaders();
+    const reqPayload = {
+      sessionId: id,
+      audioLayers: audioLayers
+    }
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_audio_layers`, reqPayload, headers).then((response) => {
+      setIsAudioLayerDirty(false);
+    });
+  }
+  
   return (
     <CommonContainer >
       <div className='m-auto'>
         <div className='block'>
-          <div className='w-[16%] inline-block'>
+          <div className='w-[14%] inline-block'>
             <FrameToolbar
               layers={layers}
               setSelectedLayerIndex={setSelectedLayerIndex}
@@ -403,9 +507,18 @@ export default function VideoHome(props) {
               updateSessionLayer={updateSessionLayer}
               setIsLayerSeeking={setIsLayerSeeking}
               isVideoGenerating={isVideoGenerating}
+              showAudioTrackView={showAudioTrackView}
+              frameToolbarView={frameToolbarView}
+              audioLayers={audioLayers}
+              updateAudioLayer={updateAudioLayer}
+              isAudioLayerDirty={isAudioLayerDirty}
+              removeAudioLayer={removeAudioLayer}
+              handleVolumeChange={handleVolumeChange}
+              updateChangesToActiveLayers={updateChangesToActiveLayers}
+
             />
           </div>
-          <div className='w-[84%] bg-cyber-black inline-block'>
+          <div className='w-[86%] bg-cyber-black inline-block'>
             <VideoEditorContainer
               selectedLayerIndex={selectedLayerIndex}
               layers={layers}

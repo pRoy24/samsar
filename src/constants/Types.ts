@@ -33,8 +33,11 @@ export const TOOLBAR_ACTION_VIEW = {
   SHOW_PREVIEW_MUSIC_DISPLAY: 'SHOW_PREVIEW_MUSIC_DISPLAY',
   SHOW_PREVIEW_SPEECH_DISPLAY: 'SHOW_PREVIEW_SPEECH_DISPLAY',
   
-  
-  
+}
+
+export const FRAME_TOOLBAR_VIEW = {
+  DEFAULT: 'DEFAULT',
+  AUDIO: 'AUDIO',
 }
 
 export const CURRENT_EDITOR_VIEW = {
@@ -84,3 +87,4 @@ export const SPEAKER_TYPES = [
   'nova',
   'shimmer'
 ];
+

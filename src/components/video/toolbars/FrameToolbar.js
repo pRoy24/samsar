@@ -1,16 +1,18 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useColorMode } from '../../../contexts/ColorMode.js';
 import CommonButton from '../../common/CommonButton.tsx';
 import './toolbar.css';
 import ReactSlider from 'react-slider';
-import { FaMusic, FaPause, FaPlay, FaStop } from 'react-icons/fa6';
+import { FaMusic, FaPause, FaPlay, FaStop, FaChevronRight } from 'react-icons/fa6';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import VerticalWaveform from '../util/VerticalWaveform.js';
 import DualThumbSlider from '../util/DualThumbSlider.js';
 import TimeRuler from '../util/TimeRuler.js';
 import Draggable from 'react-draggable';
 import RangeOverlaySlider from '../util/RangeOverlaySlider.js';
+import { FRAME_TOOLBAR_VIEW } from '../../../constants/Types.ts';
+import AudioTrackSlider from '../util/AudioTrackSlider.js';
+import { FaEdit, FaTimes } from 'react-icons/fa';
 
 export default function FrameToolbar(props) {
   const {
@@ -19,7 +21,10 @@ export default function FrameToolbar(props) {
     showAddAudioToProjectDialog, audioFileTrack, selectedLayerIndex,
     startPlayFrames, downloadVideoDisplay, renderedVideoPath, sessionId,
     updateSessionLayer, setIsLayerSeeking,
-    isVideoGenerating
+    isVideoGenerating, showAudioTrackView, frameToolbarView,
+    audioLayers, updateAudioLayer, isAudioLayerDirty,
+    removeAudioLayer, handleVolumeChange,
+    updateChangesToActiveLayers
   } = props;
 
   const { colorMode } = useColorMode();
@@ -37,7 +42,6 @@ export default function FrameToolbar(props) {
 
   const [startSelectDurationInFrames, setStartSelectDurationInFrames] = useState(0);
   const [endSelectDurationInFrames, setEndSelectDurationInFrames] = useState(0);
-
 
   const parentRef = useRef(null);
 
@@ -69,13 +73,8 @@ export default function FrameToolbar(props) {
   };
 
   const handleDragTop = (e, data) => {
-
-
-
     const newStart = Math.max(0, highlightBoundaries.start + data.deltaY);
     const newHeight = Math.max(0, highlightBoundaries.height - data.deltaY);
-
-
 
     setHighlightBoundaries({ start: newStart, height: newHeight });
     // Update the layer duration and total duration here
@@ -91,14 +90,14 @@ export default function FrameToolbar(props) {
     let layer = layers[selectedLayerIndex];
     layer.duration = newDuration;
     updateSessionLayer(layer);
-  }
+  };
 
   const layerDurationCellUpdated = (value, index) => {
     setLayerDuration(value, index);
     let layer = layers[index];
     layer.duration = value;
     updateSessionLayer(layer);
-  }
+  };
 
   let layersList = <span />;
   if (layers) {
@@ -134,12 +133,10 @@ export default function FrameToolbar(props) {
     const newDurationInFrames = val[1] - val[0];
     const newDuration = newDurationInFrames / 30;
     setLayerDuration(newDuration, selectedLayerIndex);
-  }
+  };
 
   let layerSelectOverlay = <span />;
   if (highlightBoundaries) {
-
-
     let sliderStartRange = startSelectDurationInFrames > 0 ? startSelectDurationInFrames : 0;
     let sliderEndRange = endSelectDurationInFrames + 1;
     layerSelectOverlay = (
@@ -149,7 +146,6 @@ export default function FrameToolbar(props) {
           pointerEvents: 'none'
         }}
       >
-
         <div className={`relative `} style={{
           top: `${highlightBoundaries.start}px`,
           height: `100%`,
@@ -176,9 +172,98 @@ export default function FrameToolbar(props) {
     );
   }
 
+  const showAddedAudioTracks = () => {
+
+    return audioLayers.map((audioTrack) => (
+      <AudioTrackSlider
+        key={audioTrack.id}
+        audioTrack={audioTrack}
+        totalDuration={totalDuration}
+        onUpdate={updateAudioLayer}
+      />
+    ));
+  };
+
+  const showSelectedAudioTrack = () => {
+    const selectedAudioTrack = audioLayers.find((audioTrack) => audioTrack.isSelected);
+
+
+
+    if (selectedAudioTrack) {
+      return (
+        <form onSubmit={updateChangesToActiveLayers}>
+        <div className={`grid grid-cols-5 gap-1 `}>
+          <div>
+
+            <input type="text" value={selectedAudioTrack.startTime.toFixed(2)} className={`w-[50px] ${bgColor}`} />
+            <div className="text-xs">
+              Start
+            </div>
+          </div>
+
+          <div>
+            <input type="text" defaultValue={selectedAudioTrack.volume.toFixed(2)} className={`w-[50px] ${bgColor}`}
+             onChange={handleVolumeChange}/>
+            <div className="text-xs">
+              Volume
+            </div>
+          </div>
+          <div>
+            <SecondaryButton type="submit">Update</SecondaryButton>
+          </div>
+
+          
+          <div>
+            <button className='bg-neutral-800 rounded-sm text-white' onClick={() => removeAudioLayer(selectedAudioTrack)}>
+              <FaTimes className='inline-flex' />
+              <div className='text-xs pl-1 pr-1 pb-1'>
+                Remove
+              </div>
+            </button>
+          </div>
+
+
+          <div>
+
+          </div>
+
+        </div>
+        </form>
+      )
+    }
+
+
+  }
+
+  useEffect(() => {
+    if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
+
+    } else {
+      console.log("BE HERE");
+    }
+  }, [frameToolbarView]);
+
+  let containerWdidth = 'w-[14%] z-1';
+  if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
+    containerWdidth = 'w-[30%] z-10';
+  }
+
+  let audioTrackViewDisplay = <span />;
+  let audioSelectedTrackViewDisplay = <span />;
+
+  if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
+    audioTrackViewDisplay = showAddedAudioTracks();
+    audioSelectedTrackViewDisplay = showSelectedAudioTrack();
+  }
+
+  let mtop = 'mt-[52px]';
+  if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
+    mtop = 'mt-0';
+  }
+
   return (
-    <div className={`border-r-2 ${bgColor} shadow-lg m-auto fixed top-0 w-[16%] ${textColor} text-left`}>
-      <div className='mt-[52px]'>
+    <div className={`border-r-2 ${bgColor} shadow-lg m-auto fixed top-0 ${containerWdidth} ${textColor} text-left `}>
+      <div className={`${mtop} relative`}>
         <div className='btn-container flex-w-full mt-1 mb-1'>
           <div className='basis-1/2 inline-flex'>
             {submitRenderDisplay}
@@ -191,17 +276,25 @@ export default function FrameToolbar(props) {
             </div>
           </div>
         </div>
-        <div>
+        <div >
           <div className={`flex w-full ${bg2Color} p-1`}>
-            <div className='inline-flex basis-1/2'>
+            <div className='inline-flex w-14'>
               <div>
                 Scenes
               </div>
             </div>
-            <div className='inline-flex basis-1/2 m-auto'>
-              <SecondaryButton onClick={showAddAudioToProjectDialog}>
-                Audio <FaMusic className='inline-flex ml-1' />
-              </SecondaryButton>
+            <div className='grow basis-2/3'>
+
+              {audioSelectedTrackViewDisplay}
+
+              <div className='absolute right-0 top-0'>
+                <SecondaryButton onClick={showAudioTrackView}>
+                  Audio
+                  <FaChevronRight className='inline-flex ml-1 mr-1' />
+                </SecondaryButton>
+              </div>
+
+
             </div>
           </div>
         </div>
@@ -217,13 +310,9 @@ export default function FrameToolbar(props) {
                       trackClassName='track' defaultValue={0} min={viewRange[0]} max={viewRange[1]}
                       value={currentLayerSeek}
                       onChange={(value) => setCurrentLayerSeek(value)}
-                      onBeforeChange={() => setIsLayerSeeking(true)} 
+                      onBeforeChange={() => setIsLayerSeeking(true)}
                       onAfterChange={() => setIsLayerSeeking(false)}
-                      
-                      />
-                    <div className='w-[80px]'>
-                      {audioSpecogramDisplay}
-                    </div>
+                    />
                   </div>
                 </div>
               </div>
@@ -232,6 +321,10 @@ export default function FrameToolbar(props) {
                   defaultValue={[0, totalDurationInFrames]}
                   onChange={handleViewRangeSliderChange} />
               </div>
+          
+              {audioTrackViewDisplay}
+        
+              
               <div className='inline-flex h-full'>
                 <TimeRuler totalDuration={totalDuration} />
               </div>
@@ -242,4 +335,3 @@ export default function FrameToolbar(props) {
     </div>
   );
 }
-
