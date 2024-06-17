@@ -15,7 +15,7 @@ export default function DualThumbSlider({ min, max, defaultValue, onChange }) {
   };
 
   useEffect(() => {
-     setSliderValues(defaultValue);
+    // setSliderValues(defaultValue);
   }, [defaultValue]);
 
   return (

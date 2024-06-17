@@ -1,4 +1,6 @@
 /* Add these styles to your toolbar.css or another CSS file */
+@import "slick-carousel/slick/slick.css";
+@import "slick-carousel/slick/slick-theme.css";
 
 .vertical-slider {
 
@@ -112,7 +114,7 @@
 
 .range-overlay-slider .thumb {
   background-color: #404040;
-  width: 66px; /* Adjust thumb width as needed */
+  width: 50px; /* Adjust thumb width as needed */
   height: 8px; /* Adjust thumb height as needed */
   box-shadow: 0 0 0 2px rgba(10, 10, 10, 0.8);
   display: block;
@@ -134,7 +136,30 @@
 
 .range-overlay-slider .track-1 {
   background-color: rgba(3, 7, 18, 0.3);
-  width: 80px; /* Adjust track width as needed */
+  width: 50px; /* Adjust track width as needed */
 
   position: relative;
+}
+
+
+.samsar-slider-arrow {
+  position: absolute;
+  display: block;
+  cursor: pointer;
+  z-index: 1;
+  left: 5px;
+  width: 100%;
+  height: 20px;
+  background: #030712;
+  text-align: center;
+  border-radius: 5px;
+}
+
+.samsar-slider-arrow:hover {
+  background: #1c1917;
+ 
+}
+
+.main-slider-thumb {
+  z-index: 100 !important;
 }

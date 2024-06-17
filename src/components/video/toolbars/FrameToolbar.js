@@ -3,7 +3,7 @@ import { useColorMode } from '../../../contexts/ColorMode.js';
 import CommonButton from '../../common/CommonButton.tsx';
 import './toolbar.css';
 import ReactSlider from 'react-slider';
-import { FaMusic, FaPause, FaPlay, FaStop, FaChevronRight, FaPlus } from 'react-icons/fa6';
+import { FaMusic, FaPause, FaPlay, FaStop, FaChevronRight, FaPlus, FaChevronUp, FaChevronDown } from 'react-icons/fa6';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import VerticalWaveform from '../util/VerticalWaveform.js';
 import DualThumbSlider from '../util/DualThumbSlider.js';
@@ -12,8 +12,11 @@ import Draggable from 'react-draggable';
 import RangeOverlaySlider from '../util/RangeOverlaySlider.js';
 import { FRAME_TOOLBAR_VIEW } from '../../../constants/Types.ts';
 import AudioTrackSlider from '../util/AudioTrackSlider.js';
-import { FaEdit, FaTimes } from 'react-icons/fa';
+import { FaChevronCircleDown, FaChevronCircleUp, FaEdit, FaTimes } from 'react-icons/fa';
 import DropdownButton from '../util/DropdownButton.js';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 
 export default function FrameToolbar(props) {
   const {
@@ -34,7 +37,7 @@ export default function FrameToolbar(props) {
   const bg2Color = colorMode === 'light' ? 'bg-stone-200' : 'bg-gray-700';
   let bg3Color = colorMode === 'light' ? "bg-neutral-100" : "bg-neutral-800 ";
 
-  const bgSelectedColor = colorMode === 'light' ? 'bg-stone-200 shadow-lg' : 'bg-gray-950 shadow-lg';
+  const bgSelectedColor = colorMode === 'light' ? 'bg-stone-200 shadow-lg' : 'bg-stone-950 shadow-lg';
 
   const textColor = colorMode === 'light' ? 'text-cyber-black' : 'text-neutral-100';
   const [highlightBoundaries, setHighlightBoundaries] = useState({ start: 0, height: 0 });
@@ -68,8 +71,12 @@ export default function FrameToolbar(props) {
   }, [selectedLayerIndex, layers, totalDuration, parentRef.current]);
 
   const handleViewRangeSliderChange = (values) => {
+    console.log(values);
+
     setViewRange(values);
     if (currentLayerSeek < values[0] || currentLayerSeek > values[1]) {
+      console.log("BE HERE NOW?");
+
       setCurrentLayerSeek(values[0]);
     }
   };
@@ -105,31 +112,57 @@ export default function FrameToolbar(props) {
     let newLayers = layers.slice();
     newLayers.splice(index, 1);
     removeSessionLayer(index);
-   // updateSessionLayer(newLayers);
+    // updateSessionLayer(newLayers);
   }
+
+  const sliderSettings = {
+    dots: false,
+    infinite: false,
+    speed: 500,
+    slidesToShow: 9,
+    slidesToScroll: 1,
+    vertical: true,
+    verticalSwiping: true,
+    nextArrow: <CustomBottomArrow />,
+    prevArrow: <CustomTopArrow />
+  };
 
   let layersList = <span />;
   if (layers) {
-    layersList = layers.map(function (layer, index) {
+    const layersContent = layers.map((layer, index) => {
       let bgSelected = selectedLayerIndex === index ? bgSelectedColor : '';
-      return <div className={`p-2 cursor-pointer ${bg3Color} ${bgSelected} mt-1 ml-1 mr-1 relative`}
-        onClick={() => setSelectedLayer(layer)} key={`layer_duration_set_${index}`}>
+      console.log("BG SELECTED " + bgSelected);
+
+      return (
+        <div className={`p-2 pt-1 cursor-pointer ${bg3Color} ${bgSelected} mt-1 ml-1 mr-1 relative h-[60px]`}
+          onClick={() => setSelectedLayer(layer)} key={`layer_duration_set_${index}`}>
           <div className='absolute right-2 t-0 cursor-pointer'>
-            <FaTimes className='' onClick={() => removeLayer(index)}/>
+            <FaTimes className='' onClick={() => removeLayer(index)} />
           </div>
-        <div className='m-auto pl-2'>
-          <div>Layer {index + 1}</div>
-          <div>
+          <div className='m-auto pl-2'>
+            <div>Layer {index + 1}</div>
             <div>
-              <input type="number" value={layer.duration}
-                onChange={(e) => layerDurationCellUpdated(e.target.value, index)}
-                className={`w-[60px] p-1 rounded-lg ${textColor} ${bg2Color}`} />
+              <div>
+                <input type="number" value={layer.duration}
+                  onChange={(e) => layerDurationCellUpdated(e.target.value, index)}
+                  className={`w-[60px] p-1 rounded-lg ${textColor} ${bg2Color}`} />
+              </div>
+              <div className='text-[10px]'>Duration</div>
             </div>
-            <div className='text-[10px]'>Duration</div>
           </div>
         </div>
-      </div>
+      );
     });
+
+    layersList = layers.length > 10 ? (
+      <Slider {...sliderSettings}>
+        {layersContent}
+      </Slider>
+    ) : (
+      <div>
+        {layersContent}
+      </div>
+    );
   }
 
   let audioSpecogramDisplay = <span />;
@@ -151,6 +184,7 @@ export default function FrameToolbar(props) {
   if (highlightBoundaries) {
     let sliderStartRange = startSelectDurationInFrames > 0 ? startSelectDurationInFrames : 0;
     let sliderEndRange = endSelectDurationInFrames + 1;
+
     layerSelectOverlay = (
       <div className='layer-select-overlay absolute w-[80px] z-10 top-0 bottom-0'
         ref={parentRef}
@@ -199,12 +233,10 @@ export default function FrameToolbar(props) {
   const showSelectedAudioTrack = () => {
     const selectedAudioTrack = audioLayers.find((audioTrack) => audioTrack.isSelected);
 
-
-
     if (selectedAudioTrack) {
       return (
         <form onSubmit={updateChangesToActiveLayers}>
-          <div className={`grid grid-cols-5 gap-1 `}>
+          <div className={`grid grid-cols-4 gap-1 `}>
             <div>
 
               <input type="text" value={selectedAudioTrack.startTime.toFixed(2)} className={`w-[50px] ${bgColor}`} />
@@ -270,58 +302,86 @@ export default function FrameToolbar(props) {
   }
 
   let mtop = 'mt-[52px]';
+  let selectedTrackBasis = 'basis-0';
+  let topSubToolbar = (
+    <div className='flex flex-row w-full' >
+
+
+      <div className='basis-3/4'>
+        Scenes
+      </div>
+
+      <div className='basis-1/4'>
+        <DropdownButton addLayerToComposition={addLayerToComposition}
+          copyCurrentLayerBelow={copyCurrentLayerBelow} />
+      </div>
+
+
+    </div>
+  );
+
   if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
     mtop = 'mt-0';
+    selectedTrackBasis = 'basis-3/4';
+
+    topSubToolbar = (
+      <div className='flex flex-row w-full' >
+        <div className='basis-1/4'>
+          Scenes
+        </div>
+
+        <div className='basis-1/4'>
+          <DropdownButton addLayerToComposition={addLayerToComposition}
+            copyCurrentLayerBelow={copyCurrentLayerBelow} />
+        </div>
+
+        <div className={`basis-1/2`}>
+          {audioSelectedTrackViewDisplay}
+
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className={`border-r-2 ${bgColor} shadow-lg m-auto fixed top-0 ${containerWdidth} ${textColor} text-left `}>
+    <div className={`border-r-2 ${bgColor} shadow-lg m-auto fixed top-0 ${containerWdidth} ${textColor} text-left`}>
       <div className={`${mtop} relative`}>
         <div className='btn-container flex-w-full mt-1 mb-1'>
           <div className='basis-1/2 inline-flex'>
             {submitRenderDisplay}
           </div>
-          <div className='basis-1/2 inline-flex float-right mr-2 mt-2'>
-            <div className={`${bg3Color} pt-1 pb-1 pl-2 pr-2 w-full m-auto text-center `}>
-              <FaPlay className='inline-flex ml-1 mr-1' onClick={startPlayFrames} />
-              <FaPause className='inline-flex ml-1 mr-1' />
-              <FaStop className='inline-flex ml-1 mr-1' />
-            </div>
-          </div>
         </div>
-        <div >
+
+        <div className='absolute right-0 top-0'>
+          <SecondaryButton onClick={showAudioTrackView}>
+            Audio
+            <FaChevronRight className='inline-flex ml-1 mr-1' />
+          </SecondaryButton>
+        </div>
+        <div>
           <div className={`flex w-full ${bg2Color} p-1`}>
-            <div className='inline-flex w-30'>
-              <div className='flex'>
-                Scenes
-                <div className='inline-flex ml-2'>
-                  <DropdownButton addLayerToComposition={addLayerToComposition}
-                  copyCurrentLayerBelow={copyCurrentLayerBelow} />
-                </div>
-              </div>
+
+            <div className='inline-flex w-full'>
+              {topSubToolbar}
             </div>
-            <div className='grow basis-2/3'>
-              {audioSelectedTrackViewDisplay}
-              <div className='absolute right-0 top-0'>
-                <SecondaryButton onClick={showAudioTrackView}>
-                  Audio
-                  <FaChevronRight className='inline-flex ml-1 mr-1' />
-                </SecondaryButton>
-              </div>
-            </div>
+
+
           </div>
         </div>
         <div className='flex flex-row w-full h-[95vh]'>
           <div className='text-xs font-bold basis-1/2'>
-            {layersList}
+            <div className='relative h-full w-[100px]'>
+              {layersList}
+            </div>
+
           </div>
           <div className='basis-1/2'>
             <div className='flex flex-row h-[80vh]'>
               <div className='inline-flex h-full'>
                 <div className='relative h-full w-full'>
                   {layerSelectOverlay}
-                  <div className='inline-flex h-full'>
-                    <ReactSlider orientation="vertical" className='vertical-slider' thumbClassName='thumb'
+                  <div className='inline-flex h-full ml-[10px]'>
+                    <ReactSlider orientation="vertical" className='vertical-slider' thumbClassName='thumb main-slider-thumb'
                       trackClassName='track' defaultValue={0} min={viewRange[0]} max={viewRange[1]}
                       value={currentLayerSeek}
                       onChange={(value) => setCurrentLayerSeek(value)}
@@ -331,7 +391,7 @@ export default function FrameToolbar(props) {
                   </div>
                 </div>
               </div>
-              <div className='inline-flex dual-thumb h-auto w-[30px] ml-1'>
+              <div className='inline-flex dual-thumb h-auto w-[30px] ml-[30px] ml-1'>
                 <DualThumbSlider min={0} max={totalDurationInFrames}
                   defaultValue={[0, totalDurationInFrames]}
                   onChange={handleViewRangeSliderChange} />
@@ -347,3 +407,37 @@ export default function FrameToolbar(props) {
     </div>
   );
 }
+
+
+// Custom arrow components
+const CustomTopArrow = (props) => {
+  const { className, style, onClick } = props;
+  return (
+    <div
+
+      className='samsar-slider-arrow'
+
+      style={{
+        ...style, top: '-20px',
+      }}
+      onClick={onClick}
+    >
+      <FaChevronUp className='text-xl m-auto' />
+    </div>
+  );
+};
+
+const CustomBottomArrow = (props) => {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className='samsar-slider-arrow'
+      style={{
+        ...style, top: '600px'
+      }}
+      onClick={onClick}
+    >
+      <FaChevronDown className='text-xl m-auto' />
+    </div>
+  );
+};
