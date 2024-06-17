@@ -12,7 +12,7 @@ import FrameDisplay from './FrameDisplay.js';
 import AddAudioDialog from './util/AddAudioDialog.js';
 import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
 import { Stage, Layer } from 'react-konva';
-
+import { debounce } from './util/debounce.js';
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -355,16 +355,13 @@ export default function VideoHome(props) {
   };
 
 
-
-  const updateSessionLayer = (newLayer) => {
-
+  const updateSessionLayer = debounce((newLayer) => {
     const headers = getHeaders();
 
     const reqPayload = {
       sessionId: id,
       layer: newLayer
-    }
-
+    };
 
     axios.post(`${PROCESSOR_API_URL}/video_sessions/update_layer`, reqPayload, headers).then((response) => {
       const videoSessionData = response.data;
@@ -375,8 +372,8 @@ export default function VideoHome(props) {
         setCurrentLayer(updatedLayer);
       }
     });
+  }, 500); // Adjust the delay as needed
 
-  }
 
   const removeSessionLayer = (layerIndex) => {
     const headers = getHeaders();
