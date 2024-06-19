@@ -70,7 +70,9 @@ export default function VideoHome(props) {
   }, [id]);
 
   useEffect(() => {
-    if (!currentLayer.imageSession) {
+
+
+    if (!currentLayer.imageSession || currentLayer.imageSession.activeItemList.length === 0) {
       return;
     }
     const fps = 30;
@@ -100,11 +102,14 @@ export default function VideoHome(props) {
   }, [currentLayerSeek, currentLayer, layers]);
 
   useEffect(() => {
+
     if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
       const activeList = currentLayer.imageSession.activeItemList;
       setActiveItemList(activeList);
       const newLayerSeek = Math.floor(currentLayer.durationOffset * 30);
       setCurrentLayerSeek(newLayerSeek);
+    } else {
+      setActiveItemList([]);
     }
   }, [currentLayer]);
 
@@ -242,6 +247,7 @@ export default function VideoHome(props) {
   }
 
   const setSelectedLayer = (layer) => {
+
     const index = layers.findIndex(l => l._id === layer._id);
     setSelectedLayerIndex(index);
     setCurrentLayer(layer);
@@ -299,6 +305,7 @@ export default function VideoHome(props) {
       activeItemList: activeItemListRef.current,
       layerId: currentLayer._id.toString(),
     };
+   
     axios.post(`${PROCESSOR_API_URL}/video_sessions/update_active_item_list`, reqPayload, headers).then((response) => {
       const videoSessionData = response.data;
       const updatedItemList = videoSessionData.activeItemList;

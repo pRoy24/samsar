@@ -33,6 +33,8 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     selectedLayerSelectShape, isLayerSeeking, applyFinalFilter,
   } = props;
 
+
+
   const [showMask, setShowMask] = useState(false);
   const [showEraser, setShowEraser] = useState(false);
   const [isPainting, setIsPainting] = useState(false);

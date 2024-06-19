@@ -129,19 +129,12 @@ export default function EditorHome(props) {
 
     axios.get(`${PROCESSOR_API_URL}/video_sessions/details?id=${id}&frame=${selectedFrameId}`, headers).then((response) => {
       const session = response.data;
- 
-
-
-      console.log(session);
 
       const activeSelectedImageName = session.activeSelectedImage;
 
-      console.log(activeSelectedImageName);
-
       if (activeSelectedImageName) {
         const activeSelectedImageURL = `${PROCESSOR_API_URL}/generations/${activeSelectedImageName}`;
-        console.log(activeSelectedImageURL);
-
+   
         const nImageList: any = Object.assign([], activeItemList);
         nImageList.push({ src: activeSelectedImageURL, id: `item_${nImageList.length}`, type: 'image' });
 
@@ -426,7 +419,6 @@ export default function EditorHome(props) {
 
     if (pollStatus.generationStatus === 'COMPLETED') {
       const generatedImageUrlName = pollStatus.activeGeneratedImage;
-      console.log("HERE?");
       const generatedURL = `${PROCESSOR_API_URL}/generations/${generatedImageUrlName}`;
       const nImageList: any = Object.assign([], activeItemList);
       nImageList.push({ src: generatedURL, id: `item_${nImageList.length}`, type: 'image' });

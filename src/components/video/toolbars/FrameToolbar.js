@@ -131,8 +131,7 @@ export default function FrameToolbar(props) {
   if (layers) {
     const layersContent = layers.map((layer, index) => {
       let bgSelected = selectedLayerIndex === index ? bgSelectedColor : '';
-      console.log("BG SELECTED " + bgSelected);
-
+  
       return (
         <div className={`p-2 pt-1 cursor-pointer ${bg3Color} ${bgSelected} mt-1 ml-1 mr-1 relative h-[60px]`}
           onClick={() => setSelectedLayer(layer)} key={`layer_duration_set_${index}`}>

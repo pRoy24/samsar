@@ -35,9 +35,6 @@ const ResizableText = ({ text, isSelected, onSelect, updateToolbarButtonPosition
       }));
     }
   }, [props.config, isConfigSet]);
-
-  console.log(props);
-  console.log("EEEETEE");
   
   const textRef = useRef();
   const trRef = useRef();

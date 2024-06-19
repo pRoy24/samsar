@@ -14,11 +14,6 @@ export default function PaintToolbar(props) {
 
   const { colorMode } = useColorMode();
 
-
-  console.log("BE HERERERER PAIN");
-  console.log(pos);
-  
-
   const iconColor = colorMode === 'dark' ? 'text-neutral-200' : 'text-grey-800';
 
   return (

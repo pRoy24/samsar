@@ -196,7 +196,7 @@ export default function VideoEditorContainer(props) {
     if (currentView !== CURRENT_TOOLBAR_VIEW.SHOW_EDIT_MASK_DISPLAY) {
       setEditMaskLines([]);
     }
-    setSelectedId(null); // test
+    //setSelectedId(null); // test
   }, [currentView]);
 
   const setUploadURL = useCallback((data) => {
@@ -865,9 +865,10 @@ export default function VideoEditorContainer(props) {
 
   
   if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
-    if (currentLayer.imageSession.activeItemList.length > 0) {
+
       viewDisplay = (
         <VideoCanvas ref={canvasRef}
+        key={`canvas_${currentLayer._id.toString()}`}
           maskGroupRef={maskGroupRef}
           sessionDetails={sessionDetails}
           activeItemList={activeItemList}
@@ -906,9 +907,7 @@ export default function VideoEditorContainer(props) {
 
         />
       )
-    } else {
-      viewDisplay = <LoadingImage />
-    }
+
   }
 
 

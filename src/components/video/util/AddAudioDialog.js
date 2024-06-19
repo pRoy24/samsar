@@ -17,10 +17,8 @@ export default function AddAudioDialog(props) {
   const handleDrop = (event) => {
     event.preventDefault();
     const droppedFile = event.dataTransfer.files[0];
-    console.log(droppedFile);
     if (droppedFile && droppedFile.type.includes('audio')) {
       setFile(droppedFile);
-      console.log('File dropped:', droppedFile);
     } else {
       console.error('Please drop an MP3 file.');
     }

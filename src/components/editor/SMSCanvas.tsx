@@ -528,10 +528,7 @@ const SMSCanvas = forwardRef((props: any, ref: any) => {
     setActiveItemList(newList);
   }
   if (ref && ref.current) {
-    console.log(ref.current.getStage());
-    console.log(imageStackList);
-    console.log(activeItemList);
-    
+
   }
 
 
