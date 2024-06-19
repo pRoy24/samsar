@@ -891,6 +891,25 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       }
       return item;
     });
+    setActiveItemList(newActiveItemList);    
+    updateSessionActiveItemList(newActiveItemList);
+  }
+
+  const updateTargetShapeActiveLayerConfig = (id, newConfig) => {
+
+    const newActiveItemList = activeItemList.map((item) => {
+      if (item.id === id) {
+        return {
+          ...item,
+          config: {
+            ...item.config,
+            ...newConfig,
+          },
+        };
+      }
+      return item;
+    });
+
     setActiveItemList(newActiveItemList);
     updateSessionActiveItemList(newActiveItemList);
   }
@@ -966,7 +985,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
             onUnselect={() => setSelectedId(null)}
             updateToolbarButtonPosition={updateToolbarButtonPosition}
             isDraggable={isDraggable}
-            updateTargetActiveLayerConfig={updateTargetActiveLayerConfig}
+            updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
           />
         );
       } else if (item.type === 'shape') {
@@ -979,7 +998,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
               onUnselect={() => setSelectedId(null)}
               updateToolbarButtonPosition={updateToolbarButtonPosition}
               isDraggable={isDraggable}
-              updateTargetActiveLayerConfig={updateTargetActiveLayerConfig}
+              updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
             />
           );
         } else if (item.shape === 'rectangle') {
@@ -992,7 +1011,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
               onUnselect={() => setSelectedId(null)}
               updateToolbarButtonPosition={updateToolbarButtonPosition}
               isDraggable={isDraggable}
-              updateTargetActiveLayerConfig={updateTargetActiveLayerConfig}
+              updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
             />
           );
         } else if (item.shape === 'polygon') {
@@ -1004,7 +1023,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
               onUnselect={() => setSelectedId(null)}
               updateToolbarButtonPosition={updateToolbarButtonPosition}
               isDraggable={isDraggable}
-              updateTargetActiveLayerConfig={updateTargetActiveLayerConfig}
+              updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
             />
           );
         } else if (item.shape === 'dialog') {
@@ -1016,7 +1035,8 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
               onUnselect={() => setSelectedId(null)}
               updateToolbarButtonPosition={updateToolbarButtonPosition}
               onChange={(newAttrs) => onChange({ ...newAttrs, id: item.id })}
-              updateTargetActiveLayerConfig={updateTargetActiveLayerConfig}
+              updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
+              
             />
           );
         }

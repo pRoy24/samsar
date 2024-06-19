@@ -21,6 +21,8 @@ export default function ResizablePolygon(props) {
     }
   }, [isSelected]);
 
+
+
   return (
     <Group id={`group_${id}`}>
       <RegularPolygon

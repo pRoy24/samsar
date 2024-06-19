@@ -105,7 +105,9 @@ export default function VideoEditorContainer(props) {
   const [textConfig, setTextConfig] = useState({
     fontSize: 40,
     fontFamily: 'Times New Roman',
-    fillColor: initTextFillColor
+    fillColor: initTextFillColor,
+    x: 512,
+    y: 200,
   });
 
   const setCurrentViewDisplay = (view) => {
@@ -157,8 +159,11 @@ export default function VideoEditorContainer(props) {
 
 
         const nImageList: any = Object.assign([], activeItemList);
-        nImageList.push({ src: activeSelectedImageURL, id: `item_${nImageList.length}`, type: 'image' ,
-        width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height, x: 0, y: 0});
+        nImageList.push({ 
+          src: activeSelectedImageURL, id: `item_${nImageList.length}`,
+         type: 'image' , width: STAGE_DIMENSIONS.width,
+          height: STAGE_DIMENSIONS.height,
+         x: 0, y: 0});
 
         setActiveItemList(nImageList);
 
@@ -172,7 +177,7 @@ export default function VideoEditorContainer(props) {
             shape: 'rectangle',
             config: {
               x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height,
-              fill: initialBackgroundFillColor, stroke: initialBackgroundFillColor, strokeWidth: strokeWidthValue,
+              fillColor: initialBackgroundFillColor, strokeColor: initialBackgroundFillColor, strokeWidth: strokeWidthValue,
               fixed: true,
             }
           });
@@ -586,11 +591,28 @@ export default function VideoEditorContainer(props) {
   }
 
   const setSelectedShape = (shapeKey) => {
-    let currentLayerList: any = Object.assign([], activeItemList);
-    const shapeConfig = {
-      x: 512, y: 200, width: 200, height: 200, fill: fillColor, radius: 70,
-      stroke: strokeColor, strokeWidth: strokeWidthValue
+
+    let shapeConfig;
+    if (shapeKey === 'dialog') {
+      let xVal = 512;
+      let yVal = 200;
+      let height = 50;
+      let width = 100;
+      shapeConfig = {
+        x: xVal, y: yVal, width: width, height: height, fillColor: fillColor,
+         strokeColor: strokeColor, strokeWidth: strokeWidthValue,
+        pointerX: xVal, pointerY: yVal + height / 2 + 20, 
+        xRadius:  width / 2, yRadius: 20
+      }
+    } else {
+       shapeConfig = {
+        x: 512, y: 200, width: 200, height: 200, fillColor: fillColor, radius: 70,
+        strokeColor: strokeColor, strokeWidth: strokeWidthValue
+      }
     }
+
+    let currentLayerList: any = Object.assign([], activeItemList);
+
     const newItem = {
       'type': 'shape',
       'shape': shapeKey,
@@ -705,13 +727,13 @@ export default function VideoEditorContainer(props) {
   
 
   const handleBubbleChange = (newAttrs) => {
-    const updatedBubbles = activeItemList.map((item) => {
-      if (item.id === newAttrs.id) {
-        return { ...item, config: newAttrs };
-      }
-      return item;
-    });
-    setActiveItemList(updatedBubbles);
+    // const updatedBubbles = activeItemList.map((item) => {
+    //   if (item.id === newAttrs.id) {
+    //     return { ...item, config: newAttrs };
+    //   }
+    //   return item;
+    // });
+    // setActiveItemList(updatedBubbles);
   };
   
   const combineCurrentLayerItems = async () => {

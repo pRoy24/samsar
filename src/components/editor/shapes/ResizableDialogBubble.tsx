@@ -1,92 +1,140 @@
-import React, { useEffect, useRef } from 'react';
-import { Group, Rect, Text, Transformer, Path } from 'react-konva';
+import React, { useRef, useEffect, useState } from 'react';
+import { Ellipse, Transformer, Group, Shape } from 'react-konva';
 
-const ResizableDialogBubble = (props) => {
-  const { config, isSelected, onSelect, onUnselect, id, updateToolbarButtonPosition, onChange } = props;
-  const shapeRef = useRef(null);
-  const transformerRef = useRef(null);
+const ResizableDialogBubble = ({
+  shapeProps = {},
+  isSelected,
+  onSelect,
+  onChange,
+  updateTargetActiveLayerConfig,
+  id,
+  config,
+}) => {
+  const shapeRef = useRef();
+  const transformerRef = useRef();
+  const pointerRef = useRef();
+
+  const [shapeState, setShapeState] = useState({});
+  const [isConfigSet, setIsConfigSet] = useState(false);
 
   useEffect(() => {
-    if (transformerRef.current && shapeRef.current) {
-      if (isSelected) {
-        transformerRef.current.nodes([shapeRef.current]);
-        transformerRef.current.getLayer().batchDraw();
-      } else {
-        transformerRef.current.detach();
-        transformerRef.current.getLayer().batchDraw();
-      }
+    if (!isConfigSet) {
+      setIsConfigSet(true);
+
+      const newState = {
+        x: config.x || 0,
+        y: config.y || 0,
+        width: config.width || 100,
+        height: config.height || 50,
+        pointerX: config.pointerX || (config.x + (config.width / 2)) || 0,
+        pointerY: config.pointerY || (config.y + config.height) || 0,
+      };
+      setShapeState(newState);
+    } else {
+      const newState = {
+        ...shapeState,
+        pointerX: config.pointerX || (config.x + (config.width / 2)) || 0,
+        pointerY: config.pointerY || (config.y + config.height) || 0,
+      };
+      setShapeState(newState);
+    }
+  }, [config]);
+
+  useEffect(() => {
+    if (isSelected) {
+      transformerRef.current.nodes([shapeRef.current]);
+      transformerRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
 
-  const { x, y, width, height, text, fill, stroke, strokeWidth, cornerRadius } = config;
+  const updatePointerPosition = () => {
+    const node = shapeRef.current;
+    const boundingBox = node.getClientRect();
 
-  const tailSize = 20;
-  const tailX = width / 2 - tailSize / 2;
-  const tailY = height;
+    const newPointerX = boundingBox.x + boundingBox.width / 2;
+    const newPointerY = boundingBox.y + boundingBox.height;
+
+    setShapeState(prevState => ({
+      ...prevState,
+      pointerX: newPointerX,
+      pointerY: newPointerY
+    }));
+  };
+
+  const handleTransformEnd = () => {
+    updatePointerPosition();
+
+    const node = shapeRef.current;
+    const boundingBox = node.getClientRect();
+
+    const newAttrs = {
+      x: boundingBox.x + boundingBox.width / 2,
+      y: boundingBox.y + boundingBox.height / 2,
+      width: boundingBox.width,
+      height: boundingBox.height,
+      scaleX: 1,
+      scaleY: 1,
+      xRadius: boundingBox.width / 2,
+      yRadius: boundingBox.height / 2,
+      pointerX: boundingBox.x + boundingBox.width / 2,
+      pointerY: boundingBox.y + boundingBox.height,
+    };
+
+    onChange(newAttrs);
+    updateTargetActiveLayerConfig(id, newAttrs);
+  };
+
+  const handleDragEnd = () => {
+    updatePointerPosition();
+
+    const node = shapeRef.current;
+    const boundingBox = node.getClientRect();
+    const newAttrs = {
+      x: boundingBox.x + boundingBox.width / 2,
+      y: boundingBox.y + boundingBox.height / 2,
+      pointerX: boundingBox.x + boundingBox.width / 2,
+      pointerY: boundingBox.y + boundingBox.height
+    };
+    updateTargetActiveLayerConfig(id, newAttrs);
+  };
+
+  const { x, y, width, height, pointerX, pointerY } = shapeState;
+  const pointerWidth = 20;
+  const pointerHeight = 20;
 
   return (
     <Group
-    id={`group_${id}`}
-      x={x}
-      y={y}
+      onMouseDown={onSelect}
+      onTransformEnd={handleTransformEnd}
       draggable
-      onDragMove={(e) => updateToolbarButtonPosition(id, e.target.x(), e.target.y())}
-      onClick={(e) => {
-        e.cancelBubble = true;
-        onSelect();
-      }}
-      onTap={(e) => {
-        e.cancelBubble = true;
-        onSelect();
-      }}
-      ref={shapeRef}
-      onDragEnd={(e) => {
-        onChange({
-          x: e.target.x(),
-          y: e.target.y(),
-          width,
-          height,
-          id,
-        });
-      }}
-      onTransformEnd={(e) => {
-        const node = shapeRef.current;
-        const scaleX = node.scaleX();
-        const scaleY = node.scaleY();
-
-        node.scaleX(1);
-        node.scaleY(1);
-        onChange({
-          x: node.x(),
-          y: node.y(),
-          width: Math.max(5, node.width() * scaleX),
-          height: Math.max(5, node.height() * scaleY),
-          id,
-        });
-      }}
+      onDragEnd={handleDragEnd}
+      onClick={onSelect}
+      onTap={onSelect}
     >
-      <Rect
+      <Ellipse
+        x={x}
+        y={y}
         width={width}
         height={height}
-        fill={fill || 'white'}
-        stroke={stroke || 'black'}
-        strokeWidth={strokeWidth || 2}
-        cornerRadius={cornerRadius || 20}
+        fill="white"
+        stroke="black"
+        strokeWidth={2}
+        ref={shapeRef}
+        onTransformEnd={handleTransformEnd}
       />
-      <Path
-        data={`M${tailX},${tailY} L${tailX + tailSize / 2},${tailY + tailSize} L${tailX + tailSize},${tailY} Z`}
-        fill={fill || 'white'}
-        stroke={stroke || 'black'}
-        strokeWidth={strokeWidth || 2}
-      />
-      <Text
-        x={10}
-        y={10}
-        width={width - 20}
-        height={height - 20}
-        text={text}
-        fontSize={16}
-        fill="black"
+      <Shape
+        ref={pointerRef}
+        sceneFunc={(context, shape) => {
+          context.beginPath();
+          context.moveTo(pointerX - pointerWidth / 2, pointerY);
+          context.quadraticCurveTo(pointerX, pointerY + pointerHeight, pointerX + pointerWidth / 2, pointerY);
+          context.closePath();
+          context.fillStrokeShape(shape);
+        }}
+        fill="white"
+        stroke="black"
+        strokeWidth={2}
+        draggable
       />
       {isSelected && (
         <Transformer
