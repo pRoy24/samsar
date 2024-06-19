@@ -13,6 +13,7 @@ const ResizableDialogBubble = ({
   const shapeRef = useRef();
   const transformerRef = useRef();
   const pointerRef = useRef();
+  const pointerTransformerRef = useRef();
 
   const [shapeState, setShapeState] = useState({});
   const [isConfigSet, setIsConfigSet] = useState(false);
@@ -30,34 +31,29 @@ const ResizableDialogBubble = ({
         pointerY: config.pointerY || (config.y + config.height) || 0,
       };
       setShapeState(newState);
-    } else {
-      const newState = {
-        ...shapeState,
-        pointerX: config.pointerX || (config.x + (config.width / 2)) || 0,
-        pointerY: config.pointerY || (config.y + config.height) || 0,
-      };
-      setShapeState(newState);
     }
   }, [config]);
 
   useEffect(() => {
     if (isSelected) {
       transformerRef.current.nodes([shapeRef.current]);
+      pointerTransformerRef.current.nodes([pointerRef.current]);
       transformerRef.current.getLayer().batchDraw();
+      pointerTransformerRef.current.getLayer().batchDraw();
     }
   }, [isSelected]);
 
   const updatePointerPosition = () => {
     const node = shapeRef.current;
-    const boundingBox = node.getClientRect();
-
-    const newPointerX = boundingBox.x + boundingBox.width / 2;
-    const newPointerY = boundingBox.y + boundingBox.height;
+    const scaleX = node.scaleX();
+    const scaleY = node.scaleY();
+    const newPointerX = node.x();
+    const newPointerY = node.y() + (node.height() * scaleY / 2);
 
     setShapeState(prevState => ({
       ...prevState,
       pointerX: newPointerX,
-      pointerY: newPointerY
+      pointerY: newPointerY,
     }));
   };
 
@@ -141,6 +137,17 @@ const ResizableDialogBubble = ({
           ref={transformerRef}
           boundBoxFunc={(oldBox, newBox) => {
             if (newBox.width < 50 || newBox.height < 50) {
+              return oldBox;
+            }
+            return newBox;
+          }}
+        />
+      )}
+      {isSelected && (
+        <Transformer
+          ref={pointerTransformerRef}
+          boundBoxFunc={(oldBox, newBox) => {
+            if (newBox.width < 10 || newBox.height < 10) {
               return oldBox;
             }
             return newBox;
