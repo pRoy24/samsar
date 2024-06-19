@@ -90,7 +90,7 @@ export default function VideoEditorContainer(props) {
   const [pencilColor, setPencilColor] = useState('#000000');
   const [eraserWidth, setEraserWidth] = useState(30);
   const [pencilOptionsVisible, setPencilOptionsVisible] = useState(false);
-   const [eraserOptionsVisible, setEraserOptionsVisible] = useState(false);
+  const [eraserOptionsVisible, setEraserOptionsVisible] = useState(false);
   const [cursorSelectOptionVisible, setCursorSelectOptionVisible] = useState(false);
 
   const [generationError, setGenerationError] = useState(null);
@@ -159,11 +159,12 @@ export default function VideoEditorContainer(props) {
 
 
         const nImageList: any = Object.assign([], activeItemList);
-        nImageList.push({ 
+        nImageList.push({
           src: activeSelectedImageURL, id: `item_${nImageList.length}`,
-         type: 'image' , width: STAGE_DIMENSIONS.width,
+          type: 'image', width: STAGE_DIMENSIONS.width,
           height: STAGE_DIMENSIONS.height,
-         x: 0, y: 0});
+          x: 0, y: 0
+        });
 
         setActiveItemList(nImageList);
 
@@ -417,8 +418,10 @@ export default function VideoEditorContainer(props) {
       const generatedImageUrlName = pollStatus.activeGeneratedImage;
       const generatedURL = `/generations/${generatedImageUrlName}`;
       const nImageList: any = Object.assign([], activeItemList);
-      const newItem = { src: generatedURL, id: `item_${nImageList.length}`, type: 'image',
-           x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height};
+      const newItem = {
+        src: generatedURL, id: `item_${nImageList.length}`, type: 'image',
+        x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height
+      };
 
       nImageList.push(newItem);
 
@@ -427,7 +430,7 @@ export default function VideoEditorContainer(props) {
       setSessionDetails(pollStatus);
       setIsGenerationPending(false);
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
-      
+
       return;
     } else if (pollStatus.generationStatus === 'FAILED') {
       setIsGenerationPending(false);
@@ -600,12 +603,12 @@ export default function VideoEditorContainer(props) {
       let width = 100;
       shapeConfig = {
         x: xVal, y: yVal, width: width, height: height, fillColor: fillColor,
-         strokeColor: strokeColor, strokeWidth: strokeWidthValue,
-        pointerX: xVal, pointerY: yVal + height / 2 + 20, 
-        xRadius:  width / 2, yRadius: 20
+        strokeColor: strokeColor, strokeWidth: strokeWidthValue,
+        pointerX: xVal, pointerY: yVal + height / 2 + 20,
+        xRadius: width / 2, yRadius: 20
       }
     } else {
-       shapeConfig = {
+      shapeConfig = {
         x: 512, y: 200, width: 200, height: 200, fillColor: fillColor, radius: 70,
         strokeColor: strokeColor, strokeWidth: strokeWidthValue
       }
@@ -634,7 +637,7 @@ export default function VideoEditorContainer(props) {
     }
     imageNode.cache();
     imageNode.filters([filter]);
-  
+
     if (filter === Konva.Filters.Blur) {
       imageNode.blurRadius(value);
     } else if (filter === Konva.Filters.Brighten) {
@@ -659,10 +662,10 @@ export default function VideoEditorContainer(props) {
       // Assuming the slider controls alpha for RGBA
       imageNode.alpha(value);
     }
-  
+
     stage.batchDraw();
   };
-  
+
   const applyFinalFilter = async (index, filter, value) => {
     const nodeId = `item_${index}`;
     const stage = canvasRef.current.getStage();
@@ -670,11 +673,11 @@ export default function VideoEditorContainer(props) {
     if (!imageNode) {
       return;
     }
-  
+
     // Apply the filter to the image node
     imageNode.cache();
     imageNode.filters([filter]);
-  
+
     if (filter === Konva.Filters.Blur) {
       imageNode.blurRadius(value);
     } else if (filter === Konva.Filters.Brighten) {
@@ -699,12 +702,12 @@ export default function VideoEditorContainer(props) {
       // Assuming the slider controls alpha for RGBA
       imageNode.alpha(value);
     }
-  
+
     stage.batchDraw();
-  
+
     // Convert the updated image node to a data URL
     const updatedImageDataUrl = imageNode.toDataURL();
-  
+
     // Update the activeItemList with the new data URL
     const updatedItemList = activeItemList.map((item, idx) => {
       if (idx === index) {
@@ -715,16 +718,16 @@ export default function VideoEditorContainer(props) {
       }
       return item;
     });
-  
+
     setActiveItemList(updatedItemList);
-  
+
     // Send a backend request to update the session layer
     updateSessionLayerActiveItemList(updatedItemList);
   };
-  
 
-  
-  
+
+
+
 
   const handleBubbleChange = (newAttrs) => {
     // const updatedBubbles = activeItemList.map((item) => {
@@ -735,28 +738,28 @@ export default function VideoEditorContainer(props) {
     // });
     // setActiveItemList(updatedBubbles);
   };
-  
+
   const combineCurrentLayerItems = async () => {
     const stage = canvasRef.current.getStage();
     const originalLayer = stage.getLayers()[0];
-  
+
     // Remove transformers before combining
     stage.find('Transformer').forEach(transformer => {
       transformer.destroy();
     });
-  
+
     // Create a new Konva layer to combine all items
     const combinedLayer = new Konva.Layer();
     originalLayer.children.forEach(child => {
       combinedLayer.add(child.clone());
     });
-  
+
     // Draw the combined layer
     combinedLayer.draw();
-  
+
     // Convert the combined layer to a data URL
     const combinedImageDataUrl = combinedLayer.toDataURL();
-  
+
     // Create a new item for the combined image
     const combinedItem = {
       src: combinedImageDataUrl,
@@ -767,13 +770,13 @@ export default function VideoEditorContainer(props) {
       width: STAGE_DIMENSIONS.width,
       height: STAGE_DIMENSIONS.height,
     };
-  
+
     // Update the activeItemList with the combined image
     const updatedItemList = [combinedItem];
-  
+
     setActiveItemList(updatedItemList);
     updateSessionLayerActiveItemList(updatedItemList);
-  
+
     // Send a backend request to update the session layer
     const headers = getHeaders();
     const payload = {
@@ -781,7 +784,7 @@ export default function VideoEditorContainer(props) {
       activeItemList: updatedItemList,
       layerId: currentLayer._id.toString(),
     };
-  
+
     axios.post(`${PROCESSOR_API_URL}/video_sessions/update_active_item_list`, payload, headers)
       .then(response => {
         const updatedSession = response.data;
@@ -792,8 +795,8 @@ export default function VideoEditorContainer(props) {
       });
   };
 
-  
-  
+
+
 
 
   const submitGenerateMusicRequest = (payload) => {
@@ -851,7 +854,7 @@ export default function VideoEditorContainer(props) {
         setSessionDetails(sessionData.videoSession);
         setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY)
       }
-      
+
     });
   }
 
@@ -864,11 +867,15 @@ export default function VideoEditorContainer(props) {
   }, [cursorSelectOptionVisible]);
 
   
+
   if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
 
+    if (currentLayer.imageSession.generationStatus === 'PENDING') {
+      viewDisplay = <LoadingImage />;
+    } else {
       viewDisplay = (
         <VideoCanvas ref={canvasRef}
-        key={`canvas_${currentLayer._id.toString()}`}
+          key={`canvas_${currentLayer._id.toString()}`}
           maskGroupRef={maskGroupRef}
           sessionDetails={sessionDetails}
           activeItemList={activeItemList}
@@ -907,6 +914,7 @@ export default function VideoEditorContainer(props) {
 
         />
       )
+    }
 
   }
 

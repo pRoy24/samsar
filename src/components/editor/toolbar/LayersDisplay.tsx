@@ -29,7 +29,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 
 export default function LayersDisplay(props) {
 
-  const { activeItemList, setActiveItemList } = props;
+  const { activeItemList, setActiveItemList, updateSessionLayerActiveItemList } = props;
 
   const { colorMode } = useColorMode();
 
@@ -55,6 +55,7 @@ export default function LayersDisplay(props) {
       result.destination.index
     ).reverse();  // Reverse back to the original order
     setActiveItemList(newItems);
+    updateSessionLayerActiveItemList(newItems);
   };
   
   const deleteItem = (id) => {    
@@ -62,6 +63,7 @@ export default function LayersDisplay(props) {
     const filteredItems = activeItemList.filter(item => item.id !== id);
     // Update the activeItemList with the filtered items
     setActiveItemList(filteredItems);
+    updateSessionLayerActiveItemList(filteredItems);
   };
 
   let isDraggingBGColor = colorMode === 'dark' ? '#263B4A' : '#a8a29e';

@@ -259,7 +259,8 @@ export default function VideoEditorToolbar(props: any) {
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_LAYERS_DISPLAY) {
     layersDisplay = (
       <div>
-        <LayersDisplay activeItemList={activeItemList} setActiveItemList={setActiveItemList} />
+        <LayersDisplay activeItemList={activeItemList} setActiveItemList={setActiveItemList}
+        updateSessionLayerActiveItemList={updateSessionLayerActiveItemList} />
       </div>
     )
   }
