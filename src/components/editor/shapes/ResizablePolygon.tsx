@@ -8,7 +8,7 @@ export default function ResizablePolygon(props) {
 
   const polygonRef = React.useRef();
 
-  const { config: { x, y, sides, radius, fill, stroke, strokeWidth }, isSelected, onSelect, onUnselect, id,
+  const { config: { x, y, sides, radius, fillColor, strokeColor, strokeWidth }, isSelected, onSelect, onUnselect, id,
   updateToolbarButtonPosition } = props;
 
 
@@ -30,8 +30,8 @@ export default function ResizablePolygon(props) {
         y={y || INIT_DIMENSIONS.y}
         sides={sides || 6}
         radius={radius || 70}
-        fill={fill || 'red'}
-        stroke={stroke || 'black'}
+        fill={fillColor || 'red'}
+        stroke={strokeColor || 'black'}
         strokeWidth={strokeWidth || 4}
         draggable
         onDragMove={(e) => updateToolbarButtonPosition(id, e.target.x(), e.target.y())}

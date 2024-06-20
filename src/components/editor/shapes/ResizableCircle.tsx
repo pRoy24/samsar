@@ -19,7 +19,7 @@ export default function ResizableCircle(props: any) {
   }, [isSelected]);
 
 
-  const { x, y, width, height, fill, radius, stroke, strokeWidth } = config;
+  const { x, y, width, height, radius,  fillColor, strokeColor,  strokeWidth } = config;
   return (
     <Group id={`group_${id}`}>
       <Circle
@@ -27,8 +27,8 @@ export default function ResizableCircle(props: any) {
         y={INIT_DIMENSIONS.y}
         radius={50}
         radius={radius || 70}
-        fill={fill || 'red'}
-        stroke={stroke || 'black'}
+        fill={fillColor || 'red'}
+        stroke={strokeColor || 'black'}
         strokeWidth={strokeWidth || 4}
         draggable
         onDragMove={(e) => updateToolbarButtonPosition(id, e.target.x(), e.target.y())}

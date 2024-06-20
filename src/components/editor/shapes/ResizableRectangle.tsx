@@ -20,8 +20,7 @@ export default function ResizableRectangle(props) {
     }
   }, [isSelected]);
 
-  const { x, y, width, height, fill, stroke, strokeWidth } = config;
-
+  const { x, y, width, height, fillColor, strokeColor, strokeWidth } = config;
 
   return (
     <Group id={`group_${id}`}>
@@ -38,8 +37,8 @@ export default function ResizableRectangle(props) {
           e.cancelBubble = true; // Same as above for touch devices
           onSelect();
         }}
-        fill={fill || 'red'}
-        stroke={stroke || 'black'}
+        fill={fillColor || 'red'}
+        stroke={strokeColor || 'black'}
         strokeWidth={strokeWidth || 4}
         ref={rectangleRef}
         draggable={!config.fixed}
