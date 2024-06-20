@@ -101,28 +101,7 @@ export default function FrameToolbar(props) {
   };
 
   const handleDurationBlur = (index) => {
-
-
-
-    console.log("MEMEMEMION");
-
-    
-    console.log(index);
-
-    console.log("UPDATE API");
-    console.log(layers);
-
-
-    console.log(index);
-    console.log("MEGMERER");
-
-
     let layer = layers[index];
-
-    console.log(layer);
-    console.log(index);
-    console.log("MEMEMEME");
-
    updateSessionLayer(layer);
   };
 
