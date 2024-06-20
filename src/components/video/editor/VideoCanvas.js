@@ -33,8 +33,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     selectedLayerSelectShape, isLayerSeeking, applyFinalFilter,
   } = props;
 
-
-
   const [showMask, setShowMask] = useState(false);
   const [showEraser, setShowEraser] = useState(false);
   const [isPainting, setIsPainting] = useState(false);
@@ -1101,11 +1099,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   if (ref.current) {
     const stage = ref.current.getStage();
 
-
   }
-
-
-
 
   return (
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>

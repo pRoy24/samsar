@@ -1,26 +1,54 @@
 import React, { useRef, useEffect } from 'react';
-import { Rect, Text, Circle, Line, Group, Transformer } from 'react-konva';
+import { Rect, Group, Transformer } from 'react-konva';
 import { INIT_DIMENSIONS } from '../utils/ShapeUtils';
 
 export default function ResizableRectangle(props) {
-  const { shape, config, isSelected, onSelect, onUnselect, id, updateToolbarButtonPosition } = props;
+  const { shape, config, isSelected, onSelect, id, updateToolbarButtonPosition, updateTargetActiveLayerConfig } = props;
   const rectangleTransformerRef = useRef();
   const rectangleRef = useRef();
 
-
-
   useEffect(() => {
-    // Check if the transformer and circle references are correctly set
+    // Check if the transformer and rectangle references are correctly set
     if (rectangleTransformerRef.current && rectangleRef.current) {
-      // Set the transformer's node to the circle component
+      // Set the transformer's node to the rectangle component
       rectangleTransformerRef.current.nodes([rectangleRef.current]);
       rectangleTransformerRef.current.getLayer().batchDraw();
-
-
     }
   }, [isSelected]);
 
   const { x, y, width, height, fillColor, strokeColor, strokeWidth } = config;
+
+  const handleDragEnd = (e) => {
+    const node = e.target;
+    const newAttrs = {
+      x: node.x(),
+      y: node.y(),
+      width: node.width(),
+      height: node.height(),
+      fillColor: node.fill(),
+      strokeColor: node.stroke(),
+      strokeWidth: node.strokeWidth(),
+    };
+    updateTargetActiveLayerConfig(id, newAttrs);
+  };
+
+  const handleTransformEnd = (e) => {
+    const node = rectangleRef.current;
+    const newAttrs = {
+      x: node.x(),
+      y: node.y(),
+      width: node.width() * node.scaleX(),
+      height: node.height() * node.scaleY(),
+      scaleX: 1,
+      scaleY: 1,
+      fillColor: node.fill(),
+      strokeColor: node.stroke(),
+      strokeWidth: node.strokeWidth(),
+    };
+    node.scaleX(1);
+    node.scaleY(1);
+    updateTargetActiveLayerConfig(id, newAttrs);
+  };
 
   return (
     <Group id={`group_${id}`}>
@@ -43,11 +71,13 @@ export default function ResizableRectangle(props) {
         ref={rectangleRef}
         draggable={!config.fixed}
         onDragMove={(e) => updateToolbarButtonPosition(id, e.target.x(), e.target.y())}
+        onDragEnd={handleDragEnd}
+        onTransformEnd={handleTransformEnd}
       />
       {isSelected && <Transformer
         ref={rectangleTransformerRef}
         boundBoxFunc={(oldBox, newBox) => {
-          // Limit the size of the circle (optional)
+          // Limit the size of the rectangle (optional)
           if (newBox.width < 5 || newBox.height < 5) {
             return oldBox;
           }
@@ -55,7 +85,5 @@ export default function ResizableRectangle(props) {
         }}
       />}
     </Group>
-
-  )
+  );
 }
-
