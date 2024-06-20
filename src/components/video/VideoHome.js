@@ -99,7 +99,7 @@ export default function VideoHome(props) {
         console.log("Already at the first layer");
       }
     }
-  }, [currentLayerSeek, currentLayer, layers]);
+  }, [currentLayerSeek, layers]);
 
   useEffect(() => {
 
@@ -247,6 +247,9 @@ export default function VideoHome(props) {
   }
 
   const setSelectedLayer = (layer) => {
+
+    console.log("SETTING SLEECTED LAYER");
+
 
     const index = layers.findIndex(l => l._id === layer._id);
     setSelectedLayerIndex(index);
@@ -464,9 +467,14 @@ export default function VideoHome(props) {
     axios.post(`${PROCESSOR_API_URL}/video_sessions/remove_layer`, reqPayload, headers).then((response) => {
       const videoSessionData = response.data;
       const updatedLayers = videoSessionData.layers;
+      setSelectedLayerIndex(0);
       setLayers(updatedLayers);
     });
   }
+
+  console.log(layers);
+  console.log("EMEMEM");
+
 
   return (
     <CommonContainer>

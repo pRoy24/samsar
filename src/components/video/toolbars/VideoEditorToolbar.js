@@ -654,6 +654,7 @@ export default function VideoEditorToolbar(props: any) {
       const latestAudioLayer = audioLayers[audioLayers.length - 1];
       audioOptionsDisplay = <MusicSelectToolbar audioLayer={latestAudioLayer}
         submitAddTrackToProject={submitAddTrackToProject}
+        setCurrentCanvasAction={setCurrentCanvasAction}
       />;
 
       audioSubOptionsDisplay = <span />;

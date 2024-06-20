@@ -1104,6 +1104,9 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   }
 
+
+
+
   return (
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
       <Stage width={STAGE_DIMENSIONS.width} height={STAGE_DIMENSIONS.height} ref={ref} id="samsar-konva-stage">

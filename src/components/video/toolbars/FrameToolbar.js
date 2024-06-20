@@ -69,6 +69,7 @@ export default function FrameToolbar(props) {
       setHighlightBoundaries({ start: startPixels, height: heightPixels });
     }
   }, [selectedLayerIndex, layers, totalDuration, parentRef.current]);
+  
 
   const handleViewRangeSliderChange = (values) => {
     console.log(values);
