@@ -123,17 +123,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
     if (!item.animations) return;
     let isAnimating = false;
-
-
-
     const { x, y, width, height } = item;
-
     let requiresTranslation = false;
     let initialX = x;
     let initialY = y;
-
-
-
     // Check if translation is required
     item.animations?.forEach(animation => {
       if (animation.type === 'rotate') {

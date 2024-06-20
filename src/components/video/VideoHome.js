@@ -436,7 +436,7 @@ export default function VideoHome(props) {
     });
   };
 
-  const updateSessionLayer = debounce((newLayer) => {
+  const updateSessionLayer =(newLayer) => {
     console.log("UPDATING SESSION LAYER YY");
 
     const headers = getHeaders();
@@ -455,7 +455,7 @@ export default function VideoHome(props) {
         setCurrentLayer(updatedLayer);
       }
     });
-  }, 500); // Adjust the delay as needed
+  } // Adjust the delay as needed
 
   const removeSessionLayer = (layerIndex) => {
     const headers = getHeaders();
