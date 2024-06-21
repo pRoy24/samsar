@@ -21,6 +21,7 @@ import UploadImageDialog from '../editor/utils/UploadImageDialog.js';
 import VideoCanvas from './editor/VideoCanvas.js';
 import VideoEditorToolbar from './toolbars/VideoEditorToolbar.js'
 import LoadingImage from './util/LoadingImage.js';
+import ImageLibrary from './util/ImageLibrary.js';
 
 const PUBLISHER_URL = process.env.REACT_APP_PUBLISHER_URL;
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
@@ -30,7 +31,9 @@ export default function VideoEditorContainer(props) {
   const { selectedLayerId, currentLayerSeek,
     currentEditorView, setCurrentEditorView, setFrameEditDisplay,
     currentLayer, updateSessionLayerActiveItemList,
-    activeItemList, setActiveItemList, isLayerSeeking
+    activeItemList, setActiveItemList, isLayerSeeking,
+    showAddAudioToProjectDialog, generationImages,
+    updateCurrentActiveLayer,
   } = props;
 
   let { id } = useParams();
@@ -509,6 +512,11 @@ export default function VideoEditorContainer(props) {
 
   }
 
+  const addImageItemToActiveList = (payload) => {
+    setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
+    updateCurrentActiveLayer(payload);
+  }
+
   const getRemoteTemplateData = (page) => {
     axios.get(`${PROCESSOR_API_URL}/utils/template_list?page=${page}`).then((response) => {
       const generatedImageUrlName = response.data.activeGeneratedImage;
@@ -866,54 +874,65 @@ export default function VideoEditorContainer(props) {
     }
   }, [cursorSelectOptionVisible]);
 
-  
+
+
 
   if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
 
     if (currentLayer.imageSession.generationStatus === 'PENDING') {
       viewDisplay = <LoadingImage />;
     } else {
-      viewDisplay = (
-        <VideoCanvas ref={canvasRef}
-          key={`canvas_${currentLayer._id.toString()}`}
-          maskGroupRef={maskGroupRef}
-          sessionDetails={sessionDetails}
-          activeItemList={activeItemList}
-          setActiveItemList={setActiveItemList}
-          editBrushWidth={editBrushWidth}
-          currentView={currentView}
-          editMasklines={editMasklines}
-          setEditMaskLines={setEditMaskLines}
-          currentCanvasAction={currentCanvasAction}
-          setCurrentCanvasAction={setCurrentCanvasAction}
-          fillColor={fillColor}
-          strokeColor={strokeColor}
-          selectedId={selectedId}
-          setSelectedId={setSelectedId}
-          buttonPositions={buttonPositions}
-          setButtonPositions={setButtonPositions}
-          selectedLayerType={selectedLayerType}
-          setSelectedLayerType={setSelectedLayerType}
-          applyFilter={applyFilter}
-          applyFinalFilter={applyFinalFilter}
-          onChange={handleBubbleChange}
-          pencilColor={pencilColor}
-          pencilWidth={pencilWidth}
-          eraserWidth={eraserWidth}
-          sessionId={id}
-          selectedLayerId={selectedLayerId}
-          exportAnimationFrames={exportAnimationFrames}
-          currentLayerSeek={currentLayerSeek}
-          currentLayer={currentLayer}
-          updateTargetActiveLayerConfig={updateTargetActiveLayerConfig}
-          updateSessionActiveItemList={updateSessionActiveItemList}
-          selectedLayerSelectShape={selectedLayerSelectShape}
-          setCurrentView={setCurrentView}
-          isLayerSeeking={isLayerSeeking}
+
+      if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_LIBRARY_DISPLAY) {
+        viewDisplay = (
+          <ImageLibrary
+            generationImages={generationImages}
+            addImageItemToActiveList={addImageItemToActiveList}/>
+        )
+      } else {  
+        viewDisplay = (
+          <VideoCanvas ref={canvasRef}
+            key={`canvas_${currentLayer._id.toString()}`}
+            maskGroupRef={maskGroupRef}
+            sessionDetails={sessionDetails}
+            activeItemList={activeItemList}
+            setActiveItemList={setActiveItemList}
+            editBrushWidth={editBrushWidth}
+            currentView={currentView}
+            editMasklines={editMasklines}
+            setEditMaskLines={setEditMaskLines}
+            currentCanvasAction={currentCanvasAction}
+            setCurrentCanvasAction={setCurrentCanvasAction}
+            fillColor={fillColor}
+            strokeColor={strokeColor}
+            selectedId={selectedId}
+            setSelectedId={setSelectedId}
+            buttonPositions={buttonPositions}
+            setButtonPositions={setButtonPositions}
+            selectedLayerType={selectedLayerType}
+            setSelectedLayerType={setSelectedLayerType}
+            applyFilter={applyFilter}
+            applyFinalFilter={applyFinalFilter}
+            onChange={handleBubbleChange}
+            pencilColor={pencilColor}
+            pencilWidth={pencilWidth}
+            eraserWidth={eraserWidth}
+            sessionId={id}
+            selectedLayerId={selectedLayerId}
+            exportAnimationFrames={exportAnimationFrames}
+            currentLayerSeek={currentLayerSeek}
+            currentLayer={currentLayer}
+            updateTargetActiveLayerConfig={updateTargetActiveLayerConfig}
+            updateSessionActiveItemList={updateSessionActiveItemList}
+            selectedLayerSelectShape={selectedLayerSelectShape}
+            setCurrentView={setCurrentView}
+            isLayerSeeking={isLayerSeeking}
 
 
-        />
-      )
+
+          />
+        )
+      }
     }
 
   }
@@ -992,6 +1011,7 @@ export default function VideoEditorContainer(props) {
           audioGenerationPending={audioGenerationPending}
           submitAddTrackToProject={submitAddTrackToProject}
           combineCurrentLayerItems={combineCurrentLayerItems}
+          showAddAudioToProjectDialog={showAddAudioToProjectDialog}
 
         />
       </div>

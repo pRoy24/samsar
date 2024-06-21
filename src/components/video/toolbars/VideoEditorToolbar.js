@@ -9,7 +9,7 @@ import AddShapeDisplay from '../../editor/utils/AddShapeDisplay.tsx';
 import { useColorMode } from '../../../contexts/ColorMode.js';
 import LayersDisplay from '../../editor/toolbar/LayersDisplay.tsx';
 import Select from 'react-select';
-import { CURRENT_TOOLBAR_VIEW, TOOLBAR_ACTION_VIEW } from '../../../constants/Types.ts';
+import { CURRENT_EDITOR_VIEW, CURRENT_TOOLBAR_VIEW, TOOLBAR_ACTION_VIEW } from '../../../constants/Types.ts';
 import CommonButton from '../../common/CommonButton.tsx';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import { PiSelectionAll } from "react-icons/pi";
@@ -24,6 +24,7 @@ import { FaMusic } from 'react-icons/fa6';
 import { RiSpeakLine } from "react-icons/ri";
 import MusicSelectToolbar from './audio/MusicSelectToolbar.js';
 import { LuCombine } from "react-icons/lu";
+import { TbLibraryPhoto } from "react-icons/tb";
 
 
 import { SPEAKER_TYPES } from '../../../constants/Types.ts';
@@ -76,7 +77,8 @@ export default function VideoEditorToolbar(props: any) {
     audioLayers,
     audioGenerationPending,
     submitAddTrackToProject,
-    combineCurrentLayerItems
+    combineCurrentLayerItems,showAddAudioToProjectDialog
+
   } = props;
 
 
@@ -274,6 +276,10 @@ export default function VideoEditorToolbar(props: any) {
     }
   }
 
+  const showLibraryAction = () => {
+   setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_LIBRARY_DISPLAY);
+  }
+
   let addShapeDisplay = <span />;
 
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_ADD_SHAPE_DISPLAY) {
@@ -294,7 +300,7 @@ export default function VideoEditorToolbar(props: any) {
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_UPLOAD_DISPLAY) {
     uploadDisplay = (
       <div>
-        <div className='m-auto text-center grid grid-cols-2'>
+        <div className='m-auto text-center grid grid-cols-3'>
           <div className="text-center m-auto align-center mt-4 mb-4" onClick={() => showTemplateAction()} >
             <HiTemplate className="text-2xl m-auto cursor-pointer" />
             <div className="text-[10px] tracking-tight m-auto text-center">
@@ -306,6 +312,12 @@ export default function VideoEditorToolbar(props: any) {
             <FaUpload className="text-2xl m-auto cursor-pointer" onClick={() => showUploadAction()} />
             <div className="text-[12px] tracking-tight m-auto text-center">
               Upload
+            </div>
+          </div>
+          <div className="text-center m-auto align-center mt-4 mb-4">
+            <TbLibraryPhoto className="text-2xl m-auto cursor-pointer" onClick={() => showLibraryAction()} />
+            <div className="text-[12px] tracking-tight m-auto text-center">
+              Library
             </div>
           </div>
 
@@ -555,15 +567,20 @@ export default function VideoEditorToolbar(props: any) {
   let audioSubOptionsDisplay = <span />;
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_AUDIO_DISPLAY) {
     audioOptionsDisplay = (
-      <div className={`grid grid-cols-2 ${text2Color} h-auto`}>
-        <div onClick={() => (setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_MUSIC_GENERATE_DISPLAY))}>
-          <FaMusic />
-          Music
-        </div>
+      <div className={`grid grid-cols-3 ${text2Color} h-auto`}>
+
         <div onClick={() => { setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SPEECH_GENERATE_DISPLAY) }}>
           <RiSpeakLine />
           Speech
         </div>
+         <div onClick={() => (setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_MUSIC_GENERATE_DISPLAY))}>
+          <FaMusic />
+          Music
+        </div> 
+        <div onClick={() =>  showAddAudioToProjectDialog() }>
+          <FaUpload />
+          Upload
+        </div>        
       </div>
     )
 

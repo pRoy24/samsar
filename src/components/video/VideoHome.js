@@ -34,6 +34,7 @@ export default function VideoHome(props) {
   const [frameToolbarView, setFrameToolbarView] = useState(FRAME_TOOLBAR_VIEW.DEFAULT);
   const [audioLayers, setAudioLayers] = useState([]);
   const [isAudioLayerDirty, setIsAudioLayerDirty] = useState(false);
+  const [generationImages, setGenerationImages] = useState([]);
   let { id } = useParams();
   const activeItemListRef = useRef(activeItemList);
 
@@ -60,12 +61,15 @@ export default function VideoHome(props) {
       });
       setTotalDuration(totalDuration);
       let isLayerPending = false;
+      let sessionGenerationImages = [];
       layers.forEach(layer => {
+        sessionGenerationImages = sessionGenerationImages.concat(layer.imageSession.generations);
         if (layer.imageSession.generationStatus === 'PENDING') {
           isLayerPending = true;
         }
       });
       setIsLayerGenerationPending(isLayerPending);
+      setGenerationImages(sessionGenerationImages);
     });
   }, [id]);
 
@@ -475,6 +479,16 @@ export default function VideoHome(props) {
   console.log(layers);
   console.log("EMEMEM");
 
+  const updateCurrentActiveLayer = (imageItem) => {
+    console.log(imageItem);
+    
+    const newActiveItemList = activeItemList.concat(imageItem);
+    setActiveItemList(newActiveItemList);
+    debouncedUpdateSessionLayerActiveItemList();
+
+
+  }
+
 
   return (
     <CommonContainer>
@@ -531,6 +545,10 @@ export default function VideoHome(props) {
               activeItemList={activeItemList}
               setActiveItemList={setActiveItemList}
               isLayerSeeking={isLayerSeeking}
+              showAddAudioToProjectDialog={showAddAudioToProjectDialog}
+              generationImages={generationImages}
+              updateCurrentActiveLayer={updateCurrentActiveLayer}
+              
             />
           </div>
         </div>
