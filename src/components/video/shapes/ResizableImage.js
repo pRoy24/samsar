@@ -14,6 +14,8 @@ export default function ResizableImage({ image, isSelected, onSelect, onUnselect
   const [img, status] = useImage(imageSrc, 'anonymous');
 
 
+  console.log("GEEEEe");
+  
 
   const shapeRef = useRef();
   const trRef = useRef();

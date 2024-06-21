@@ -19,6 +19,7 @@ export default function ResizableImage({
 
 
   const { isDraggable, x, y } = props;
+
   const imageSrc = `${IMAGE_BASE}/${image.src}`;
   const [img] = useImage(imageSrc, 'anonymous');
   const [transformEndCalled, setTransformEndCalled] = useState(false);
@@ -49,7 +50,7 @@ export default function ResizableImage({
         width: img.width,
         height: img.height,
       };
-      const scalingFactor = getScalingFactor(imageDimensions);
+      const scalingFactor = 1;
 
       // Set the initial position of the image based on props
       shapeRef.current.setAttrs({
