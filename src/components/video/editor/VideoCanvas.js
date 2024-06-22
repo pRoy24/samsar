@@ -849,11 +849,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
           y: boundingBox.y,
         };
 
-        console.log(newItem);
-        console.log(activeItemList);
-        console.log("EEMEEEE");
-
-
         let prevActiveList = [...activeItemList];
         prevActiveList[prevActiveList.length - 1] = newItem;
         setActiveItemList(prevActiveList);

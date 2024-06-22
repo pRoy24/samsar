@@ -320,7 +320,7 @@ export default function VideoHome(props) {
         setActiveItemList(updatedItemList);
       }
     });
-  }, 500);
+  }, 50);
 
   const updateSessionLayerActiveItemList = (newActiveItemList) => {
     setActiveItemList(newActiveItemList);

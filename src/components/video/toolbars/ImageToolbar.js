@@ -100,7 +100,7 @@ export default function ImageToolbar(props) {
   return (
     <div key={pos.id} style={{
       position: 'absolute', left: pos.x, top: pos.y, background: "#030712",
-      width: "500px", borderRadius: "5px", padding: "5px", display: "flex", flexDirection: "column", alignItems: "center",
+      width: "512px", borderRadius: "5px", padding: "5px", display: "flex", flexDirection: "column", alignItems: "center",
       zIndex: 1000
     }}>
       <div className='flex flex-row w-full'>
@@ -113,7 +113,7 @@ export default function ImageToolbar(props) {
                 onChange={(e) => handleInputChange(e, 'x')}
                 onBlur={() => handleInputBlur('x')}
                 placeholder="X"
-                className={`w-full rounded-sm p-1 ${bgColor} ${textColor}`}
+                className={`w-full rounded-sm p-1 pr-0 ${bgColor} ${textColor} text-sm`}
               />
               <div className='text-xs text-center'>
                 X
@@ -126,7 +126,7 @@ export default function ImageToolbar(props) {
                 onChange={(e) => handleInputChange(e, 'y')}
                 onBlur={() => handleInputBlur('y')}
                 placeholder="Y"
-                className={`w-full rounded-sm p-1 ${bgColor} ${textColor}`}
+                className={`w-full rounded-sm p-1 pr-0 ${bgColor} ${textColor} text-sm` }
               />
               <div className='text-xs text-center'>
                 Y
@@ -139,7 +139,7 @@ export default function ImageToolbar(props) {
                 onChange={(e) => handleInputChange(e, 'width')}
                 onBlur={() => handleInputBlur('width')}
                 placeholder="W"
-                className={`w-full rounded-sm p-1 ${bgColor} ${textColor}`}
+                className={`w-full rounded-sm p-1 pr-0 ${bgColor} ${textColor} text-sm`}
               />
               <div className='text-xs text-center'>
                 W
@@ -152,7 +152,7 @@ export default function ImageToolbar(props) {
                 onChange={(e) => handleInputChange(e, 'height')}
                 onBlur={() => handleInputBlur('height')}
                 placeholder="H"
-                className={`w-full rounded-sm p-1 ${bgColor} ${textColor}`}
+                className={`w-full rounded-sm p-1 pr-0 ${bgColor} ${textColor} text-sm`}
               />
               <div className='text-xs text-center'>
                 H
