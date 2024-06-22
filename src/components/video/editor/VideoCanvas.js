@@ -840,7 +840,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       const imageObj = new window.Image();
       imageObj.onload = () => {
         const newItem = {
-          id: `item_${activeItemList.length}`,
+          id: `item_${activeItemList.length -1}`,
           type: 'image',
           src: dataURL,
           width: imageObj.width,
@@ -849,6 +849,11 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
           y: boundingBox.y,
         };
 
+        console.log(newItem);
+        console.log(activeItemList);
+        console.log("EEMEEEE");
+
+
         let prevActiveList = [...activeItemList];
         prevActiveList[prevActiveList.length - 1] = newItem;
         setActiveItemList(prevActiveList);
@@ -856,6 +861,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         if (transformer) {
           transformer.show(); // Show transformer boundaries again
         }
+        setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
       };
       imageObj.src = dataURL;
     }
