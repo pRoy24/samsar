@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaChevronCircleDown, FaChevronCircleUp, FaTimesCircle } from 'react-icons/fa';
 import Konva from 'konva';
 import Select from 'react-select';
@@ -20,10 +20,26 @@ const filters = [
 
 export default function ImageToolbar(props) {
   const { pos, moveItem, index, applyFilter, removeItem, colorMode, flipImageVertical,
-    flipImageHorizontal, itemId, applyFinalFilter,
+    flipImageHorizontal, itemId, applyFinalFilter, updateTargetActiveLayerConfig,
   } = props;
+
   const [selectedFilter, setSelectedFilter] = useState(null);
   const [filterValue, setFilterValue] = useState(0);
+  const [xValue, setXValue] = useState(0);
+  const [yValue, setYValue] = useState(0);
+  const [widthValue, setWidthValue] = useState(0);
+  const [heightValue, setHeightValue] = useState(0);
+
+  useEffect(() => {
+    // Fetch current item properties to initialize the input values
+    const currentItem = props.activeItemList.find(item => item.id === itemId);
+    if (currentItem) {
+      setXValue(currentItem.x);
+      setYValue(currentItem.y);
+      setWidthValue(currentItem.width);
+      setHeightValue(currentItem.height);
+    }
+  }, [itemId, props.activeItemList]);
 
   const handleFilterChange = (selectedOption) => {
     setSelectedFilter(selectedOption);
@@ -46,16 +62,105 @@ export default function ImageToolbar(props) {
     }
   };
 
+  const handleInputChange = (e, type) => {
+    const value = parseInt(e.target.value, 10);
+    switch (type) {
+      case 'x':
+        setXValue(value);
+        break;
+      case 'y':
+        setYValue(value);
+        break;
+      case 'width':
+        setWidthValue(value);
+        break;
+      case 'height':
+        setHeightValue(value);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleInputBlur = (type) => {
+    const newConfig = {
+      x: xValue,
+      y: yValue,
+      width: widthValue,
+      height: heightValue,
+    };
+    updateTargetActiveLayerConfig(itemId, newConfig);
+  };
+
   const iconColor = colorMode === 'dark' ? 'text-neutral-200' : 'text-grey-800';
+
+  const bgColor = colorMode === 'dark' ? `bg-gray-900` : `bg-neutral-300`;
+  const textColor = colorMode === 'dark' ? `text-white` : `text-black`;
 
   return (
     <div key={pos.id} style={{
       position: 'absolute', left: pos.x, top: pos.y, background: "#030712",
-      width: "350px", borderRadius: "5px", padding: "5px", display: "flex", flexDirection: "column", alignItems: "center",
+      width: "500px", borderRadius: "5px", padding: "5px", display: "flex", flexDirection: "column", alignItems: "center",
       zIndex: 1000
     }}>
       <div className='flex flex-row w-full'>
-        <div className='basis-1/3'>
+        <div className='basis-1/2'>
+          <div className='grid grid-cols-4'>
+            <div>
+              <input
+                type="number"
+                value={xValue}
+                onChange={(e) => handleInputChange(e, 'x')}
+                onBlur={() => handleInputBlur('x')}
+                placeholder="X"
+                className={`w-full rounded-sm p-1 ${bgColor} ${textColor}`}
+              />
+              <div className='text-xs text-center'>
+                X
+              </div>
+            </div>
+            <div>
+              <input
+                type="number"
+                value={yValue}
+                onChange={(e) => handleInputChange(e, 'y')}
+                onBlur={() => handleInputBlur('y')}
+                placeholder="Y"
+                className={`w-full rounded-sm p-1 ${bgColor} ${textColor}`}
+              />
+              <div className='text-xs text-center'>
+                Y
+              </div>
+            </div>
+            <div>
+              <input
+                type="number"
+                value={widthValue}
+                onChange={(e) => handleInputChange(e, 'width')}
+                onBlur={() => handleInputBlur('width')}
+                placeholder="W"
+                className={`w-full rounded-sm p-1 ${bgColor} ${textColor}`}
+              />
+              <div className='text-xs text-center'>
+                W
+              </div>
+            </div>
+            <div>
+              <input
+                type="number"
+                value={heightValue}
+                onChange={(e) => handleInputChange(e, 'height')}
+                onBlur={() => handleInputBlur('height')}
+                placeholder="H"
+                className={`w-full rounded-sm p-1 ${bgColor} ${textColor}`}
+              />
+              <div className='text-xs text-center'>
+                H
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className='basis-1/4'>
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
             <button onClick={() => moveItem(index, -1)}>
               <FaChevronCircleDown className={`${iconColor} mt-2 text-xl cursor-hover`} />
@@ -65,7 +170,7 @@ export default function ImageToolbar(props) {
             </button>
           </div>
         </div>
-        <div className='basis-1/3'>
+        <div className='basis-1/4'>
           <Select
             options={filters}
             onChange={handleFilterChange}
@@ -102,7 +207,6 @@ export default function ImageToolbar(props) {
               }),
             }}
           />
-
           {selectedFilter && (
             <input
               type="range"
@@ -117,7 +221,7 @@ export default function ImageToolbar(props) {
             />
           )}
         </div>
-        <div className='basis-1/3 flex'>
+        <div className='basis-1/4 flex'>
           <GiVerticalFlip className={`${iconColor} mr-2 mt-2 text-xl cursor-hover inline-flex`} onClick={() => flipImageVertical(itemId)} />
           <GiHorizontalFlip className={`${iconColor} mr-2 mt-2 text-xl cursor-hover inline-flex`} onClick={() => flipImageHorizontal(itemId)} />
           <FaTimesCircle className={`${iconColor} ml-4 mt-2 text-xl cursor-hover`} onClick={() => removeItem(index)} />

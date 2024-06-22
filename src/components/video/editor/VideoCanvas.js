@@ -1133,18 +1133,20 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         if (selectedLayerType === 'image') {
           return (
             <ImageToolbar
-              key={pos.id}
-              pos={pos}
-              index={index}
-              moveItem={moveItem}
-              applyFilter={applyFilter}
-              applyFinalFilter={applyFinalFilter}
-              colorMode={colorMode}
-              removeItem={removeItem}
-              itemId={selectedId}
-              flipImageHorizontal={flipImageHorizontal}
-              flipImageVertical={flipImageVertical}
-            />
+            key={pos.id}
+            pos={pos}
+            index={index}
+            moveItem={moveItem}
+            applyFilter={applyFilter}
+            applyFinalFilter={applyFinalFilter}
+            colorMode={colorMode}
+            removeItem={removeItem}
+            itemId={selectedId}
+            flipImageHorizontal={flipImageHorizontal}
+            flipImageVertical={flipImageVertical}
+            updateTargetActiveLayerConfig={updateTargetActiveLayerConfig} // Pass the handler
+            activeItemList={activeItemList} // Pass active item list to fetch current item properties
+          />
           );
         }
         return (
