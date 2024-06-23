@@ -429,7 +429,7 @@ export default function VideoEditorContainer(props) {
       nImageList.push(newItem);
 
       setActiveItemList(nImageList);
-      updateSessionActiveItemList(nImageList);
+     // updateSessionActiveItemList(nImageList);
       setSessionDetails(pollStatus);
       setIsGenerationPending(false);
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
@@ -449,12 +449,19 @@ export default function VideoEditorContainer(props) {
   async function startOutpaintPoll() {
     setIsOutpaintPending(true);
 
-    const pollStatusData = await axios.get(`${PROCESSOR_API_URL}/video_sessions/generate_status?id=${id}`);
+    const selectedLayerId = currentLayer._id.toString();
+    const headers = getHeaders();
+
+    const pollStatusData = await axios.get(`${PROCESSOR_API_URL}/video_sessions/outpaint_status?id=${id}&layerId=${selectedLayerId}`, headers);
 
     const pollStatus = pollStatusData.data;
+
+
     if (pollStatus.outpaintStatus === 'COMPLETED') {
+      const newActiveItemList = pollStatus.activeItemList;
+
       const generatedImageUrlName = pollStatus.activeOutpaintedImage;
-      const generatedURL = `${PROCESSOR_API_URL}/generations/${generatedImageUrlName}`;
+      const generatedURL = `${generatedImageUrlName}`;
 
       const nImageList: any = Object.assign([], activeItemList);
       nImageList.push({ src: generatedURL, id: `item_${nImageList.length}`, type: 'image' });
@@ -464,7 +471,7 @@ export default function VideoEditorContainer(props) {
       setActiveItemList(nImageList);
       setSessionDetails(pollStatus);
       setIsOutpaintPending(false);
-      updateSessionActiveItemList(nImageList);
+
       return;
     } else if (pollStatus.outpaintStatus === 'FAILED') {
       setIsOutpaintPending(false);
