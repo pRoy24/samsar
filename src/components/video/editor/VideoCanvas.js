@@ -1,6 +1,8 @@
 import React, { forwardRef, useEffect, useState, useRef } from "react";
 import { Stage, Layer, Group, Line, Circle, Rect, Image as KonvaImage } from 'react-konva';
 import Konva from 'konva';
+import './canvas.css';
+
 import ResizableImage from "../../editor/ResizableImage.tsx";
 import ResizableText from "../../editor/ResizableText.tsx";
 import ResizableRectangle from "../../editor/shapes/ResizableRectangle.tsx";
@@ -1096,7 +1098,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   }
 
   return (
-    <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
+    <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px] `} >
       <Stage width={STAGE_DIMENSIONS.width} height={STAGE_DIMENSIONS.height} ref={ref} id="samsar-konva-stage">
         <Layer onMouseDown={handleLayerMouseDown} onMouseMove={handleLayerMouseMove} onMouseUp={handleLayerMouseUp}>
           <Group id="baseGroup">
