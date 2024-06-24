@@ -198,7 +198,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       const node = stage.findOne(`#${itemId}`);
       if (node) {
         const absPos = node.getClientRect({ skipTransform: false, skipShadow: false, skipStroke: false });
-        return { id: item.id, x: absPos.x + 30, y: absPos.y };
+        return { id: item.id, x: absPos.x + 30, y: absPos.y + 30 };
       }
       return null;
     }).filter(Boolean);
@@ -299,7 +299,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const updateToolbarButtonPosition = (id, x, y) => {
     setButtonPositions((prevPositions) =>
       prevPositions.map((pos) =>
-        pos.id === id ? { ...pos, x: x + 30, y: y } : pos
+        pos.id === id ? { ...pos, x: x + 30, y: y + 30} : pos
       )
     );
   };

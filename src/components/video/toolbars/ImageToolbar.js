@@ -100,7 +100,7 @@ export default function ImageToolbar(props) {
   return (
     <div key={pos.id} style={{
       position: 'absolute', left: pos.x, top: pos.y, background: "#030712",
-      width: "512px", borderRadius: "5px", padding: "5px", display: "flex", flexDirection: "column", alignItems: "center",
+      width: "512px", borderRadius: "5px", padding: "5px", paddingTop: "1px", paddingBottom: "1px", display: "flex", flexDirection: "column", alignItems: "center",
       zIndex: 100
     }}>
       <div className='flex flex-row w-full'>

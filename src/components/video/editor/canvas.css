@@ -1,4 +1,0 @@
-.konvajs-content canvas {
-  z-index: 500;
-  position: relative; /* Make sure to add this to enable z-index to work */
-}
