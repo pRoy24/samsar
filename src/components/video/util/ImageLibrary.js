@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useColorMode  } from '../../../contexts/ColorMode.js';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
+import { getRemoteImageLink } from '../../../utils/image.js'
 
 const API_SERVER = process.env.REACT_APP_PROCESSOR_API;
+
 
 export default function ImageLibrary(props) {
   const { generationImages, addImageItemToActiveList } = props;
@@ -35,7 +37,9 @@ export default function ImageLibrary(props) {
   const textColor = colorMode === 'dark' ? 'text-white' : 'text-black';
 
   const imagesLinks = generationImages.map((image) => {
-    const imageLink = `${API_SERVER}/generations/${image}`;
+    const imageLink =  getRemoteImageLink(image);
+
+
     return (
       <div key={image} className="image-item">
         <img
