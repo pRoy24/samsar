@@ -542,16 +542,19 @@ export default function VideoHome(props) {
     debouncedUpdateSessionLayerActiveItemList();
   }
 
-  const addLayersViaPromptList = (promptList) => {
+  const addLayersViaPromptList = (payload) => {
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
       return;
     }
 
+    const { promptList , duration } = payload;
+
     const reqPayload = {
       sessionId: id,
       promptList: promptList,
+      duration: duration,
     };
 
     axios.post(`${PROCESSOR_API_URL}/video_sessions/add_layers_via_prompt_list`, reqPayload, headers).then((response) => {
@@ -605,6 +608,7 @@ export default function VideoHome(props) {
               copyCurrentLayerBelow={copyCurrentLayerBelow}
               removeSessionLayer={removeSessionLayer}
               addLayersViaPromptList={addLayersViaPromptList}
+              defaultSceneDuration={videoSessionDetails.defaultSceneDuration}
             />
           </div>
           <div className='w-[86%] bg-cyber-black inline-block'>

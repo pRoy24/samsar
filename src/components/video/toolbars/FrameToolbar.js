@@ -32,7 +32,7 @@ export default function FrameToolbar(props) {
     removeAudioLayer, handleVolumeChange,
     updateChangesToActiveLayers, addLayerToComposition,
     copyCurrentLayerBelow, removeSessionLayer,
-    addLayersViaPromptList
+    addLayersViaPromptList, defaultSceneDuration
   } = props;
 
   const { colorMode } = useColorMode();
@@ -236,14 +236,21 @@ export default function FrameToolbar(props) {
     const formData = new FormData(e.target);
     const promptList = formData.get('promptList');
     const promptListArray = promptList.split('\n');
-    addLayersViaPromptList(promptListArray);
+    const duration = formData.get('duration');
+    const payload = {
+      promptList: promptListArray,
+      duration: duration
+    };
+    
+    addLayersViaPromptList(payload);
     closeAlertDialog();
-
 
   }
   const showBatchLayerDialog = () => {
     console.log("Show batch layer dialog");
-    openAlertDialog(<BatchPrompt submitPromptList={submitPromptList} />);
+    openAlertDialog(<BatchPrompt 
+      submitPromptList={submitPromptList}
+      defaultSceneDuration={defaultSceneDuration} />);
 
   }
 

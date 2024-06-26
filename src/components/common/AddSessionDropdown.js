@@ -11,8 +11,8 @@ function AddSessionDropdown(props) {
   const { colorMode } = useColorMode();
   const [isOpen, setIsOpen] = useState(false);
 
-  const bgColor = colorMode === 'dark' ? 'bg-gray-900 hover:bg-blue-700 ' : 'bg-neutral-200 hover:bg-neutral-300';
-  const textColor = colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700';
+  const bgColor = colorMode === 'dark' ? 'bg-gray-900 hover:bg-gray-700 ' : 'bg-neutral-200 hover:bg-neutral-300';
+  const textColor = colorMode === 'dark' ? 'text-neutral-100' : 'text-neutral-700';
 
   
 
@@ -23,7 +23,6 @@ function AddSessionDropdown(props) {
 
 
   const addNewSession = () => {
-    console.log('Add new layer');
     createNewSession();
     setIsOpen(false);
   };
@@ -40,8 +39,8 @@ function AddSessionDropdown(props) {
       <button
         onClick={toggleDropdown}
         className={`inline-flex justify-center w-32 px-4 py-4 
-         text-sm font-medium 
-          rounded-md shadow-sm hover:bg-gray-50 focus:outline-none ${textColor} ${bgColor}`}
+         text-md font-medium 
+          rounded-md shadow-sm focus:outline-none ${textColor} ${bgColor}`}
       >
         <FaPlus className="mr-2" />
         <span className="text-xs">New Project</span>
