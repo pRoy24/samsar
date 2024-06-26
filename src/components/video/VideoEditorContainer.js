@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -22,6 +20,7 @@ import VideoCanvas from './editor/VideoCanvas.js';
 import VideoEditorToolbar from './toolbars/VideoEditorToolbar.js'
 import LoadingImage from './util/LoadingImage.js';
 import ImageLibrary from './util/ImageLibrary.js';
+import AuthContainer from '../auth/AuthContainer.js';
 
 const PUBLISHER_URL = process.env.REACT_APP_PUBLISHER_URL;
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
@@ -39,8 +38,14 @@ export default function VideoEditorContainer(props) {
 
   let { id } = useParams();
 
+  const showLoginDialog = () => {
 
+    const loginComponent = (
+      <AuthContainer />
+    )
+    openAlertDialog(loginComponent);
 
+  };
 
   const resetSession = () => {
     if (props.resetCurrentSession) {
@@ -52,13 +57,11 @@ export default function VideoEditorContainer(props) {
     id = props.id;
   }
 
-
   const [promptText, setPromptText] = useState("");
   const [selectedChain, setSelectedChain] = useState('');
   const [selectedAllocation, setSelectedAllocation] = useState(300);
   const [isTemplateSelectViewSelected, setIsTemplateSelectViewSelected] = useState(false);
   const [templateOptionList, setTemplateOptionList] = useState([]);
-
 
   const [editBrushWidth, setEditBrushWidth] = useState(25);
   const [editMasklines, setEditMaskLines] = useState([]);
@@ -66,13 +69,11 @@ export default function VideoEditorContainer(props) {
   const [currentView, setCurrentView] = useState(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
   const [currentCanvasAction, setCurrentCanvasAction] = useState(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
 
-
   const [selectedGenerationModel, setSelectedGenerationModel] = useState('DALLE3');
   const [selectedEditModel, setSelectedEditModel] = useState('DALLE2');
   const [isGenerationPending, setIsGenerationPending] = useState(false);
   const [isOutpaintPending, setIsOutpaintPending] = useState(false);
   const [isPublicationPending, setIsPublicationPending] = useState(false);
-
 
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -89,7 +90,6 @@ export default function VideoEditorContainer(props) {
   const [selectedId, setSelectedId] = useState(null);
   const [selectedLayerType, setSelectedLayerType] = useState(null);
 
-
   const [pencilWidth, setPencilWidth] = useState(10);
   const [pencilColor, setPencilColor] = useState('#000000');
   const [eraserWidth, setEraserWidth] = useState(30);
@@ -103,8 +103,6 @@ export default function VideoEditorContainer(props) {
   const [selectedLayerSelectShape, setSelectedLayerSelectShape] = useState(null);
 
   const [audioGenerationPending, setAudioGenerationPending] = useState(false);
-
-
 
   const [textConfig, setTextConfig] = useState({
     fontSize: 40,
@@ -139,75 +137,10 @@ export default function VideoEditorContainer(props) {
     setIsAlertActionPending(isPublicationPending);
   }, [isPublicationPending]);
 
-  // useEffect(() => {
-  //   if (!id) {
-  //     return;
-  //   }
-
-
-  //   const headers = getHeaders();
-
-  //   setActiveItemList([]);
-
-  //   axios.get(`${PROCESSOR_API_URL}/video_sessions/details?id=${id}`, headers).then((response) => {
-
-
-  //     const session = response.data;
-
-      
-  //   //  setSessionDetails(session);
-
-
-  //     if (session.activeItemList) {
-
-  //       setActiveItemList(session.activeItemList);
-  //     } else if (session.activeSelectedImage) {
-
-  //       const activeSelectedImageName = session.activeSelectedImage;
-
-  //       const activeSelectedImageURL = `${PROCESSOR_API_URL}/generations/${activeSelectedImageName}`;
-
-
-  //       const nImageList: any = Object.assign([], activeItemList);
-  //       nImageList.push({
-  //         src: activeSelectedImageURL, id: `item_${nImageList.length}`,
-  //         type: 'image', width: STAGE_DIMENSIONS.width,
-  //         height: STAGE_DIMENSIONS.height,
-  //         x: 0, y: 0
-  //       });
-
-  //       setActiveItemList(nImageList);
-
-
-  //     } else {
-  //       const nImageList: any = Object.assign([], activeItemList);
-  //       if (nImageList.length === 0) {
-  //         nImageList.push({
-  //           id: `item_${nImageList.length}`,
-  //           type: 'shape',
-  //           shape: 'rectangle',
-  //           config: {
-  //             x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height,
-  //             fillColor: initialBackgroundFillColor, strokeColor: initialBackgroundFillColor, strokeWidth: strokeWidthValue,
-  //             fixed: true,
-  //           }
-  //         });
-  //         // setActiveItemList(nImageList);
-  //       }
-  //     }
-
-  //   });
-
-
-  // }, [selectedLayerId]);
-
-
-
   useEffect(() => {
     if (currentView !== CURRENT_TOOLBAR_VIEW.SHOW_EDIT_MASK_DISPLAY) {
       setEditMaskLines([]);
     }
-    //setSelectedId(null); // test
   }, [currentView]);
 
   const setUploadURL = useCallback((data) => {
@@ -233,8 +166,6 @@ export default function VideoEditorContainer(props) {
 
   }, [activeItemList]);
 
-
-
   const resetCurrentView = () => {
     setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
   }
@@ -243,21 +174,16 @@ export default function VideoEditorContainer(props) {
   const [isIntermediateSaving, setIsIntermediateSaving] = useState(false);
 
   useEffect(() => {
-    // Get the current length of activeItemList
     const currentLength = activeItemList.length;
 
-    // Check if previous length is not equal to current length
     if (prevLengthRef.current !== currentLength) {
       if (!isIntermediateSaving) {
         setIsIntermediateSaving(true);
-        // saveIntermediateImage();
       }
     }
 
-    // Update the ref with the new length for the next render
     prevLengthRef.current = currentLength;
   }, [activeItemList.length]);
-
 
   const updateNFTData = (value) => {
     let newNftData = Object.assign({}, nftData, value);
@@ -270,11 +196,14 @@ export default function VideoEditorContainer(props) {
       videoSessionId: id,
       model: selectedGenerationModel,
       layerId: currentLayer._id.toString()
-
     }
     setGenerationError(null);
 
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
     const generateStatus = await axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate`, payload, headers);
     startGenerationPoll();
   }
@@ -309,22 +238,25 @@ export default function VideoEditorContainer(props) {
     }
     setOutpaintError(null);
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
 
     const outpaintStatus = await axios.post(`${PROCESSOR_API_URL}/video_sessions/request_outpaint`, payload, headers);
     startOutpaintPoll();
   }
 
   const exportBaseGroup = () => {
-    const baseStage: any = canvasRef.current;
+    const baseStage = canvasRef.current;
     const baseLayer = baseStage.getLayers()[0];
     const baseGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'baseGroup');
 
-    // Ensure the group is found
     if (baseGroup) {
       const dataUrl = baseGroup.toDataURL({
         width: STAGE_DIMENSIONS.width,
         height: STAGE_DIMENSIONS.height,
-        pixelRatio: 1 // Ensures that the output resolution is not scaled; adjust as needed for high DPI displays
+        pixelRatio: 1
       });
       return dataUrl;
     } else {
@@ -339,32 +271,27 @@ export default function VideoEditorContainer(props) {
     const maskGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'maskGroup');
 
     if (maskGroup) {
-      // Create an offscreen canvas
       const offscreenCanvas = document.createElement('canvas');
       offscreenCanvas.width = baseStage.width();
       offscreenCanvas.height = baseStage.height();
       const ctx = offscreenCanvas.getContext('2d');
 
-      // Initially fill the canvas with black
       ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
 
-      // Set the fill style for the mask to white
       ctx.fillStyle = 'white';
 
-      // Draw each mask shape in white
       maskGroup.children.forEach(line => {
         ctx.beginPath();
         ctx.moveTo(line.points()[0], line.points()[1]);
         for (let i = 2; i < line.points().length; i += 2) {
           ctx.lineTo(line.points()[i], line.points()[i + 1]);
         }
-        ctx.closePath();  // Ensures the shape is closed for filling
+        ctx.closePath();
         ctx.fill();
       });
 
-      // Convert offscreen canvas to data URL
-      const dataUrl = offscreenCanvas.toDataURL('image/png', 1); // Ensure full quality
+      const dataUrl = offscreenCanvas.toDataURL('image/png', 1);
       return dataUrl;
     } else {
       console.error('Mask group not found');
@@ -373,40 +300,34 @@ export default function VideoEditorContainer(props) {
   };
 
   const exportMaskGroupAsTransparent = async () => {
-    const baseStage: any = canvasRef.current;
+    const baseStage = canvasRef.current;
     const baseLayer = baseStage.getLayers()[0];
     const maskGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'maskGroup');
 
     if (maskGroup) {
-      // Create an offscreen canvas
       const offscreenCanvas = document.createElement('canvas');
       offscreenCanvas.width = baseStage.width();
       offscreenCanvas.height = baseStage.height();
       const ctx = offscreenCanvas.getContext('2d');
 
-      // Fill canvas with white
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
 
-      // Use destination-out to make lines transparent
       ctx.globalCompositeOperation = 'destination-out';
 
-      // Draw each line in the maskGroup onto the offscreen canvas
       maskGroup.children.forEach(line => {
         ctx.beginPath();
         ctx.moveTo(line.points()[0], line.points()[1]);
         for (let i = 2; i < line.points().length; i += 2) {
           ctx.lineTo(line.points()[i], line.points()[i + 1]);
         }
-        ctx.strokeStyle = 'rgba(0,0,0,1)';  // Fully opaque black
+        ctx.strokeStyle = 'rgba(0,0,0,1)';
         ctx.lineWidth = line.strokeWidth();
         ctx.stroke();
       });
 
-      // Reset globalCompositeOperation to default
       ctx.globalCompositeOperation = 'source-over';
 
-      // Convert offscreen canvas to data URL
       const dataUrl = offscreenCanvas.toDataURL();
       return dataUrl;
     } else {
@@ -419,25 +340,23 @@ export default function VideoEditorContainer(props) {
     setIsGenerationPending(true);
     const selectedLayerId = currentLayer._id.toString();
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
     const pollStatusData = await axios.get(`${PROCESSOR_API_URL}/video_sessions/generate_status?id=${id}&layerId=${selectedLayerId}`, headers);
 
     const pollStatus = pollStatusData.data;
 
-
     if (pollStatus.generationStatus === 'COMPLETED') {
       const generatedImageUrlName = pollStatus.activeGeneratedImage;
       const generatedURL = `/generations/${generatedImageUrlName}`;
-      const nImageList: any = Object.assign([], activeItemList);
-      const newItem = {
+      const nImageList = [...activeItemList, {
         src: generatedURL, id: `item_${nImageList.length}`, type: 'image',
         x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height
-      };
-
-      nImageList.push(newItem);
+      }];
 
       setActiveItemList(nImageList);
-     // updateSessionActiveItemList(nImageList);
-     // setSessionDetails(pollStatus);
       setIsGenerationPending(false);
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
 
@@ -458,25 +377,23 @@ export default function VideoEditorContainer(props) {
 
     const selectedLayerId = currentLayer._id.toString();
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
 
     const pollStatusData = await axios.get(`${PROCESSOR_API_URL}/video_sessions/outpaint_status?id=${id}&layerId=${selectedLayerId}`, headers);
 
     const pollStatus = pollStatusData.data;
 
-
     if (pollStatus.outpaintStatus === 'COMPLETED') {
       const newActiveItemList = pollStatus.activeItemList;
-
       const generatedImageUrlName = pollStatus.activeOutpaintedImage;
       const generatedURL = `${generatedImageUrlName}`;
-
-      const nImageList: any = Object.assign([], activeItemList);
-      nImageList.push({ src: generatedURL, id: `item_${nImageList.length}`, type: 'image' });
+      const nImageList = [...activeItemList, { src: generatedURL, id: `item_${nImageList.length}`, type: 'image' }];
 
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
-
       setActiveItemList(nImageList);
-     // setSessionDetails(pollStatus);
       setIsOutpaintPending(false);
 
       return;
@@ -492,12 +409,15 @@ export default function VideoEditorContainer(props) {
   }
 
   const startAudioGenerationPoll = async () => {
+    const sessionId = id;
+    const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
 
-
-    const sessionId = id
-    const pollStatusData = await axios.get(`${PROCESSOR_API_URL}/audio/generate_status?sessionId=${sessionId}`);
+    const pollStatusData = await axios.get(`${PROCESSOR_API_URL}/audio/generate_status?sessionId=${sessionId}`, headers);
     const pollStatus = pollStatusData.data;
-
 
     if (pollStatus.generationStatus === 'COMPLETED') {
       setSessionDetails(pollStatus.videoSession);
@@ -506,8 +426,6 @@ export default function VideoEditorContainer(props) {
       return;
     } else if (pollStatus.generationStatus === 'FAILED') {
       setAudioGenerationPending(false);
-
-
       return;
     } else {
       setTimeout(() => {
@@ -520,11 +438,7 @@ export default function VideoEditorContainer(props) {
     setIsTemplateSelectViewSelected(!isTemplateSelectViewSelected);
   }
 
-
-
-  const showAttestationDialog = () => {
-
-  }
+  const showAttestationDialog = () => {}
 
   const addImageItemToActiveList = (payload) => {
     setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
@@ -532,14 +446,26 @@ export default function VideoEditorContainer(props) {
   }
 
   const getRemoteTemplateData = (page) => {
-    axios.get(`${PROCESSOR_API_URL}/utils/template_list?page=${page}`).then((response) => {
+    const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
+
+    axios.get(`${PROCESSOR_API_URL}/utils/template_list?page=${page}`, headers).then((response) => {
       const generatedImageUrlName = response.data.activeGeneratedImage;
       setTemplateOptionList(response.data);
     });
   }
 
   const submitTemplateSearch = (query) => {
-    axios.get(`${PROCESSOR_API_URL}/utils/search_template?query=${query}`).then((response) => {
+    const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
+
+    axios.get(`${PROCESSOR_API_URL}/utils/search_template?query=${query}`, headers).then((response) => {
       setTemplateOptionList(response.data);
     });
   }
@@ -555,6 +481,11 @@ export default function VideoEditorContainer(props) {
 
       const dataURL = clonedStage.toDataURL();
       const headers = getHeaders();
+      if (!headers) {
+        showLoginDialog();
+        return;
+      }
+
       const sessionPayload = {
         image: dataURL,
         sessionId: id
@@ -569,46 +500,29 @@ export default function VideoEditorContainer(props) {
 
   const addImageToCanvas = (templateOption) => {
     const templateURL = `${PROCESSOR_API_URL}/templates/mm_final/${templateOption}`;
-    const nImageList: any = Object.assign([], activeItemList);
-    nImageList.push({ src: templateURL, id: `item_${nImageList.length}`, type: 'image' });
+    const nImageList = [...activeItemList, { src: templateURL, id: `item_${nImageList.length}`, type: 'image' }];
     setActiveItemList(nImageList);
     setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
     updateSessionActiveItemList(nImageList);
   }
 
   const addTextBoxToCanvas = (payload) => {
-
-
-    const nImageList: any = Object.assign([], activeItemList);
-    const currentItemId = `item_${nImageList.length}`;
-    payload.id = currentItemId;
-    nImageList.push(payload);
+    const nImageList = [...activeItemList, { ...payload, id: `item_${activeItemList.length}` }];
     setActiveItemList(nImageList);
     updateSessionActiveItemList(nImageList);
   }
 
-
-  const updateTargetActiveLayerConfig = (id) => {
-
-  }
+  const updateTargetActiveLayerConfig = (id) => {}
 
   const updateSessionActiveItemList = (newActiveItemList) => {
     updateSessionLayerActiveItemList(newActiveItemList);
   }
 
+  const showMoveAction = () => {}
 
+  const showResizeAction = () => {}
 
-  const showMoveAction = () => {
-
-  }
-
-  const showResizeAction = () => {
-
-  }
-
-  const showSaveAction = () => {
-    // saveIntermediateImage();
-  }
+  const showSaveAction = () => {}
 
   const showUploadAction = () => {
     setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
@@ -616,18 +530,13 @@ export default function VideoEditorContainer(props) {
   }
 
   const setSelectedShape = (shapeKey) => {
-
     let shapeConfig;
     if (shapeKey === 'dialog') {
-      let xVal = 512;
-      let yVal = 200;
-      let height = 50;
-      let width = 100;
       shapeConfig = {
-        x: xVal, y: yVal, width: width, height: height, fillColor: fillColor,
+        x: 512, y: 200, width: 100, height: 50, fillColor: fillColor,
         strokeColor: strokeColor, strokeWidth: strokeWidthValue,
-        pointerX: xVal, pointerY: yVal + height / 2 + 20,
-        xRadius: width / 2, yRadius: 20
+        pointerX: 512, pointerY: 270,
+        xRadius: 50, yRadius: 20
       }
     } else {
       shapeConfig = {
@@ -636,17 +545,14 @@ export default function VideoEditorContainer(props) {
       }
     }
 
-    let currentLayerList: any = Object.assign([], activeItemList);
-
-    const newItem = {
+    const currentLayerList = [...activeItemList, {
       'type': 'shape',
       'shape': shapeKey,
       'config': shapeConfig,
-      'id': `item_${currentLayerList.length}`
-    }
-    currentLayerList.push(newItem);
+      'id': `item_${activeItemList.length}`
+    }];
     setActiveItemList(currentLayerList);
-    setSelectedId(newItem.id);
+    setSelectedId(`item_${activeItemList.length}`);
     updateSessionActiveItemList(currentLayerList);
   }
 
@@ -669,7 +575,7 @@ export default function VideoEditorContainer(props) {
     } else if (filter === Konva.Filters.Grayscale) {
       // No value needed for grayscale
     } else if (filter === Konva.Filters.HSL) {
-      imageNode.hue(value * 360); // Example adjustment for HSL filter
+      imageNode.hue(value * 360);
     } else if (filter === Konva.Filters.Invert) {
       // No value needed for invert
     } else if (filter === Konva.Filters.Pixelate) {
@@ -681,7 +587,6 @@ export default function VideoEditorContainer(props) {
     } else if (filter === Konva.Filters.Solarize) {
       // No value needed for solarize
     } else if (filter === Konva.Filters.RGBA) {
-      // Assuming the slider controls alpha for RGBA
       imageNode.alpha(value);
     }
 
@@ -696,7 +601,6 @@ export default function VideoEditorContainer(props) {
       return;
     }
 
-    // Apply the filter to the image node
     imageNode.cache();
     imageNode.filters([filter]);
 
@@ -709,7 +613,7 @@ export default function VideoEditorContainer(props) {
     } else if (filter === Konva.Filters.Grayscale) {
       // No value needed for grayscale
     } else if (filter === Konva.Filters.HSL) {
-      imageNode.hue(value * 360); // Example adjustment for HSL filter
+      imageNode.hue(value * 360);
     } else if (filter === Konva.Filters.Invert) {
       // No value needed for invert
     } else if (filter === Konva.Filters.Pixelate) {
@@ -721,16 +625,13 @@ export default function VideoEditorContainer(props) {
     } else if (filter === Konva.Filters.Solarize) {
       // No value needed for solarize
     } else if (filter === Konva.Filters.RGBA) {
-      // Assuming the slider controls alpha for RGBA
       imageNode.alpha(value);
     }
 
     stage.batchDraw();
 
-    // Convert the updated image node to a data URL
     const updatedImageDataUrl = imageNode.toDataURL();
 
-    // Update the activeItemList with the new data URL
     const updatedItemList = activeItemList.map((item, idx) => {
       if (idx === index) {
         return {
@@ -742,47 +643,27 @@ export default function VideoEditorContainer(props) {
     });
 
     setActiveItemList(updatedItemList);
-
-    // Send a backend request to update the session layer
     updateSessionLayerActiveItemList(updatedItemList);
   };
 
-
-
-
-
-  const handleBubbleChange = (newAttrs) => {
-    // const updatedBubbles = activeItemList.map((item) => {
-    //   if (item.id === newAttrs.id) {
-    //     return { ...item, config: newAttrs };
-    //   }
-    //   return item;
-    // });
-    // setActiveItemList(updatedBubbles);
-  };
+  const handleBubbleChange = (newAttrs) => {};
 
   const combineCurrentLayerItems = async () => {
     const stage = canvasRef.current.getStage();
     const originalLayer = stage.getLayers()[0];
 
-    // Remove transformers before combining
     stage.find('Transformer').forEach(transformer => {
       transformer.destroy();
     });
 
-    // Create a new Konva layer to combine all items
     const combinedLayer = new Konva.Layer();
     originalLayer.children.forEach(child => {
       combinedLayer.add(child.clone());
     });
 
-    // Draw the combined layer
     combinedLayer.draw();
-
-    // Convert the combined layer to a data URL
     const combinedImageDataUrl = combinedLayer.toDataURL();
 
-    // Create a new item for the combined image
     const combinedItem = {
       src: combinedImageDataUrl,
       id: `item_${activeItemList.length}`,
@@ -793,14 +674,15 @@ export default function VideoEditorContainer(props) {
       height: STAGE_DIMENSIONS.height,
     };
 
-    // Update the activeItemList with the combined image
     const updatedItemList = [combinedItem];
-
     setActiveItemList(updatedItemList);
     updateSessionLayerActiveItemList(updatedItemList);
 
-    // Send a backend request to update the session layer
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
     const payload = {
       sessionId: id,
       activeItemList: updatedItemList,
@@ -817,12 +699,12 @@ export default function VideoEditorContainer(props) {
       });
   };
 
-
-
-
-
   const submitGenerateMusicRequest = (payload) => {
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
     payload.sessionId = id;
     axios.post(`${PROCESSOR_API_URL}/audio/request_generate_audio`, payload, headers).then((response) => {
       const audioGeneration = response.data;
@@ -843,21 +725,17 @@ export default function VideoEditorContainer(props) {
         submitSearch={submitTemplateSearch}
       />
     )
-  } else if (activeItemList.length > 0) {
-
-
-
   }
 
-
-  const exportAnimationFrames = async (updatedItemList) => {
-
-  };
+  const exportAnimationFrames = async (updatedItemList) => {};
 
   const submitAddTrackToProject = (index, payload) => {
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
     const sessionId = id;
-
     const audioLayers = sessionDetails.audioLayers;
     const latestAudioLayer = audioLayers[audioLayers.length - 1];
     const layerId = latestAudioLayer._id.toString();
@@ -870,13 +748,11 @@ export default function VideoEditorContainer(props) {
     }
 
     axios.post(`${PROCESSOR_API_URL}/audio/add_track_to_project`, requestPayload, headers).then((response) => {
-      console.log(response);
       const sessionData = response.data;
       if (sessionData && sessionData.videoSession) {
         setSessionDetails(sessionData.videoSession);
         setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY)
       }
-
     });
   }
 
@@ -888,22 +764,17 @@ export default function VideoEditorContainer(props) {
     }
   }, [cursorSelectOptionVisible]);
 
-
-
-
   if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
-
     if (currentLayer.imageSession.generationStatus === 'PENDING') {
       viewDisplay = <LoadingImage />;
     } else {
-
       if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_LIBRARY_DISPLAY) {
         viewDisplay = (
           <ImageLibrary
             generationImages={generationImages}
             addImageItemToActiveList={addImageItemToActiveList}/>
         )
-      } else {  
+      } else {
         viewDisplay = (
           <VideoCanvas ref={canvasRef}
             key={`canvas_${currentLayer._id.toString()}`}
@@ -941,36 +812,29 @@ export default function VideoEditorContainer(props) {
             selectedLayerSelectShape={selectedLayerSelectShape}
             setCurrentView={setCurrentView}
             isLayerSeeking={isLayerSeeking}
-
-
-
           />
         )
       }
     }
-
   }
-
 
   const submitUpdateSessionDefaults = (evt) => {
     evt.preventDefault();
     const formData = new FormData(evt.target);
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
     const payload = {
       sessionId: id,
       defaults: Object.fromEntries(formData),
     };
-    console.log(payload);
-    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers).then((response) => {
-      console.log(response);
-    });
-
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers).then((response) => {});
   }
 
   return (
-
     <div className='block'>
-
       <div className='text-center w-[82%] inline-block h-[100vh] overflow-scroll m-auto  mb-8 '>
         {viewDisplay}
       </div>
@@ -1043,11 +907,8 @@ export default function VideoEditorContainer(props) {
           showAddAudioToProjectDialog={showAddAudioToProjectDialog}
           sessionDetails={videoSessionDetails}
           submitUpdateSessionDefaults={submitUpdateSessionDefaults}
-
         />
       </div>
-
     </div>
-
   )
 }

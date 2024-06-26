@@ -85,10 +85,7 @@ export default function TopNav(props) {
     }
     axios.post(`${PROCESSOR_SERVER}/video_sessions/create_video_session`, payload, headers).then(function (response) {
       const session = response.data;
-      const sessionId = session._id.toString();
-
-      console.log('sessionId', sessionId);
-      
+      const sessionId = session._id.toString();      
       localStorage.setItem('videoSessionId', sessionId);
       navigate(`/video/${session._id}`);
     });
