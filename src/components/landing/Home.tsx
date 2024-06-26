@@ -24,14 +24,7 @@ export default function Home() {
 
   const { getUser, getUserAPI } = useUser();
   useEffect(() => {
-    const authToken = localStorage.getItem("authToken");
-    if (!authToken) {
-      //  window.location.href = "/login";
-    } else {
-
-      getUserAPI();
-
-    }
+    getUserAPI();
   }, []);
 
 

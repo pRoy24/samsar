@@ -11,7 +11,8 @@ const UserContext = createContext({
   setUserApi: (profile) => { },
   resetUser: () => { },
   getUserAPI: () => ({ user: null }),
-  userFetching: false
+  userFetching: false,
+  userInitiated: false,
 
 
 });
@@ -19,9 +20,10 @@ const UserContext = createContext({
 // Step 3: Create the Context Provider
 export const UserProvider = ({ children }) => {
 
-  const [user, setUserState] = useState({});
+  const [user, setUserState] = useState(null);
   const [userFetching, setUserFetching] = useState(true);
 
+  const [userInitiated, setUserInitiated] = useState(false);
   // Function to update the user state
   const setUserApi = (profile) => {
     // axios.post(`${PROCESSOR_SERVER}/users/set_user`, profile).then((res) => {
@@ -48,8 +50,12 @@ export const UserProvider = ({ children }) => {
   }
 
   const getUserAPI = () => {
+    console.log("Getting user");
+    
+
     let authToken = localStorage.getItem("authToken");
     if (!authToken || authToken === "undefined" || authToken.length === 0) {
+      setUserInitiated(true);
       return null;
     }
     setUserFetching(true);
@@ -58,6 +64,7 @@ export const UserProvider = ({ children }) => {
       setUserState(userProfile);
       localStorage.setItem('fid', userProfile.fid);
       setUserFetching(false);
+      setUserInitiated(true);
       return userProfile;
     }).catch((err) => {
       setUserFetching(false);
@@ -65,7 +72,7 @@ export const UserProvider = ({ children }) => {
   }
 
   return (
-    <UserContext.Provider value={{ user, setUserApi, getUser, getUserAPI, resetUser, setUser, userFetching }}>
+    <UserContext.Provider value={{ user, setUserApi, getUser, getUserAPI, resetUser, setUser, userFetching, userInitiated }}>
       {children}
     </UserContext.Provider>
   );

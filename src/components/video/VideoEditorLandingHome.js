@@ -2,28 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { getHeaders } from '../../utils/web';
 
 
 const API_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
 export default function VideoEditorLandingHome() {
 
-  const { user, userFetching } = useUser();
+  const { user, userFetching, userInitiated } = useUser();
   const [ isGuest, setIsGuest ] = useState(false);
   const navigate = useNavigate();
-  console.log(user);
-
-  console.log(userFetching);
-
 
   useEffect(() => {
-    if ((!user || !user._id ) && !userFetching) {
+    const userToken = localStorage.getItem('authToken');
+    if (!userToken  || (( !user || !user._id ) && !userFetching) ) {
       console.log('User not found, redirecting to login');
       setIsGuest(true);
     }
 
   }, [user, userFetching]);
 
+  if (!userInitiated) {
+    return <div>Loading...</div>;
+  }
   if (isGuest) {
     axios.get(`${API_SERVER}/video_sessions/fetch_guest_session`).then((res) => {
       const sessionData = res.data;
@@ -31,13 +32,19 @@ export default function VideoEditorLandingHome() {
       navigate(`/video/${sessionData._id}`);
     });
   } else {
-
-
-    const videoSessionId = localStorage.getItem('videoSessionId');
-    console.log(videoSessionId);
-    
+    const videoSessionId = localStorage.getItem('videoSessionId');    
     if (videoSessionId) {
       navigate(`/video/${videoSessionId}`);
+    } else {
+      const headers = getHeaders();
+
+      axios.get(`${API_SERVER}/video_sessions/get_or_create_session`, headers).then((res) => {
+        const sessionData = res.data;
+        console.log(sessionData);
+        localStorage.setItem('videoSessionId', sessionData._id);
+        navigate(`/video/${sessionData._id}`);
+
+      });
     }
 
   }
