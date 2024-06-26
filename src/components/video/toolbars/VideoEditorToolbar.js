@@ -175,12 +175,12 @@ export default function VideoEditorToolbar(props: any) {
               <div>Start X</div>
             </div>
             <div>
-              <input type='text' placeholder='End X' onChange={(e) => updateAnimationParams('endX', e.target.value)} className='w-[60px]' />
-              <div>End X</div>
-            </div>
-            <div>
               <input type='text' placeholder='Start Y' onChange={(e) => updateAnimationParams('startY', e.target.value)} className='w-[60px]' />
               <div>Start Y</div>
+            </div>
+            <div>
+              <input type='text' placeholder='End X' onChange={(e) => updateAnimationParams('endX', e.target.value)} className='w-[60px]' />
+              <div>End X</div>
             </div>
             <div>
               <input type='text' placeholder='End Y' onChange={(e) => updateAnimationParams('endY', e.target.value)} className='w-[60px]' />
