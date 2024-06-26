@@ -161,5 +161,5 @@
 }
 
 .main-slider-thumb {
-  z-index: 100 !important;
+  z-index: 99 !important;
 }

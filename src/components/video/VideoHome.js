@@ -475,10 +475,7 @@ export default function VideoHome(props) {
       setLayers(updatedLayers);
     });
   }
-
-  console.log(layers);
-  console.log("EMEMEM");
-
+  
   const updateCurrentActiveLayer = (imageItem) => {
     console.log(imageItem);
     
@@ -487,6 +484,29 @@ export default function VideoHome(props) {
     debouncedUpdateSessionLayerActiveItemList();
 
 
+  }
+
+  const addLayersViaPromptList = (promptList) => {
+    const headers = getHeaders();
+    const reqPayload = {
+      sessionId: id,
+      promptList: promptList,
+    };
+    console.log(reqPayload);
+
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/add_layers_via_prompt_list`, reqPayload, headers).then((response) => {
+      const videoSessionDataResponse = response.data;
+
+      console.log(videoSessionDataResponse);
+
+      const videoSessionData = videoSessionDataResponse.videoSession;
+
+      setVideoSessionDetails(videoSessionData);
+
+      const updatedLayers = videoSessionData.layers;
+      setLayers(updatedLayers);
+      setCurrentLayer(updatedLayers[updatedLayers.length - 1]);
+    });
   }
 
 
@@ -528,6 +548,7 @@ export default function VideoHome(props) {
               addLayerToComposition={addLayerToComposition}
               copyCurrentLayerBelow={copyCurrentLayerBelow}
               removeSessionLayer={removeSessionLayer} // Add this line
+              addLayersViaPromptList={addLayersViaPromptList}
             />
           </div>
           <div className='w-[86%] bg-cyber-black inline-block'>
@@ -548,6 +569,7 @@ export default function VideoHome(props) {
               showAddAudioToProjectDialog={showAddAudioToProjectDialog}
               generationImages={generationImages}
               updateCurrentActiveLayer={updateCurrentActiveLayer}
+              videoSessionDetails={videoSessionDetails}
               
             />
           </div>

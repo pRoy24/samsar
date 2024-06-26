@@ -34,6 +34,7 @@ export default function VideoEditorContainer(props) {
     activeItemList, setActiveItemList, isLayerSeeking,
     showAddAudioToProjectDialog, generationImages,
     updateCurrentActiveLayer,
+    videoSessionDetails,
   } = props;
 
   let { id } = useParams();
@@ -138,61 +139,67 @@ export default function VideoEditorContainer(props) {
     setIsAlertActionPending(isPublicationPending);
   }, [isPublicationPending]);
 
-  useEffect(() => {
-    if (!id) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!id) {
+  //     return;
+  //   }
 
 
-    const headers = getHeaders();
+  //   const headers = getHeaders();
 
-    setActiveItemList([]);
+  //   setActiveItemList([]);
 
-    axios.get(`${PROCESSOR_API_URL}/video_sessions/details?id=${id}`, headers).then((response) => {
-      const session = response.data;
-
-      if (session.activeItemList) {
-
-        setActiveItemList(session.activeItemList);
-      } else if (session.activeSelectedImage) {
-
-        const activeSelectedImageName = session.activeSelectedImage;
-
-        const activeSelectedImageURL = `${PROCESSOR_API_URL}/generations/${activeSelectedImageName}`;
+  //   axios.get(`${PROCESSOR_API_URL}/video_sessions/details?id=${id}`, headers).then((response) => {
 
 
-        const nImageList: any = Object.assign([], activeItemList);
-        nImageList.push({
-          src: activeSelectedImageURL, id: `item_${nImageList.length}`,
-          type: 'image', width: STAGE_DIMENSIONS.width,
-          height: STAGE_DIMENSIONS.height,
-          x: 0, y: 0
-        });
+  //     const session = response.data;
 
-        setActiveItemList(nImageList);
+      
+  //   //  setSessionDetails(session);
 
 
-      } else {
-        const nImageList: any = Object.assign([], activeItemList);
-        if (nImageList.length === 0) {
-          nImageList.push({
-            id: `item_${nImageList.length}`,
-            type: 'shape',
-            shape: 'rectangle',
-            config: {
-              x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height,
-              fillColor: initialBackgroundFillColor, strokeColor: initialBackgroundFillColor, strokeWidth: strokeWidthValue,
-              fixed: true,
-            }
-          });
-          // setActiveItemList(nImageList);
-        }
-      }
+  //     if (session.activeItemList) {
 
-    });
+  //       setActiveItemList(session.activeItemList);
+  //     } else if (session.activeSelectedImage) {
+
+  //       const activeSelectedImageName = session.activeSelectedImage;
+
+  //       const activeSelectedImageURL = `${PROCESSOR_API_URL}/generations/${activeSelectedImageName}`;
 
 
-  }, [selectedLayerId]);
+  //       const nImageList: any = Object.assign([], activeItemList);
+  //       nImageList.push({
+  //         src: activeSelectedImageURL, id: `item_${nImageList.length}`,
+  //         type: 'image', width: STAGE_DIMENSIONS.width,
+  //         height: STAGE_DIMENSIONS.height,
+  //         x: 0, y: 0
+  //       });
+
+  //       setActiveItemList(nImageList);
+
+
+  //     } else {
+  //       const nImageList: any = Object.assign([], activeItemList);
+  //       if (nImageList.length === 0) {
+  //         nImageList.push({
+  //           id: `item_${nImageList.length}`,
+  //           type: 'shape',
+  //           shape: 'rectangle',
+  //           config: {
+  //             x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height,
+  //             fillColor: initialBackgroundFillColor, strokeColor: initialBackgroundFillColor, strokeWidth: strokeWidthValue,
+  //             fixed: true,
+  //           }
+  //         });
+  //         // setActiveItemList(nImageList);
+  //       }
+  //     }
+
+  //   });
+
+
+  // }, [selectedLayerId]);
 
 
 
@@ -430,7 +437,7 @@ export default function VideoEditorContainer(props) {
 
       setActiveItemList(nImageList);
      // updateSessionActiveItemList(nImageList);
-      setSessionDetails(pollStatus);
+     // setSessionDetails(pollStatus);
       setIsGenerationPending(false);
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
 
@@ -469,7 +476,7 @@ export default function VideoEditorContainer(props) {
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
 
       setActiveItemList(nImageList);
-      setSessionDetails(pollStatus);
+     // setSessionDetails(pollStatus);
       setIsOutpaintPending(false);
 
       return;
@@ -945,6 +952,21 @@ export default function VideoEditorContainer(props) {
   }
 
 
+  const submitUpdateSessionDefaults = (evt) => {
+    evt.preventDefault();
+    const formData = new FormData(evt.target);
+    const headers = getHeaders();
+    const payload = {
+      sessionId: id,
+      defaults: Object.fromEntries(formData),
+    };
+    console.log(payload);
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers).then((response) => {
+      console.log(response);
+    });
+
+  }
+
   return (
 
     <div className='block'>
@@ -957,7 +979,7 @@ export default function VideoEditorContainer(props) {
           submitGenerateRequest={submitGenerateRequest}
           submitOutpaintRequest={submitOutpaintRequest}
           saveIntermediateImage={saveIntermediateImage}
-          showAttestationDialog={showAttestationDialog} sessionDetails={sessionDetails}
+          showAttestationDialog={showAttestationDialog} 
           updateNFTData={updateNFTData}
           setNftData={setNftData}
           nftData={nftData}
@@ -1019,6 +1041,8 @@ export default function VideoEditorContainer(props) {
           submitAddTrackToProject={submitAddTrackToProject}
           combineCurrentLayerItems={combineCurrentLayerItems}
           showAddAudioToProjectDialog={showAddAudioToProjectDialog}
+          sessionDetails={videoSessionDetails}
+          submitUpdateSessionDefaults={submitUpdateSessionDefaults}
 
         />
       </div>

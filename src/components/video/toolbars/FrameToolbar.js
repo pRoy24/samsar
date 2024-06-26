@@ -14,7 +14,9 @@ import { FRAME_TOOLBAR_VIEW } from '../../../constants/Types.ts';
 import AudioTrackSlider from '../util/AudioTrackSlider.js';
 import { FaChevronCircleDown, FaChevronCircleUp, FaEdit, FaTimes } from 'react-icons/fa';
 import DropdownButton from '../util/DropdownButton.js';
+import { useAlertDialog } from '../../../contexts/AlertDialogContext.js';
 import Slider from "react-slick";
+import BatchPrompt from '../util/BatchPrompt.js';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 
@@ -29,7 +31,8 @@ export default function FrameToolbar(props) {
     audioLayers, updateAudioLayer, isAudioLayerDirty,
     removeAudioLayer, handleVolumeChange,
     updateChangesToActiveLayers, addLayerToComposition,
-    copyCurrentLayerBelow, removeSessionLayer
+    copyCurrentLayerBelow, removeSessionLayer,
+    addLayersViaPromptList
   } = props;
 
   const { colorMode } = useColorMode();
@@ -44,6 +47,7 @@ export default function FrameToolbar(props) {
   const [viewRange, setViewRange] = useState([0, totalDurationInFrames]);
   const [startSelectDurationInFrames, setStartSelectDurationInFrames] = useState(0);
   const [endSelectDurationInFrames, setEndSelectDurationInFrames] = useState(0);
+  const { openAlertDialog, closeAlertDialog } = useAlertDialog();
   const parentRef = useRef(null);
 
   useEffect(() => {
@@ -51,7 +55,7 @@ export default function FrameToolbar(props) {
   }, [totalDurationInFrames]);
 
   useEffect(() => {
-    if (selectedLayerIndex >= 0 && parentRef.current) {
+    if (selectedLayerIndex >= 0 && parentRef.current && layers && layers.length > 0) {
       const startDuration = layers.slice(0, selectedLayerIndex).reduce((acc, layer) => acc + layer.duration, 0);
       const currentLayerDuration = layers[selectedLayerIndex].duration;
       const heightPercentage = (currentLayerDuration / totalDuration) * 100;
@@ -106,6 +110,7 @@ export default function FrameToolbar(props) {
   };
 
   const removeLayer = (index) => {
+    if (!layers || layers.length === 0) return;
     let newLayers = layers.slice();
     newLayers.splice(index, 1);
     removeSessionLayer(index);
@@ -225,6 +230,23 @@ export default function FrameToolbar(props) {
     ));
   };
 
+
+  const submitPromptList = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const promptList = formData.get('promptList');
+    const promptListArray = promptList.split('\n');
+    addLayersViaPromptList(promptListArray);
+    closeAlertDialog();
+
+
+  }
+  const showBatchLayerDialog = () => {
+    console.log("Show batch layer dialog");
+    openAlertDialog(<BatchPrompt submitPromptList={submitPromptList} />);
+
+  }
+
   const showSelectedAudioTrack = () => {
     const selectedAudioTrack = audioLayers.find((audioTrack) => audioTrack.isSelected);
 
@@ -284,7 +306,8 @@ export default function FrameToolbar(props) {
       <div className='basis-3/4'>Scenes</div>
       <div className='basis-1/4'>
         <DropdownButton addLayerToComposition={addLayerToComposition}
-          copyCurrentLayerBelow={copyCurrentLayerBelow} />
+          copyCurrentLayerBelow={copyCurrentLayerBelow}
+          showBatchLayerDialog={showBatchLayerDialog} />
       </div>
     </div>
   );
@@ -298,7 +321,8 @@ export default function FrameToolbar(props) {
         <div className='basis-1/4'>Scenes</div>
         <div className='basis-1/4'>
           <DropdownButton addLayerToComposition={addLayerToComposition}
-            copyCurrentLayerBelow={copyCurrentLayerBelow} />
+            copyCurrentLayerBelow={copyCurrentLayerBelow}
+            showBatchLayerDialog={showBatchLayerDialog} />
         </div>
         <div className={`basis-1/2`}>{audioSelectedTrackViewDisplay}</div>
       </div>

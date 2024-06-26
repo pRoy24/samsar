@@ -24,13 +24,13 @@ export const UserProvider = ({ children }) => {
 
   // Function to update the user state
   const setUserApi = (profile) => {
-    axios.post(`${PROCESSOR_SERVER}/users/set_user`, profile).then((res) => {
-      const userProfile = res.data;
-      localStorage.setItem('fid', userProfile.fid);
-      setUserState(userProfile);
-    }).catch((err) => {
-      console.log(err);
-    });
+    // axios.post(`${PROCESSOR_SERVER}/users/set_user`, profile).then((res) => {
+    //   const userProfile = res.data;
+    //   localStorage.setItem('fid', userProfile.fid);
+    //   setUserState(userProfile);
+    // }).catch((err) => {
+    //   console.log(err);
+    // });
   };
 
   const setUser = (profile) => {
@@ -44,7 +44,7 @@ export const UserProvider = ({ children }) => {
 
   const resetUser = () => {
     setUserState(null);
-    localStorage.removeItem("fid");
+    localStorage.clear();
   }
 
   const getUserAPI = () => {

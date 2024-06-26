@@ -77,7 +77,9 @@ export default function VideoEditorToolbar(props: any) {
     audioLayers,
     audioGenerationPending,
     submitAddTrackToProject,
-    combineCurrentLayerItems,showAddAudioToProjectDialog
+    combineCurrentLayerItems,
+     showAddAudioToProjectDialog,
+     submitUpdateSessionDefaults
 
   } = props;
 
@@ -262,7 +264,7 @@ export default function VideoEditorToolbar(props: any) {
     layersDisplay = (
       <div>
         <LayersDisplay activeItemList={activeItemList} setActiveItemList={setActiveItemList}
-        updateSessionLayerActiveItemList={updateSessionLayerActiveItemList} />
+          updateSessionLayerActiveItemList={updateSessionLayerActiveItemList} />
       </div>
     )
   }
@@ -277,7 +279,7 @@ export default function VideoEditorToolbar(props: any) {
   }
 
   const showLibraryAction = () => {
-   setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_LIBRARY_DISPLAY);
+    setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_LIBRARY_DISPLAY);
   }
 
   let addShapeDisplay = <span />;
@@ -483,7 +485,7 @@ export default function VideoEditorToolbar(props: any) {
         <div className={`text-center m-auto align-center p-1 h-[50px]  rounded-sm ${cursorSelectOptionVisible ? bgSelectedColor : bgColor}`} onClick={() => setCursorSelectOptionVisible(!cursorSelectOptionVisible)}>
 
 
-        <div onClick={() => combineCurrentLayerItems()}>
+          <div onClick={() => combineCurrentLayerItems()}>
             <LuCombine className="text-2xl m-auto cursor-pointer" />
             <div className="text-[10px] tracking-tight m-auto text-center">
               Combine
@@ -499,8 +501,8 @@ export default function VideoEditorToolbar(props: any) {
           )}
 
 
-          
-        </div>  
+
+        </div>
       </div>
     )
   }
@@ -573,14 +575,14 @@ export default function VideoEditorToolbar(props: any) {
           <RiSpeakLine />
           Speech
         </div>
-         <div onClick={() => (setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_MUSIC_GENERATE_DISPLAY))}>
+        <div onClick={() => (setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_MUSIC_GENERATE_DISPLAY))}>
           <FaMusic />
           Music
-        </div> 
-        <div onClick={() =>  showAddAudioToProjectDialog() }>
+        </div>
+        <div onClick={() => showAddAudioToProjectDialog()}>
           <FaUpload />
           Upload
-        </div>        
+        </div>
       </div>
     )
 
@@ -624,30 +626,30 @@ export default function VideoEditorToolbar(props: any) {
               name="promptText" placeholder="Enter prompt text here" />
             <div className='flex flex-row'>
               <div className='basis-1/2'>
-                <Select name="speakerOptions" options={speakerOptions} 
-                
-                styles={{
-                  control: (provided, state) => ({
-                    ...provided,
-                    backgroundColor: 'white',
-                    borderColor: state.isFocused ? '#007BFF' : '#ced4da',
-                    '&:hover': {
-                      borderColor: state.isFocused ? '#007BFF' : '#ced4da'
-                    },
-                    boxShadow: state.isFocused ? '0 0 0 0.2rem rgba(0, 123, 255, 0.25)' : null,
-                    minHeight: '38px',
-                    height: '38px'
-                  }),
-                  option: (provided, state) => ({
-                    ...provided,
-                    backgroundColor: state.isSelected ? '#007BFF' : state.isFocused ? '#e7f3ff' : null,
-                    color: state.isSelected ? 'white' : 'black',
-                    '&:hover': {
-                      backgroundColor: '#e7f3ff'
-                    }
-                  })
-                }}
-                defaultValue={speakerOptions[0]} 
+                <Select name="speakerOptions" options={speakerOptions}
+
+                  styles={{
+                    control: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: 'white',
+                      borderColor: state.isFocused ? '#007BFF' : '#ced4da',
+                      '&:hover': {
+                        borderColor: state.isFocused ? '#007BFF' : '#ced4da'
+                      },
+                      boxShadow: state.isFocused ? '0 0 0 0.2rem rgba(0, 123, 255, 0.25)' : null,
+                      minHeight: '38px',
+                      height: '38px'
+                    }),
+                    option: (provided, state) => ({
+                      ...provided,
+                      backgroundColor: state.isSelected ? '#007BFF' : state.isFocused ? '#e7f3ff' : null,
+                      color: state.isSelected ? 'white' : 'black',
+                      '&:hover': {
+                        backgroundColor: '#e7f3ff'
+                      }
+                    })
+                  }}
+                  defaultValue={speakerOptions[0]}
                 />
               </div>
               <div className='basis-1/2 m-auto'>
@@ -679,9 +681,49 @@ export default function VideoEditorToolbar(props: any) {
     }
   }
 
+  let defaultsOptionDisplay = <span />;
+  let defaultsSubOptionsDisplay = <span />;
+
+  if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_SET_DEFAULTS_DISPLAY) {
+    console.log(sessionDetails);
+    const { defaultSceneDuration, imageGenerationTheme } = sessionDetails;
+    defaultsOptionDisplay = (
+      <div>
+        <form onSubmit={submitUpdateSessionDefaults}>
+          <input type="textarea" placeholder="Project theme"
+          name="imageGenerationTheme" 
+          rows={5}
+          className={`w-full h-20 mt-2 ${bgColor} ${text2Color}`} 
+          defaultValue={imageGenerationTheme} 
+          />
+          <input type="text" placeholder="Scene duration"
+            name="defaultSceneDuration"
+           className={`w-full mt-2 ${bgColor} ${text2Color}`}
+            defaultValue={defaultSceneDuration}
+          />
+          <SecondaryButton type="submit">Save</SecondaryButton>
+        </form>
+      </div>
+    )
+
+  }
   return (
     <div className={`border-l-2 ${bgColor}  h-full m-auto fixed top-0 overflow-y-auto pl-2 r-4 w-[16%] pr-2`}>
       <div className='mt-[80px] '>
+        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
+          <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_SET_DEFAULTS_DISPLAY)}>
+            <div className='inline-flex ml-4 pl-4'>
+              Defaults
+            </div>
+            <FaChevronDown className='inline-flex float-right mr-4 mt-2 text-sm' />
+          </div>
+          <div className={`${textInnerColor}`}>
+            {defaultsOptionDisplay}
+          </div>
+          <div>
+            {defaultsSubOptionsDisplay}
+          </div>
+        </div>
         <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_ACTIONS_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>

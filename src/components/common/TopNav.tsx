@@ -17,12 +17,14 @@ import { useColorMode } from '../../contexts/ColorMode.js';
 import { IoMdWallet } from "react-icons/io";
 import Login from '../auth/Login.tsx';
 import UpgradePlan from './UpgradePlan.tsx';
+import AddSessionDropdown from './AddSessionDropdown.js';
 
 
 import './common.css';
 import { FaTwitter, FaStar } from 'react-icons/fa6';
 import Register from '../auth/Register.tsx';
 import AuthContainer from '../auth/AuthContainer.js';
+import { getHeaders } from '../../utils/web.js';
 
 
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
@@ -41,8 +43,9 @@ export default function TopNav(props) {
     bgColor = 'from-green-700 to-green-400  text-neutral-900';
   }
   const resetSession = () => {
-    resetCurrentSession();
+
     closeAlertDialog();
+    createNewSession();
   }
 
   const { user, setUser } = useUser();
@@ -74,6 +77,22 @@ export default function TopNav(props) {
     openAlertDialog(alertDiaplogComponent);
   }
 
+  const createNewSession = () => {
+
+    const headers = getHeaders();
+    const payload = {
+      prompts: [],
+    }
+    axios.post(`${PROCESSOR_SERVER}/video_sessions/create_video_session`, payload, headers).then(function (response) {
+      const session = response.data;
+      navigate(`/video/${session._id}`);
+    });
+  }
+
+  const gotoViewSessionsPage = () => {
+//    navigate('/sessions');
+
+  }
   let userTierDisplay = <span />;
 
   if (user && user._id) {
@@ -153,8 +172,21 @@ export default function TopNav(props) {
     )
     openAlertDialog(alertDialogComponent);
   }
-  let addSecondaryWallet = <span />;
 
+  let addSessionButton = <span />;
+
+  if (user && user._id) {
+    addSessionButton = (
+      <div className='inline-flex'>
+        <div className='inline-flex ml-2 mr-2'>
+          <AddSessionDropdown
+            createNewSession={createNewSession}
+            gotoViewSessionsPage={gotoViewSessionsPage}
+          />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className={`bg-gradient-to-r ${bgColor}
@@ -167,7 +199,7 @@ export default function TopNav(props) {
 
         </div>
         <div>
-
+          {addSessionButton}
         </div>
         <div>
           <div className='inline-flex'>
