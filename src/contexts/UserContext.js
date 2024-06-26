@@ -19,8 +19,8 @@ const UserContext = createContext({
 // Step 3: Create the Context Provider
 export const UserProvider = ({ children }) => {
 
-  const [user, setUserState] = useState(null);
-  const [userFetching, setUserFetching] = useState(false);
+  const [user, setUserState] = useState({});
+  const [userFetching, setUserFetching] = useState(true);
 
   // Function to update the user state
   const setUserApi = (profile) => {

@@ -30,6 +30,16 @@ export default function VideoEditorLandingHome() {
       console.log(sessionData);
       navigate(`/video/${sessionData._id}`);
     });
+  } else {
+
+
+    const videoSessionId = localStorage.getItem('videoSessionId');
+    console.log(videoSessionId);
+    
+    if (videoSessionId) {
+      navigate(`/video/${videoSessionId}`);
+    }
+
   }
   return (
     <div>
