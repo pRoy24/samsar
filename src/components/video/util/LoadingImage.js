@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaSpinner } from 'react-icons/fa';
-import { useColorMode } from '../../../contexts/ColorMode';
+import { useColorMode } from '../../../contexts/ColorMode'; // Adjust the import path as needed
 
 export default function LoadingImage() {
   const { colorMode } = useColorMode();
@@ -10,7 +10,6 @@ export default function LoadingImage() {
     <div className={`loading-image h-screen w-full flex justify-center items-center ${bgColor}`}>
       <div className='flex flex-col items-center'>
         <FaSpinner className="animate-spin text-4xl mb-2" />
-        <span>Loading</span>
       </div>
     </div>
   );

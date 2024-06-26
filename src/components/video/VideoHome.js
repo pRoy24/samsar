@@ -10,6 +10,7 @@ import AddAudioDialog from './util/AddAudioDialog.js';
 import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
 import { debounce } from './util/debounce.js';
 import AuthContainer from '../auth/AuthContainer.js';
+import LoadingImage from './util/LoadingImage.js';
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -229,7 +230,7 @@ export default function VideoHome(props) {
   }, [layers]);
 
   if (!videoSessionDetails) {
-    return <div>Loading...</div>;
+    return <LoadingImage />;
   }
 
   const fps = 30;

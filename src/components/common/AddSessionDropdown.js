@@ -11,7 +11,7 @@ function AddSessionDropdown(props) {
   const { colorMode } = useColorMode();
   const [isOpen, setIsOpen] = useState(false);
 
-  const bgColor = colorMode === 'dark' ? 'bg-neutral-800 hover:bg-neutral-700 ' : 'bg-neutral-200 hover:bg-neutral-300';
+  const bgColor = colorMode === 'dark' ? 'bg-gray-900 hover:bg-blue-700 ' : 'bg-neutral-200 hover:bg-neutral-300';
   const textColor = colorMode === 'dark' ? 'text-gray-300' : 'text-gray-700';
 
   
@@ -44,7 +44,7 @@ function AddSessionDropdown(props) {
           rounded-md shadow-sm hover:bg-gray-50 focus:outline-none ${textColor} ${bgColor}`}
       >
         <FaPlus className="mr-2" />
-        <span className="text-xs">Add</span>
+        <span className="text-xs">New Project</span>
       </button>
 
       {isOpen && (

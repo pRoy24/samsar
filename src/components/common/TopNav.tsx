@@ -48,6 +48,34 @@ export default function TopNav(props) {
     createNewSession();
   }
 
+  const alertDialogComponent = (
+    <div>
+      <div>
+        This will reset your current session. Are you sure you want to proceed?
+      </div>
+      <div className=' mt-4 mb-4 m-auto'>
+        <div className='inline-flex ml-2 mr-2'>
+          <CommonButton
+            onClick={() => {
+              resetSession();
+            }}
+          >
+            Yes
+          </CommonButton>
+        </div>
+        <div className='inline-flex ml-2 mr-2'>
+          <CommonButton
+            onClick={() => {
+              closeAlertDialog();
+            }}
+          >
+            No
+          </CommonButton>
+        </div>
+      </div>
+    </div>
+  )
+
   const { user, setUser } = useUser();
   const navigate = useNavigate();
 
@@ -85,17 +113,24 @@ export default function TopNav(props) {
     }
     axios.post(`${PROCESSOR_SERVER}/video_sessions/create_video_session`, payload, headers).then(function (response) {
       const session = response.data;
-      const sessionId = session._id.toString();      
+      const sessionId = session._id.toString();
       localStorage.setItem('videoSessionId', sessionId);
       navigate(`/video/${session._id}`);
     });
   }
 
   const gotoViewSessionsPage = () => {
-//    navigate('/sessions');
+    //    navigate('/sessions');
 
   }
+
+  const createNewSessionDialog = () => {
+    openAlertDialog(alertDialogComponent);
+  }
   let userTierDisplay = <span />;
+
+  let bottomToggleDisplay = <span />;
+
 
   if (user && user._id) {
 
@@ -113,26 +148,45 @@ export default function TopNav(props) {
       )
     }
     userProfile = (
-      <div className='flex cursor' onClick={gotoUserAccount} >
-        <div className='inline-flex '>
-          <div className='block'>
+      <div className='flex cursor align-center' onClick={gotoUserAccount} >
+        <div className='flex flex-basis'>
 
+          <div className='basis-1/2'>
+            <div className='inline-flex '>
+              <div className='block'>
+                <div className='text-lg mr-2 max-w-[90px] whitespace-nowrap overflow-hidden text-ellipsis'>
+                  <h1>{user.displayName ? user.displayName : user.email}</h1>
+                </div>
 
-            <div className='text-lg mr-2 max-w-[90px] whitespace-nowrap overflow-hidden text-ellipsis'>
-              <h1>{user.displayName ? user.displayName : user.email}</h1>
-            </div>
-            <div onClick={upgradeToPremiumTier}>
-              {userTierDisplay}
+                <div onClick={upgradeToPremiumTier}>
+                  {userTierDisplay}
+                </div>
+              </div>
             </div>
           </div>
-
+          <div className='basis-1/2'>
+            <img src={user.pfpUrl ? user.pfpUrl : '/46.png'} alt={user.username} className='w-[50px] rounded-[50%] inline-flex mt-[14px]' />
+          </div>
         </div>
-
-        <img src={user.pfpUrl ? user.pfpUrl : '/46.png'} alt={user.username} className='w-[50px] rounded-[50%] inline-flex' />
       </div>
     );
+
+
+    bottomToggleDisplay = (
+      <div className='grid grid-cols-3'>
+        <div>
+
+        </div>
+        <div>
+          {userProfile}
+        </div>
+        <div>
+          <ToggleButton />
+        </div>
+      </div>
+    )
+
   } else {
-    const nonce = Math.random().toString(36).substring(7);
     userProfile = (
       <div className='mt-1'>
         <button className='m-auto text-center min-w-16
@@ -142,36 +196,20 @@ export default function TopNav(props) {
         </button>
       </div>
     )
-  }
-
-  const gotoHome = () => {
-    const alertDialogComponent = (
-      <div>
+    bottomToggleDisplay = (
+      <div className='grid grid-cols-2'>
         <div>
-          This will reset your current session. Are you sure you want to proceed?
+          {userProfile}
         </div>
-        <div className=' mt-4 mb-4 m-auto'>
-          <div className='inline-flex ml-2 mr-2'>
-            <CommonButton
-              onClick={() => {
-                resetSession();
-              }}
-            >
-              Yes
-            </CommonButton>
-          </div>
-          <div className='inline-flex ml-2 mr-2'>
-            <CommonButton
-              onClick={() => {
-                closeAlertDialog();
-              }}
-            >
-              No
-            </CommonButton>
-          </div>
+        <div>
+          <ToggleButton />
         </div>
       </div>
     )
+  }
+
+  const gotoHome = () => {
+
     openAlertDialog(alertDialogComponent);
   }
 
@@ -179,16 +217,20 @@ export default function TopNav(props) {
 
   if (user && user._id) {
     addSessionButton = (
-      <div className='inline-flex'>
+      <div className='inline-flex float-right'>
         <div className='inline-flex ml-2 mr-2'>
           <AddSessionDropdown
-            createNewSession={createNewSession}
+            createNewSession={createNewSessionDialog}
             gotoViewSessionsPage={gotoViewSessionsPage}
           />
         </div>
       </div>
     )
   }
+
+
+
+
 
   return (
     <div className={`bg-gradient-to-r ${bgColor}
@@ -204,12 +246,7 @@ export default function TopNav(props) {
           {addSessionButton}
         </div>
         <div>
-          <div className='inline-flex'>
-            {userProfile}
-            <div className='inline-flex ml-2 mr-2'>
-              <ToggleButton />
-            </div>
-          </div>
+          {bottomToggleDisplay}
         </div>
       </div>
     </div>

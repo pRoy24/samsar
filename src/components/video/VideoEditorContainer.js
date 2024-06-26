@@ -8,19 +8,14 @@ import { useColorMode } from '../../contexts/ColorMode.js';
 import { getHeaders } from '../../utils/web.js';
 import { CURRENT_TOOLBAR_VIEW, CANVAS_ACTION, TOOLBAR_ACTION_VIEW } from '../../constants/Types.ts';
 import { STAGE_DIMENSIONS } from '../../constants/Image.js';
-import SMSCanvas from '../editor/SMSCanvas.tsx';
-import EditorToolbar from '../editor/toolbar/EditorToolbar.tsx';
 import SelectTemplate from '../editor/SelectTemplate.tsx';
-import AttestationDialog from '../editor/utils/AttestationDialog.tsx';
-import PublishDialog from '../editor/utils/PublishDialog.tsx';
-import CommonContainer from '../common/CommonContainer.tsx';
-import ActionToolbar from '../editor/toolbar/ActionToolbar.tsx';
 import UploadImageDialog from '../editor/utils/UploadImageDialog.js';
 import VideoCanvas from './editor/VideoCanvas.js';
 import VideoEditorToolbar from './toolbars/VideoEditorToolbar.js'
 import LoadingImage from './util/LoadingImage.js';
 import ImageLibrary from './util/ImageLibrary.js';
 import AuthContainer from '../auth/AuthContainer.js';
+import './home.css';
 
 const PUBLISHER_URL = process.env.REACT_APP_PUBLISHER_URL;
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;

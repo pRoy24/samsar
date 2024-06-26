@@ -3,28 +3,33 @@ import { useUser } from '../../contexts/UserContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { getHeaders } from '../../utils/web';
-
+import { FaSpinner } from 'react-icons/fa';
+import './home.css';
 
 const API_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
 export default function VideoEditorLandingHome() {
 
   const { user, userFetching, userInitiated } = useUser();
-  const [ isGuest, setIsGuest ] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const userToken = localStorage.getItem('authToken');
-    if (!userToken  || (( !user || !user._id ) && !userFetching) ) {
+    if (!userToken || ((!user || !user._id) && !userFetching)) {
       console.log('User not found, redirecting to login');
       setIsGuest(true);
     }
-
   }, [user, userFetching]);
 
   if (!userInitiated) {
-    return <div>Loading...</div>;
+    return (
+      <div className="spinner-container">
+        <FaSpinner className="spinner" />
+      </div>
+    );
   }
+
   if (isGuest) {
     axios.get(`${API_SERVER}/video_sessions/fetch_guest_session`).then((res) => {
       const sessionData = res.data;
@@ -32,7 +37,7 @@ export default function VideoEditorLandingHome() {
       navigate(`/video/${sessionData._id}`);
     });
   } else {
-    const videoSessionId = localStorage.getItem('videoSessionId');    
+    const videoSessionId = localStorage.getItem('videoSessionId');
     if (videoSessionId) {
       navigate(`/video/${videoSessionId}`);
     } else {
@@ -43,15 +48,13 @@ export default function VideoEditorLandingHome() {
         console.log(sessionData);
         localStorage.setItem('videoSessionId', sessionData._id);
         navigate(`/video/${sessionData._id}`);
-
       });
     }
-
   }
+
   return (
     <div>
-      <h1>Video Editor Landing Home</h1>
-
+     
     </div>
   );
 }
