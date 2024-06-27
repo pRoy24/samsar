@@ -78,8 +78,8 @@ export default function VideoEditorToolbar(props: any) {
     audioGenerationPending,
     submitAddTrackToProject,
     combineCurrentLayerItems,
-     showAddAudioToProjectDialog,
-     submitUpdateSessionDefaults
+    showAddAudioToProjectDialog,
+    submitUpdateSessionDefaults
 
   } = props;
 
@@ -691,17 +691,27 @@ export default function VideoEditorToolbar(props: any) {
       <div>
         <form onSubmit={submitUpdateSessionDefaults}>
           <input type="textarea" placeholder="Project theme"
-          name="imageGenerationTheme" 
-          rows={5}
-          className={`w-full h-20 mt-2 ${bgColor} ${text2Color}`} 
-          defaultValue={imageGenerationTheme} 
+            name="imageGenerationTheme"
+            rows={5}
+            className={`w-full h-20 mt-2 ${bgColor} ${text2Color} p-2`}
+            defaultValue={imageGenerationTheme}
           />
+          <div className={`text-xs ${text2Color} mb-2 ml-2`}>
+            Theme keywords
+          </div>
+
           <input type="text" placeholder="Scene duration"
             name="defaultSceneDuration"
-           className={`w-full mt-2 ${bgColor} ${text2Color}`}
+            className={`w-full mt-2 ${bgColor} ${text2Color} p-1 h-[30px]`}
             defaultValue={defaultSceneDuration}
           />
-          <SecondaryButton type="submit">Save</SecondaryButton>
+          <div className={`text-xs ${text2Color} mb-2 ml-2`}>
+            Default scene duration
+          </div>
+          <div className='ml-2'>
+            <SecondaryButton type="submit">Save</SecondaryButton>
+          </div>
+
         </form>
       </div>
     )
