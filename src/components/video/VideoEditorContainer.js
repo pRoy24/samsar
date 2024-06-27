@@ -346,8 +346,9 @@ export default function VideoEditorContainer(props) {
     if (pollStatus.generationStatus === 'COMPLETED') {
       const generatedImageUrlName = pollStatus.activeGeneratedImage;
       const generatedURL = `/generations/${generatedImageUrlName}`;
+      const item_id = `item_${activeItemList.length}`;
       const nImageList = [...activeItemList, {
-        src: generatedURL, id: `item_${nImageList.length}`, type: 'image',
+        src: generatedURL, id: item_id, type: 'image',
         x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height
       }];
 
