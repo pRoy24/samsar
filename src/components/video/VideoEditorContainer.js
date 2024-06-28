@@ -29,6 +29,7 @@ export default function VideoEditorContainer(props) {
     showAddAudioToProjectDialog, generationImages,
     updateCurrentActiveLayer,
     videoSessionDetails,
+    setVideoSessionDetails,
   } = props;
 
   let { id } = useParams();
@@ -834,7 +835,13 @@ export default function VideoEditorContainer(props) {
       sessionId: id,
       defaults: Object.fromEntries(formData),
     };
-    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers).then((response) => {});
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers).then((response) => {
+      const updatedSession = response.data;
+      console.log(updatedSession);
+      const sessionData = updatedSession.videoSession;
+      setVideoSessionDetails(sessionData);
+     // setCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
+    });
   }
 
   return (

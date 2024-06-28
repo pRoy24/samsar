@@ -633,6 +633,7 @@ export default function VideoHome(props) {
               generationImages={generationImages}
               updateCurrentActiveLayer={updateCurrentActiveLayer}
               videoSessionDetails={videoSessionDetails}
+              setVideoSessionDetails={setVideoSessionDetails}
             />
           </div>
         </div>

@@ -684,18 +684,21 @@ export default function VideoEditorToolbar(props: any) {
   let defaultsOptionDisplay = <span />;
   let defaultsSubOptionsDisplay = <span />;
 
+  console.log(currentViewDisplay);
+  
+
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_SET_DEFAULTS_DISPLAY) {
 
     const { defaultSceneDuration, imageGenerationTheme } = sessionDetails;
     defaultsOptionDisplay = (
       <div>
         <form onSubmit={submitUpdateSessionDefaults}>
-          <input type="textarea" placeholder="Project theme"
+          <textarea placeholder="Project theme"
             name="imageGenerationTheme"
             rows={5}
             className={`w-full h-20 mt-2 ${bgColor} ${text2Color} p-2`}
             defaultValue={imageGenerationTheme}
-          />
+          ></textarea>
           <div className={`text-xs ${text2Color} mb-2 ml-2`}>
             Theme keywords
           </div>
