@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { useColorMode  } from '../../../contexts/ColorMode.js';
+import { useColorMode } from '../../../contexts/ColorMode.js';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import { getRemoteImageLink } from '../../../utils/image.js'
+import { FaChevronCircleLeft } from 'react-icons/fa';
 
 const API_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
 
 export default function ImageLibrary(props) {
-  const { generationImages, addImageItemToActiveList } = props;
+  const { generationImages, selectImageFromLibrary, resetImageLibrary } = props;
   const [selectedImage, setSelectedImage] = useState(null);
 
   const { colorMode } = useColorMode();
@@ -18,17 +19,10 @@ export default function ImageLibrary(props) {
 
   const handleSelect = (imageLink) => {
     const imagePath = imageLink.replace(`${API_SERVER}`, '');
-    const newItem = {
-      src: imagePath,
-      id: `item_${Math.random().toString(36).substr(2, 9)}`,
-      type: 'image',
-      x: 0,
-      y: 0,
-      width: 1024,
-      height: 1024,
-    };
-    addImageItemToActiveList(newItem);
-    
+
+
+    selectImageFromLibrary(imagePath);
+
     setSelectedImage(null);
   };
 
@@ -36,12 +30,14 @@ export default function ImageLibrary(props) {
 
   const textColor = colorMode === 'dark' ? 'text-white' : 'text-black';
 
+  console.log(generationImages);
+
   const imagesLinks = generationImages.map((image) => {
-    const imageLink =  getRemoteImageLink(image);
+    const imageLink = getRemoteImageLink(image);
 
 
     return (
-      <div key={image} className="image-item">
+      <div key={image} className={`image-item `}>
         <img
           src={imageLink}
           alt="generationImage"
@@ -57,8 +53,21 @@ export default function ImageLibrary(props) {
   });
 
   return (
-    <div className='grid grid-cols-4 gap-1'>
-      {imagesLinks}
+    <div className={`w-full h-full overflow-y-auto ${bgColor}  ${textColor} pl-2 pr-2 pt-4 pb-4 mt-[50px]`}>
+      <div className='mb-2 mt-2'>
+        <div className='inline-flex float-left' onClick={() => resetImageLibrary()}>
+          <FaChevronCircleLeft className='inline-flex ml-2 mr-2 text-lg' />
+          <div className='inline-flex '>
+            Back
+          </div>
+
+        </div>
+        <h2 className='text-lg font-bold'>Image Library</h2>
+      </div>
+
+      <div className='grid grid-cols-4 gap-1'>
+        {imagesLinks}
+      </div>
     </div>
   );
 }

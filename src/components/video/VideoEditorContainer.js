@@ -393,7 +393,8 @@ export default function VideoEditorContainer(props) {
       const newActiveItemList = pollStatus.activeItemList;
       const generatedImageUrlName = pollStatus.activeOutpaintedImage;
       const generatedURL = `${generatedImageUrlName}`;
-      const nImageList = [...activeItemList, { src: generatedURL, id: `item_${nImageList.length}`, type: 'image' }];
+      const item_id = `item_${activeItemList.length}`;
+      const nImageList = [...activeItemList, { src: generatedURL, id: item_id, type: 'image' }];
 
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
       setActiveItemList(nImageList);
@@ -769,6 +770,28 @@ export default function VideoEditorContainer(props) {
     }
   }, [cursorSelectOptionVisible]);
 
+
+  const selectImageFromLibrary = (imageItem) => {
+    const newItemId = `item_${activeItemList.length}`;
+    const newItem = {
+      src: imageItem,
+      id: newItemId,
+      type: 'image',
+      x: 0,
+      y: 0,
+      width: STAGE_DIMENSIONS.width,
+      height: STAGE_DIMENSIONS.height
+    };
+    const newItemList = [...activeItemList, newItem];
+    setActiveItemList(newItemList);
+    updateSessionActiveItemList(newItemList);
+    setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
+
+  }
+
+  const resetImageLibrary = () => {
+    setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
+  }
   if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
     if (currentLayer.imageSession.generationStatus === 'PENDING') {
       viewDisplay = <LoadingImage />;
@@ -777,7 +800,11 @@ export default function VideoEditorContainer(props) {
         viewDisplay = (
           <ImageLibrary
             generationImages={generationImages}
-            addImageItemToActiveList={addImageItemToActiveList}/>
+            addImageItemToActiveList={addImageItemToActiveList}
+            selectImageFromLibrary={selectImageFromLibrary}
+            resetImageLibrary={resetImageLibrary}
+            />
+
         )
       } else {
         viewDisplay = (

@@ -15,7 +15,7 @@ export function getScalingFactor(imageDimensions) {
 
 
 export function getRemoteImageLink(imagePath) {
-  if (imagePath.includes('generation')) {
+  if (imagePath.includes('generation') || imagePath.includes('outpaint')) {
     return `${API_SERVER}/generations/${imagePath}`;  
   } else if (imagePath.includes('/video/')) {
     return `${API_SERVER}${imagePath}`;

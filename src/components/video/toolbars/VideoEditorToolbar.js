@@ -303,12 +303,12 @@ export default function VideoEditorToolbar(props: any) {
     uploadDisplay = (
       <div>
         <div className='m-auto text-center grid grid-cols-3'>
-          <div className="text-center m-auto align-center mt-4 mb-4" onClick={() => showTemplateAction()} >
+          {/* <div className="text-center m-auto align-center mt-4 mb-4" onClick={() => showTemplateAction()} >
             <HiTemplate className="text-2xl m-auto cursor-pointer" />
             <div className="text-[10px] tracking-tight m-auto text-center">
               Templates
             </div>
-          </div>
+          </div> */}
 
           <div className="text-center m-auto align-center mt-4 mb-4">
             <FaUpload className="text-2xl m-auto cursor-pointer" onClick={() => showUploadAction()} />
@@ -579,10 +579,10 @@ export default function VideoEditorToolbar(props: any) {
           <FaMusic />
           Music
         </div>
-        <div onClick={() => showAddAudioToProjectDialog()}>
+        {/* <div onClick={() => showAddAudioToProjectDialog()}>
           <FaUpload />
           Upload
-        </div>
+        </div> */}
       </div>
     )
 
