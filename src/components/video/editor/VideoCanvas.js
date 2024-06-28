@@ -120,8 +120,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         applyAnimationsToNode(node, item, elapsedTime, duration, durationOffset);
       }
     });
-   // layer.draw();
+    // layer.draw();
   }, [currentLayerSeek, currentLayer, activeItemList]);
+
+  console.log(activeItemList);
 
   const applyAnimationsToNode = (node, item, elapsedTime, duration, durationOffset) => {
 
@@ -138,59 +140,51 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       }
     });
 
-    if (requiresTranslation) {
-
-    }
-
-
 
     item.animations.forEach(animation => {
       const { type, params } = animation;
-      const startTime = (params.startTime || 0) + (durationOffset || 0);
-      const endTime = (params.endTime || duration) + (durationOffset || 0);
-      const animationElapsed = Math.max(0, Math.min(elapsedTime - startTime, endTime - startTime));
 
-      if (animationElapsed >= 0 && animationElapsed <= (endTime - startTime)) {
-        isAnimating = true;
+      if (params && type) {
+        const startTime = (params.startTime || 0) + (durationOffset || 0);
+        const endTime = (params.endTime || duration) + (durationOffset || 0);
+        const animationElapsed = Math.max(0, Math.min(elapsedTime - startTime, endTime - startTime));
 
-        const { startX, endX, startY, endY , } = params;
-        const totalDuration = endTime - startTime;
+        if (animationElapsed >= 0 && animationElapsed <= (endTime - startTime)) {
+          isAnimating = true;
 
-        let translateX = startX + (endX - startX) * (animationElapsed / totalDuration);
-        let translateY = startY + (endY - startY) * (animationElapsed / totalDuration);
+          const { startX, endX, startY, endY, } = params;
+          const totalDuration = endTime - startTime;
 
-        switch (type) {
-          case 'fade':
-            node.opacity((params.startFade + (params.endFade - params.startFade) * animationElapsed / (endTime - startTime)) / 100);
-            break;
-          case 'slide':
-            node.x(translateX);
-            node.y(translateY);
-            break;
-          case 'zoom':
-            node.scaleX((params.startScale + (params.endScale - params.startScale) * animationElapsed / (endTime - startTime)) / 100);
-            node.scaleY((params.startScale + (params.endScale - params.startScale) * animationElapsed / (endTime - startTime)) / 100);
-            break;
-          case 'rotate':
-            const rotationSpeed = params.rotationSpeed || 1;
-            const totalDuration = endTime - startTime;
-            const angle = (animationElapsed / totalDuration) * rotationSpeed * 360;
-            node.rotation(angle);
-            break;
-          default:
-            break;
+          let translateX = startX + (endX - startX) * (animationElapsed / totalDuration);
+          let translateY = startY + (endY - startY) * (animationElapsed / totalDuration);
+
+          switch (type) {
+            case 'fade':
+              node.opacity((params.startFade + (params.endFade - params.startFade) * animationElapsed / (endTime - startTime)) / 100);
+              break;
+            case 'slide':
+              node.x(translateX);
+              node.y(translateY);
+              break;
+            case 'zoom':
+              node.scaleX((params.startScale + (params.endScale - params.startScale) * animationElapsed / (endTime - startTime)) / 100);
+              node.scaleY((params.startScale + (params.endScale - params.startScale) * animationElapsed / (endTime - startTime)) / 100);
+              break;
+            case 'rotate':
+              const rotationSpeed = params.rotationSpeed || 1;
+              const totalDuration = endTime - startTime;
+              const angle = (animationElapsed / totalDuration) * rotationSpeed * 360;
+              node.rotation(angle);
+              break;
+            default:
+              break;
+          }
         }
       }
     });
 
-    if (!isAnimating && initialParamsRef.current[item.id]) {
-      const { x, y, offsetX, offsetY } = initialParamsRef.current[item.id];
-      // node.offsetX(offsetX);
-      // node.offsetY(offsetY);
-      // node.x(x);
-      // node.y(y);
-    }
   };
+
 
 
   useEffect(() => {
@@ -243,17 +237,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     }
   }, [eraserWidth]);
 
-  useEffect(() => {
-    const checkIfClickedOutside = (e) => {
-      if (!document.getElementById('samsar-konva-stage').contains(e.target)) {
-        // Handle the click outside event
-      }
-    };
-    document.addEventListener('click', checkIfClickedOutside);
-    return () => {
-      document.removeEventListener('click', checkIfClickedOutside);
-    };
-  }, []);
+
 
   if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_ERASER_DISPLAY) {
     const stage = ref.current.getStage();
@@ -301,7 +285,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const updateToolbarButtonPosition = (id, x, y) => {
     setButtonPositions((prevPositions) =>
       prevPositions.map((pos) =>
-        pos.id === id ? { ...pos, x: x + 30, y: y + 30} : pos
+        pos.id === id ? { ...pos, x: x + 30, y: y + 30 } : pos
       )
     );
   };
@@ -317,14 +301,14 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     if (!imageNode) {
       return;
     }
-  
+
     // Flip the image horizontally
     imageNode.scaleX(imageNode.scaleX() * -1);
     stage.batchDraw();
-  
+
     // Convert the updated image node to a data URL
     const updatedImageDataUrl = imageNode.toDataURL();
-  
+
     // Update the activeItemList with the new data URL
     const updatedItemList = activeItemList.map((item) => {
       if (item.id === id) {
@@ -335,27 +319,27 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       }
       return item;
     });
-  
+
     setActiveItemList(updatedItemList);
-  
+
     // Send a backend request to update the session layer
     updateSessionActiveItemList(updatedItemList);
   };
-  
+
   const flipImageVertical = (id) => {
     const stage = ref.current.getStage();
     const imageNode = stage.findOne(`#${id}`);
     if (!imageNode) {
       return;
     }
-  
+
     // Flip the image vertically
     imageNode.scaleY(imageNode.scaleY() * -1);
     stage.batchDraw();
-  
+
     // Convert the updated image node to a data URL
     const updatedImageDataUrl = imageNode.toDataURL();
-  
+
     // Update the activeItemList with the new data URL
     const updatedItemList = activeItemList.map((item) => {
       if (item.id === id) {
@@ -366,13 +350,13 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       }
       return item;
     });
-  
+
     setActiveItemList(updatedItemList);
-  
+
     // Send a backend request to update the session layer
     updateSessionActiveItemList(updatedItemList);
   };
-  
+
   const previousActionViewRef = useRef();
 
   useEffect(() => {
@@ -859,7 +843,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       const imageObj = new window.Image();
       imageObj.onload = () => {
         const newItem = {
-          id: `item_${activeItemList.length -1}`,
+          id: `item_${activeItemList.length - 1}`,
           type: 'image',
           src: dataURL,
           width: imageObj.width,
@@ -890,18 +874,18 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const removeItem = (index) => {
     const newList = [...activeItemList];
     newList.splice(index, 1);
-  
+
     // Reorder the IDs of the remaining items
     const reorderedItems = newList.map((item, newIndex) => ({
       ...item,
       id: `item_${newIndex + 1}`
     }));
-  
+
     setActiveItemList(reorderedItems);
     updateSessionActiveItemList(reorderedItems);
   }
 
-  
+
   const updateTargetActiveLayerConfig = (id, newConfig) => {
     const newActiveItemList = activeItemList.map((item) => {
       if (item.id === id) {
@@ -912,7 +896,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       }
       return item;
     });
-    setActiveItemList(newActiveItemList);    
+    setActiveItemList(newActiveItemList);
     updateSessionActiveItemList(newActiveItemList);
   }
 
@@ -979,6 +963,9 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   let imageStackList = <span />;
   if (activeItemList && activeItemList.length > 0) {
     imageStackList = activeItemList.map((item, index) => {
+      if (item.isHidden) {
+        return null;
+      }
       if (item.type === 'image') {
 
         return (
@@ -1057,7 +1044,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
               updateToolbarButtonPosition={updateToolbarButtonPosition}
               onChange={(newAttrs) => onChange({ ...newAttrs, id: item.id })}
               updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
-              
+
             />
           );
         }
@@ -1161,20 +1148,20 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         if (selectedLayerType === 'image') {
           return (
             <ImageToolbar
-            key={pos.id}
-            pos={pos}
-            index={index}
-            moveItem={moveItem}
-            applyFilter={applyFilter}
-            applyFinalFilter={applyFinalFilter}
-            colorMode={colorMode}
-            removeItem={removeItem}
-            itemId={selectedId}
-            flipImageHorizontal={flipImageHorizontal}
-            flipImageVertical={flipImageVertical}
-            updateTargetActiveLayerConfig={updateTargetActiveLayerConfig} // Pass the handler
-            activeItemList={activeItemList} // Pass active item list to fetch current item properties
-          />
+              key={pos.id}
+              pos={pos}
+              index={index}
+              moveItem={moveItem}
+              applyFilter={applyFilter}
+              applyFinalFilter={applyFinalFilter}
+              colorMode={colorMode}
+              removeItem={removeItem}
+              itemId={selectedId}
+              flipImageHorizontal={flipImageHorizontal}
+              flipImageVertical={flipImageVertical}
+              updateTargetActiveLayerConfig={updateTargetActiveLayerConfig} // Pass the handler
+              activeItemList={activeItemList} // Pass active item list to fetch current item properties
+            />
           );
         }
         return (

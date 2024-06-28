@@ -113,7 +113,9 @@ export default function VideoHome(props) {
 
   useEffect(() => {
     if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
-      const activeList = currentLayer.imageSession.activeItemList;
+      const activeList = currentLayer.imageSession.activeItemList.map(function (item) {
+        return { ...item, isHidden: false };
+      });
       setActiveItemList(activeList);
       const newLayerSeek = Math.floor(currentLayer.durationOffset * 30);
       setCurrentLayerSeek(newLayerSeek);
@@ -121,6 +123,19 @@ export default function VideoHome(props) {
       setActiveItemList([]);
     }
   }, [currentLayer]);
+
+  const toggleHideItemInLayer = (itemId) => {
+    const updatedActiveItemList = activeItemList.map(item => {
+      if (item.id === itemId) {
+        return {
+          ...item,
+          isHidden: !item.isHidden,
+        };
+      }
+      return item;
+    });
+    setActiveItemList(updatedActiveItemList);
+  }
 
   useEffect(() => {
     if (isLayerGenerationPending) {
@@ -331,7 +346,7 @@ export default function VideoHome(props) {
     const playbackInterval = setInterval(updateFrame, frameRate);
   };
 
-  const debouncedUpdateSessionLayerActiveItemList = debounce(() => {
+  const debouncedUpdateSessionLayerActiveItemList = debounce((newActiveItemList) => {
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
@@ -340,7 +355,7 @@ export default function VideoHome(props) {
 
     const reqPayload = {
       sessionId: id,
-      activeItemList: activeItemListRef.current,
+      activeItemList: newActiveItemList,
       layerId: currentLayer._id.toString(),
     };
 
@@ -351,11 +366,21 @@ export default function VideoHome(props) {
         setActiveItemList(updatedItemList);
       }
     });
-  }, 50);
+  }, 5);
 
   const updateSessionLayerActiveItemList = (newActiveItemList) => {
-    setActiveItemList(newActiveItemList);
-    debouncedUpdateSessionLayerActiveItemList();
+    //setActiveItemList(newActiveItemList);
+    if (currentEditorView !== CURRENT_EDITOR_VIEW.SHOW_ANIMATE_DISPLAY) {
+      debouncedUpdateSessionLayerActiveItemList(newActiveItemList);
+    }
+  };
+
+
+  const updateSessionLayerActiveItemListAnimations = (newActiveItemList) => {
+    //setActiveItemList(newActiveItemList);
+    if (currentEditorView !== CURRENT_EDITOR_VIEW.SHOW_ANIMATE_DISPLAY) {
+      debouncedUpdateSessionLayerActiveItemList(newActiveItemList);
+    }
   };
 
   const showAudioTrackView = () => {
@@ -496,7 +521,7 @@ export default function VideoHome(props) {
     });
   };
 
-  const updateSessionLayer =(newLayer) => {
+  const updateSessionLayer = (newLayer) => {
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
@@ -538,7 +563,7 @@ export default function VideoHome(props) {
       setLayers(updatedLayers);
     });
   }
-  
+
   const updateCurrentActiveLayer = (imageItem) => {
     const newActiveItemList = activeItemList.concat(imageItem);
     setActiveItemList(newActiveItemList);
@@ -552,7 +577,7 @@ export default function VideoHome(props) {
       return;
     }
 
-    const { promptList , duration } = payload;
+    const { promptList, duration } = payload;
 
     const reqPayload = {
       sessionId: id,
@@ -626,6 +651,7 @@ export default function VideoHome(props) {
               setFrameEditDisplay={setFrameEditDisplay}
               currentLayer={currentLayer}
               updateSessionLayerActiveItemList={updateSessionLayerActiveItemList}
+              updateSessionLayerActiveItemListAnimations={updateSessionLayerActiveItemListAnimations}
               activeItemList={activeItemList}
               setActiveItemList={setActiveItemList}
               isLayerSeeking={isLayerSeeking}
@@ -634,6 +660,7 @@ export default function VideoHome(props) {
               updateCurrentActiveLayer={updateCurrentActiveLayer}
               videoSessionDetails={videoSessionDetails}
               setVideoSessionDetails={setVideoSessionDetails}
+              toggleHideItemInLayer={toggleHideItemInLayer}
             />
           </div>
         </div>

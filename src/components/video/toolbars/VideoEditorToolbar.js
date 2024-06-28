@@ -73,13 +73,16 @@ export default function VideoEditorToolbar(props: any) {
     setCurrentCanvasAction,
     setSelectedLayerSelectShape,
     updateSessionLayerActiveItemList,
+    updateSessionLayerActiveItemListAnimation,
     submitGenerateMusicRequest,
     audioLayers,
     audioGenerationPending,
     submitAddTrackToProject,
     combineCurrentLayerItems,
     showAddAudioToProjectDialog,
-    submitUpdateSessionDefaults
+    submitUpdateSessionDefaults,
+    hideItemInLayer,
+    updateSessionLayerActiveItemListAnimations
 
   } = props;
 
@@ -99,134 +102,239 @@ export default function VideoEditorToolbar(props: any) {
     addTextBoxToCanvas(payload);
   }
 
-  const applyAnimationToLayer = () => {
-    if (selectedId) {
-      const updatedItemList = activeItemList.map(layer => {
-        if (layer.id === selectedId) {
-          let animations = layer.animations || [];
-
-          // Check if an animation of the same type already exists
-          const existingAnimationIndex = animations.findIndex(animation => animation.type === selectedAnimationOption);
-
-          if (existingAnimationIndex !== -1) {
-            // Update the existing animation
-            animations[existingAnimationIndex] = {
-              type: selectedAnimationOption,
-              params: animationParams
-            };
-          } else {
-            // Add a new animation
-            animations.push({
-              type: selectedAnimationOption,
-              params: animationParams
-            });
-          }
-
-          return {
-            ...layer,
-            animations: animations
-          };
-        }
-        return layer;
-      });
-
-      setActiveItemList(updatedItemList);
-      updateSessionLayerActiveItemList(updatedItemList);
-      exportAnimationFrames(updatedItemList);
-    }
-  }
-
 
   const handleAnimationChange = (selectedOption) => {
     setSelectedAnimationOption(selectedOption.value);
   }
 
-  const updateAnimationParams = (param, value) => {
-    const floatValue = parseFloat(value);
-    setAnimationParams(prevParams => ({
-      ...prevParams,
-      [param]: isNaN(floatValue) ? 0 : floatValue
-    }));
+
+
+  const submitApplyAnimationToLayer = (evt) => {
+    evt.preventDefault();
+  
+    const formData = new FormData(evt.target);
+  
+    // Parse form values as floats
+    let formValues = Object.fromEntries(formData.entries());
+    for (let key in formValues) {
+      if (!isNaN(formValues[key])) {
+        formValues[key] = parseFloat(formValues[key]);
+      }
+    }
+    
+    const animationType = formValues.type;
+    delete formValues.type;
+  
+    const newActiveItemList = activeItemList.map(item => {
+      if (item.id === selectedId) {
+        let animations = item.animations || [];
+        const existingAnimationIndex = animations.findIndex(animation => animation.type === animationType);
+        if (existingAnimationIndex !== -1) {
+          animations[existingAnimationIndex] = {
+            type: animationType,
+            params: formValues
+          };
+        } else {
+          animations.push({
+            type: animationType,
+            params: formValues
+          });
+        }
+        return {
+          ...item,
+          animations: animations
+        };
+      }
+      return item;
+    });
+  
+    setActiveItemList(newActiveItemList);
+    updateSessionLayerActiveItemListAnimations(newActiveItemList);
+    exportAnimationFrames(newActiveItemList);
   }
+  
+
 
   const getAnimationBoundariesDisplay = (selectedOption) => {
+
+    const selectedItem = activeItemList.find(item => item.id === selectedId);
+
+    let animationParams = null;
+    if (selectedItem) {
+      animationParams = selectedItem.animations;
+
+    }
+
     if (selectedOption === 'fade') {
+      let startFade = 100;
+      let endFade = 100;
+      if (animationParams && animationParams.length > 0) {
+        let fadeAnimationParams = animationParams.find(animation => animation.type === 'fade');
+        if (fadeAnimationParams) {
+          startFade = fadeAnimationParams.params.startFade;
+          endFade = fadeAnimationParams.params.endFade;
+        }
+      }
       return (
         <div className='mt-2'>
-          <div className='grid grid-cols-2 gap-2 m-auto text-center'>
-            <div>
-              <input type='text' placeholder='Start Fade' onChange={(e) => updateAnimationParams('startFade', e.target.value)} className='w-[60px]' />
-              <div>Start Fade</div>
+          <form onSubmit={submitApplyAnimationToLayer} key="fadeForm">
+            <div className='grid grid-cols-2 gap-2 m-auto text-center'>
+              <div>
+                <input type='text' placeholder='Start Fade'
+                  name="startFade" defaultValue={startFade}
+                  className={`w-full ${bgColor} ${text2Color}
+               p-4`}
+                />
+                <div>Start Fade</div>
+              </div>
+              <div>
+                <input type='text' placeholder='End Fade'
+                  name="endFade" defaultValue={endFade}
+
+                  className={`w-full ${bgColor} ${text2Color}
+               p-4`} />
+                <div>End Fade</div>
+                <input type="hidden" name="type" value="fade" />
+              </div>
+
             </div>
-            <div>
-              <input type='text' placeholder='End Fade' onChange={(e) => updateAnimationParams('endFade', e.target.value)} className='w-[60px]' />
-              <div>End Fade</div>
+
+            <div className='m-auto text-center'>
+              <SecondaryButton type="submit">Apply</SecondaryButton>
             </div>
-          </div>
-          <div className='m-auto text-center'>
-            <SecondaryButton onClick={applyAnimationToLayer}>Apply</SecondaryButton>
-          </div>
+          </form>
+
         </div>
       )
     } else if (selectedOption === 'slide') {
+
+      let startX = selectedItem.x;
+      let startY = selectedItem.y;
+      let endX = selectedItem.x;
+      let endY = selectedItem.y;
+
+      if (animationParams) {
+        let slideAnimationParams = animationParams.find(animation => animation.type === 'slide');
+        if (slideAnimationParams) {
+          startX = slideAnimationParams.params.startX;
+          startY = slideAnimationParams.params.startY;
+          endX = slideAnimationParams.params.endX;
+          endY = slideAnimationParams.params.endY;
+        }
+      }
+
       return (
         <div className='mt-2'>
-          <div className='grid grid-cols-2 gap-2 m-auto text-center'>
-            <div>
-              <input type='text' placeholder='Start X' onChange={(e) => updateAnimationParams('startX', e.target.value)} className='w-[60px]' />
-              <div>Start X</div>
+          <form onSubmit={submitApplyAnimationToLayer} key="slideForm">
+
+            <div className='grid grid-cols-2 gap-2 m-auto text-center'>
+              <div>
+                <input type='text' name="startX" placeholder='Start X' defaultValue={startX}
+                  className={`w-full ${bgColor} ${text2Color}
+              p-4`} />
+                <div>Start X</div>
+              </div>
+              <div>
+                <input type='text' name="startY" placeholder='Start Y' defaultValue={startY}
+                  className={`w-full ${bgColor} ${text2Color}
+             p-4`} />
+                <div>Start Y</div>
+              </div>
+              <div>
+                <input type='text' placeholder='End X'
+                  name="endX"
+                  defaultValue={endX}
+                  className={`w-full ${bgColor} ${text2Color}
+              p-4`} />
+                <div>End X</div>
+              </div>
+              <div>
+                <input type='text' placeholder='End Y'
+                  name='endY'
+                  defaultValue={endY}
+                  className={`w-full ${bgColor} ${text2Color}
+             p-4`} />
+                <div>End Y</div>
+              </div>
             </div>
-            <div>
-              <input type='text' placeholder='Start Y' onChange={(e) => updateAnimationParams('startY', e.target.value)} className='w-[60px]' />
-              <div>Start Y</div>
+            <input type="hidden" name="type" value="slide" />
+            <div className='m-auto text-center'>
+              <SecondaryButton type="submit">Apply</SecondaryButton>
             </div>
-            <div>
-              <input type='text' placeholder='End X' onChange={(e) => updateAnimationParams('endX', e.target.value)} className='w-[60px]' />
-              <div>End X</div>
-            </div>
-            <div>
-              <input type='text' placeholder='End Y' onChange={(e) => updateAnimationParams('endY', e.target.value)} className='w-[60px]' />
-              <div>End Y</div>
-            </div>
-          </div>
-          <div className='m-auto text-center'>
-            <SecondaryButton onClick={applyAnimationToLayer}>Apply</SecondaryButton>
-          </div>
+
+          </form>
         </div>
+
+
       )
     } else if (selectedOption === 'zoom') {
+      let startScale = 100;
+      let endScale = 100;
+      if (animationParams) {
+        let zoomAnimationParams = animationParams.find(animation => animation.type === 'zoom');
+        if (zoomAnimationParams) {
+          startScale = zoomAnimationParams.params.startScale;
+          endScale = zoomAnimationParams.params.endScale;
+        }
+      }
       return (
         <div className='mt-2'>
-          <div className='grid grid-cols-2 gap-2 m-auto text-center'>
-            <div>
-              <input type='text' placeholder='Start Scale'
-                onChange={(e) => updateAnimationParams('startScale', e.target.value)} className='w-full' />
-              <div>Start Scale</div>
+          <form onSubmit={submitApplyAnimationToLayer} key="zoomForm">
+            <div className='grid grid-cols-2 gap-2 m-auto text-center'>
+              <div>
+                <input type='text' placeholder='Start Scale'
+                name="startScale"
+                  className={`w-full ${bgColor} ${text2Color}
+                p-4`}
+                  defaultValue={startScale}
+                />
+                <div>Start Scale</div>
+              </div>
+              <div>
+                <input type='text' placeholder='End Scale'
+                  name="endScale"
+                  className={`w-full ${bgColor} ${text2Color}
+                p-4`}
+                  defaultValue={endScale}
+                />
+                <div>End Scale</div>
+              </div>
             </div>
-            <div>
-              <input type='text' placeholder='End Scale'
-                onChange={(e) => updateAnimationParams('endScale', e.target.value)} className='w-full' />
-              <div>End Scale</div>
+            <input type="hidden" name="type" value="zoom" />
+            <div className='m-auto text-center'>
+              <SecondaryButton type="submit">Apply</SecondaryButton>
             </div>
-          </div>
-          <div className='m-auto text-center'>
-            <SecondaryButton onClick={applyAnimationToLayer}>Apply</SecondaryButton>
-          </div>
+          </form>
         </div>
       )
     } else if (selectedOption === 'rotate') {
+      let startRotate = 0;
+
+      if (animationParams) {
+        const startRotateParams = animationParams.find(animation => animation.type === 'rotate');
+        if (startRotateParams) {
+          startRotate = startRotateParams.params.startRotate;
+        }
+      }
       return (
         <div className='mt-2'>
-          <div className='grid grid-cols-2 gap-2 m-auto text-center'>
-            <div>
-              <input type='text' placeholder='Start Rotate'
-                onChange={(e) => updateAnimationParams('rotationSpeed', e.target.value)} className='w-[60px] m-auto' />
-              <div>Rotations/second</div>
+          <form onSubmit={submitApplyAnimationToLayer} key="rotateForm">
+            <div className='grid grid-cols-2 gap-2 m-auto text-center'>
+              <div>
+                <input type='text' name="startRotate" defaultValue={startRotate}
+                  placeholder='Rotations / second'
+                  className={`w-full ${bgColor} ${text2Color}
+                p-4`}
+
+                />
+                <div>Rotations/second</div>
+              </div>
             </div>
-          </div>
-          <div className='m-auto text-center'>
-            <SecondaryButton onClick={applyAnimationToLayer}>Apply</SecondaryButton>
-          </div>
+            <input type="hidden" name="type" value="rotate" />
+            <div className='m-auto text-center'>
+              <SecondaryButton type="submit">Apply</SecondaryButton>
+            </div>
+          </form>
         </div>
       )
     }
@@ -264,7 +372,8 @@ export default function VideoEditorToolbar(props: any) {
     layersDisplay = (
       <div>
         <LayersDisplay activeItemList={activeItemList} setActiveItemList={setActiveItemList}
-          updateSessionLayerActiveItemList={updateSessionLayerActiveItemList} />
+          updateSessionLayerActiveItemList={updateSessionLayerActiveItemList}
+          hideItemInLayer={hideItemInLayer} />
       </div>
     )
   }
@@ -355,20 +464,29 @@ export default function VideoEditorToolbar(props: any) {
 
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_ANIMATE_DISPLAY) {
     let animationOptionMeta = <span />;
-    if (selectedAnimationOption) {
-      animationOptionMeta = getAnimationBoundariesDisplay(selectedAnimationOption);
+    if (!selectedId || selectedId === -1) {
+      animateOptionsDisplay = (
+        <div className={`${text2Color}`}>
+          Please select a layer to animate.
+        </div>
+      )
+
+    } else {
+      if (selectedAnimationOption) {
+        animationOptionMeta = getAnimationBoundariesDisplay(selectedAnimationOption);
+      }
+      animateOptionsDisplay = (
+        <div>
+          Select animation
+          <div>
+            <Select options={animationOptions} onChange={handleAnimationChange} />
+          </div>
+          <div key={`${selectedId}_form_input`}>
+            {animationOptionMeta}
+          </div>
+        </div>
+      )
     }
-    animateOptionsDisplay = (
-      <div>
-        Select animation
-        <div>
-          <Select options={animationOptions} onChange={handleAnimationChange} />
-        </div>
-        <div>
-          {animationOptionMeta}
-        </div>
-      </div>
-    )
   }
 
   const submitGenerateMusic = (evt) => {
@@ -718,6 +836,9 @@ export default function VideoEditorToolbar(props: any) {
     )
 
   }
+
+
+
   return (
     <div className={`border-l-2 ${bgColor}  h-full m-auto fixed top-0 overflow-y-auto pl-2 r-4 w-[16%] pr-2`}>
       <div className='mt-[80px] '>
@@ -837,7 +958,7 @@ export default function VideoEditorToolbar(props: any) {
           </div>
           {addShapeDisplay}
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor}  mt-4 rounded-sm  text-left pl-2 pr-2`}>
+        <div className={`pt-4 pb-4 ${buttonBgcolor}  mt-4 rounded-sm  text-left`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_LAYERS_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Layers

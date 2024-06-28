@@ -25,11 +25,13 @@ export default function VideoEditorContainer(props) {
   const { selectedLayerId, currentLayerSeek,
     currentEditorView, setCurrentEditorView, setFrameEditDisplay,
     currentLayer, updateSessionLayerActiveItemList,
+    updateSessionLayerActiveItemListAnimations,
     activeItemList, setActiveItemList, isLayerSeeking,
     showAddAudioToProjectDialog, generationImages,
     updateCurrentActiveLayer,
     videoSessionDetails,
     setVideoSessionDetails,
+    toggleHideItemInLayer,
   } = props;
 
   let { id } = useParams();
@@ -684,25 +686,25 @@ export default function VideoEditorContainer(props) {
     setActiveItemList(updatedItemList);
     updateSessionLayerActiveItemList(updatedItemList);
 
-    const headers = getHeaders();
-    if (!headers) {
-      showLoginDialog();
-      return;
-    }
-    const payload = {
-      sessionId: id,
-      activeItemList: updatedItemList,
-      layerId: currentLayer._id.toString(),
-    };
+    // const headers = getHeaders();
+    // if (!headers) {
+    //   showLoginDialog();
+    //   return;
+    // }
+    // const payload = {
+    //   sessionId: id,
+    //   activeItemList: updatedItemList,
+    //   layerId: currentLayer._id.toString(),
+    // };
 
-    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_active_item_list`, payload, headers)
-      .then(response => {
-        const updatedSession = response.data;
-        setActiveItemList(updatedSession.activeItemList);
-      })
-      .catch(error => {
-        console.error('Error updating active item list:', error);
-      });
+    // axios.post(`${PROCESSOR_API_URL}/video_sessions/update_active_item_list`, payload, headers)
+    //   .then(response => {
+    //     const updatedSession = response.data;
+    //     setActiveItemList(updatedSession.activeItemList);
+    //   })
+    //   .catch(error => {
+    //     console.error('Error updating active item list:', error);
+    //   });
   };
 
   const submitGenerateMusicRequest = (payload) => {
@@ -773,6 +775,7 @@ export default function VideoEditorContainer(props) {
 
   const selectImageFromLibrary = (imageItem) => {
     const newItemId = `item_${activeItemList.length}`;
+
     const newItem = {
       src: imageItem,
       id: newItemId,
@@ -864,7 +867,6 @@ export default function VideoEditorContainer(props) {
     };
     axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers).then((response) => {
       const updatedSession = response.data;
-      console.log(updatedSession);
       const sessionData = updatedSession.videoSession;
       setVideoSessionDetails(sessionData);
      // setCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
@@ -936,6 +938,7 @@ export default function VideoEditorContainer(props) {
           selectedLayerSelectShape={selectedLayerSelectShape}
           setSelectedLayerSelectShape={setSelectedLayerSelectShape}
           updateSessionLayerActiveItemList={updateSessionLayerActiveItemList}
+          updateSessionLayerActiveItemListAnimations={updateSessionLayerActiveItemListAnimations}
           eraserOptionsVisible={eraserOptionsVisible}
           submitGenerateMusicRequest={submitGenerateMusicRequest}
           audioLayers={sessionDetails.audioLayers}
@@ -945,6 +948,7 @@ export default function VideoEditorContainer(props) {
           showAddAudioToProjectDialog={showAddAudioToProjectDialog}
           sessionDetails={videoSessionDetails}
           submitUpdateSessionDefaults={submitUpdateSessionDefaults}
+          hideItemInLayer={toggleHideItemInLayer}
         />
       </div>
     </div>

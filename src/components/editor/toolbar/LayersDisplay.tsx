@@ -2,6 +2,7 @@ import React from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { useColorMode } from '../../../contexts/ColorMode';
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { FaEye } from 'react-icons/fa6';
 
 // a little function to help us with reordering the result
 const reorder = (list, startIndex, endIndex) => {
@@ -29,7 +30,7 @@ const getItemStyle = (isDragging, draggableStyle) => ({
 
 export default function LayersDisplay(props) {
 
-  const { activeItemList, setActiveItemList, updateSessionLayerActiveItemList } = props;
+  const { activeItemList, setActiveItemList, updateSessionLayerActiveItemList, hideItemInLayer } = props;
 
   const { colorMode } = useColorMode();
 
@@ -102,7 +103,9 @@ export default function LayersDisplay(props) {
                         backgroundColor: snapshot.isDragging ? isDraggingBGColor : isStableBGColor,
                         border: '1px solid #64748b',
                         color: textColor,
-                        padding: '16px',
+                        padding: '8px',
+
+
                         borderRadius: '5px',
                         display: 'flex',
                         alignItems: 'center',
@@ -110,6 +113,9 @@ export default function LayersDisplay(props) {
                       }}
                     >
                       {itemContent}
+                      <div className='ml-1 mr-1'>
+                        <FaEye onClick={() => hideItemInLayer(item.id)}/>
+                      </div>
                       <button
                         onClick={() => deleteItem(item.id)}
                         style={{ color: 'white' }}
