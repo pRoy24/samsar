@@ -684,8 +684,6 @@ export default function VideoEditorToolbar(props: any) {
   let defaultsOptionDisplay = <span />;
   let defaultsSubOptionsDisplay = <span />;
 
-  console.log(currentViewDisplay);
-  
 
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_SET_DEFAULTS_DISPLAY) {
 

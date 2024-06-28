@@ -58,12 +58,19 @@ export default function LayersDisplay(props) {
     updateSessionLayerActiveItemList(newItems);
   };
   
-  const deleteItem = (id) => {    
+  const deleteItem = (id) => {
     // Filter out the item with the matching id
     const filteredItems = activeItemList.filter(item => item.id !== id);
-    // Update the activeItemList with the filtered items
-    setActiveItemList(filteredItems);
-    updateSessionLayerActiveItemList(filteredItems);
+    
+    // Reorder the IDs of the remaining items
+    const reorderedItems = filteredItems.map((item, index) => ({
+      ...item,
+      id: index + 1
+    }));
+
+    // Update the activeItemList with the reordered items
+    setActiveItemList(reorderedItems);
+    updateSessionLayerActiveItemList(reorderedItems);
   };
 
   let isDraggingBGColor = colorMode === 'dark' ? '#263B4A' : '#a8a29e';

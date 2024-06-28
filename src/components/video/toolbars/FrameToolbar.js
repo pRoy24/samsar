@@ -116,6 +116,8 @@ export default function FrameToolbar(props) {
     removeSessionLayer(index);
   };
 
+  
+
   const sliderSettings = {
     dots: false,
     infinite: false,

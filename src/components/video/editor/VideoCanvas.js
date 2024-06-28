@@ -890,10 +890,18 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const removeItem = (index) => {
     const newList = [...activeItemList];
     newList.splice(index, 1);
-    setActiveItemList(newList);
-    updateSessionActiveItemList(newList);
+  
+    // Reorder the IDs of the remaining items
+    const reorderedItems = newList.map((item, newIndex) => ({
+      ...item,
+      id: newIndex + 1
+    }));
+  
+    setActiveItemList(reorderedItems);
+    updateSessionActiveItemList(reorderedItems);
   }
 
+  
   const updateTargetActiveLayerConfig = (id, newConfig) => {
     const newActiveItemList = activeItemList.map((item) => {
       if (item.id === id) {
