@@ -894,7 +894,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     // Reorder the IDs of the remaining items
     const reorderedItems = newList.map((item, newIndex) => ({
       ...item,
-      id: newIndex + 1
+      id: `item_${newIndex + 1}`
     }));
   
     setActiveItemList(reorderedItems);

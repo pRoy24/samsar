@@ -65,7 +65,7 @@ export default function LayersDisplay(props) {
     // Reorder the IDs of the remaining items
     const reorderedItems = filteredItems.map((item, index) => ({
       ...item,
-      id: index + 1
+      id: `item_${index + 1}`
     }));
 
     // Update the activeItemList with the reordered items
