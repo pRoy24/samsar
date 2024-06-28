@@ -161,6 +161,12 @@ export default function VideoEditorContainer(props) {
 
   }, [activeItemList]);
 
+  useEffect(() => {
+    if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_ERASER_DISPLAY) {
+      setSelectedId(null);
+    }
+  }, [currentCanvasAction]);
+
   const resetCurrentView = () => {
     setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
   }
@@ -503,6 +509,8 @@ export default function VideoEditorContainer(props) {
   }
 
   const addTextBoxToCanvas = (payload) => {
+
+
     const nImageList = [...activeItemList, { ...payload, id: `item_${activeItemList.length}` }];
     setActiveItemList(nImageList);
     updateSessionActiveItemList(nImageList);

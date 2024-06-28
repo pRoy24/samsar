@@ -685,7 +685,7 @@ export default function VideoEditorToolbar(props: any) {
   let defaultsSubOptionsDisplay = <span />;
 
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_SET_DEFAULTS_DISPLAY) {
-    console.log(sessionDetails);
+
     const { defaultSceneDuration, imageGenerationTheme } = sessionDetails;
     defaultsOptionDisplay = (
       <div>
@@ -792,7 +792,7 @@ export default function VideoEditorToolbar(props: any) {
         <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_GENERATE_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
-              Generate
+              Generate Image
             </div>
             <FaRobot className='inline-flex text-lg ml-1 mb-1 text-neutral-500' />
             <FaChevronDown className='inline-flex float-right mr-4 mt-2 text-sm' />
@@ -802,7 +802,7 @@ export default function VideoEditorToolbar(props: any) {
         <div className={`pt-4 pb-4 ${buttonBgcolor}  mt-4 rounded-sm  text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_EDIT_MASK_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
-              Edit
+              Edit Image
             </div>
             <FaRobot className='inline-flex text-sm ml-1' />
             <FaChevronDown className='inline-flex float-right mr-4 mt-2 text-sm' />

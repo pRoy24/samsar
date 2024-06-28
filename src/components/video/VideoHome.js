@@ -223,6 +223,9 @@ export default function VideoHome(props) {
 
   useEffect(() => {
     let totalDuration = 0;
+    if (!layers) {
+      return;
+    }
     layers.forEach(layer => {
       totalDuration += layer.duration;
     });

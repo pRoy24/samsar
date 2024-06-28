@@ -22,7 +22,9 @@ import DraggableToolbarRectangle from "../toolbars/toolbar_shapes/DraggableToolb
 import DraggableToolbarCircle from "../toolbars/toolbar_shapes/DraggableToolbarCircle.js";
 import { transformImageHorizontal, transformImageVertical } from "../util/ImageUtils.js";
 
-const SELECTABLE_TYPES = ['SHOW_DEFAULT_DISPLAY', 'SHOW_CURSOR_SELECT_DISPLAY', 'SHOW_ANIMATE_DISPLAY'];
+const SELECTABLE_TYPES = ['SHOW_DEFAULT_DISPLAY', 'SHOW_CURSOR_SELECT_DISPLAY', 'SHOW_ANIMATE_DISPLAY',
+  'SHOW_UPLOAD_DISPLAY'
+];
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
 const VideoCanvas = forwardRef((props: any, ref: any) => {
@@ -304,7 +306,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     );
   };
 
+  console.log(currentView);
+
   const isDraggable = SELECTABLE_TYPES.includes(currentView);
+
 
   const flipImageHorizontal = (id) => {
     const stage = ref.current.getStage();

@@ -247,10 +247,10 @@ export default function FrameToolbar(props) {
 
   }
   const showBatchLayerDialog = () => {
-    console.log("Show batch layer dialog");
     openAlertDialog(<BatchPrompt 
       submitPromptList={submitPromptList}
-      defaultSceneDuration={defaultSceneDuration} />);
+      defaultSceneDuration={defaultSceneDuration}
+    />);
 
   }
 
