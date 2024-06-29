@@ -19,10 +19,7 @@ export default function ImageLibrary(props) {
 
   const handleSelect = (imageLink) => {
     const imagePath = imageLink.replace(`${API_SERVER}`, '');
-
-
     selectImageFromLibrary(imagePath);
-
     setSelectedImage(null);
   };
 
@@ -30,14 +27,10 @@ export default function ImageLibrary(props) {
 
   const textColor = colorMode === 'dark' ? 'text-white' : 'text-black';
 
-  console.log(generationImages);
-
   const imagesLinks = generationImages.map((image) => {
-    const imageLink = getRemoteImageLink(image);
-
-
+    const imageLink = getRemoteImageLink(image.src);
     return (
-      <div key={image} className={`image-item `}>
+      <div key={imageLink} className={`image-item `}>
         <img
           src={imageLink}
           alt="generationImage"

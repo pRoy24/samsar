@@ -69,15 +69,13 @@ export default function VideoHome(props) {
       });
       setTotalDuration(totalDuration);
       let isLayerPending = false;
-      let sessionGenerationImages = [];
       layers.forEach(layer => {
-        sessionGenerationImages = sessionGenerationImages.concat(layer.imageSession.generations);
         if (layer.imageSession.generationStatus === 'PENDING') {
           isLayerPending = true;
         }
       });
       setIsLayerGenerationPending(isLayerPending);
-      setGenerationImages(sessionGenerationImages);
+      setGenerationImages(sessionDetails.generations);
     });
   }, [id]);
 

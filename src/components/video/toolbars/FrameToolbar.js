@@ -142,7 +142,7 @@ export default function FrameToolbar(props) {
             <FaTimes className='' onClick={() => removeLayer(index)} />
           </div>
           <div className='m-auto pl-2'>
-            <div>Layer {index + 1}</div>
+            <div className='text-sm font-bold'>Scene {index + 1}</div>
             <div>
               <div>
                 <input type="number" value={layer.duration}
@@ -312,7 +312,7 @@ export default function FrameToolbar(props) {
   let selectedTrackBasis = 'basis-0';
   let topSubToolbar = (
     <div className='flex flex-row w-full'>
-      <div className='basis-3/4'>Scenes</div>
+      <div className='basis-3/4 font-bold ml-2 mt-1'>Scenes</div>
       <div className='basis-1/4'>
         <DropdownButton addLayerToComposition={addLayerToComposition}
           copyCurrentLayerBelow={copyCurrentLayerBelow}

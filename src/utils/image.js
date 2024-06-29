@@ -15,6 +15,9 @@ export function getScalingFactor(imageDimensions) {
 
 
 export function getRemoteImageLink(imagePath) {
+  console.log(imagePath);
+  console.log("EETE");
+  
   if (imagePath.includes('generation') || imagePath.includes('outpaint')) {
     return `${API_SERVER}/generations/${imagePath}`;  
   } else if (imagePath.includes('/video/')) {

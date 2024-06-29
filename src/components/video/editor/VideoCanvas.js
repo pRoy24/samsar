@@ -123,8 +123,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     // layer.draw();
   }, [currentLayerSeek, currentLayer, activeItemList]);
 
-  console.log(activeItemList);
-
   const applyAnimationsToNode = (node, item, elapsedTime, duration, durationOffset) => {
 
     if (!item.animations) return;
@@ -289,8 +287,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       )
     );
   };
-
-  console.log(currentView);
 
   const isDraggable = SELECTABLE_TYPES.includes(currentView);
 
