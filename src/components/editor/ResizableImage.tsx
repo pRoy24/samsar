@@ -20,7 +20,13 @@ export default function ResizableImage({
 
   const { isDraggable, x, y } = props;
 
-  const imageSrc = `${IMAGE_BASE}/${image.src}`;
+  let imageSrc;
+  
+  if (image.src.startsWith('data:image')) {
+    imageSrc = image.src;
+  } else {
+    imageSrc = `${IMAGE_BASE}/${image.src}`;
+}
   const [img] = useImage(imageSrc, 'anonymous');
   const [transformEndCalled, setTransformEndCalled] = useState(false);
 

@@ -10,7 +10,7 @@ import { CURRENT_TOOLBAR_VIEW, CANVAS_ACTION, TOOLBAR_ACTION_VIEW } from '../../
 import { STAGE_DIMENSIONS } from '../../constants/Image.js';
 import SelectTemplate from '../editor/SelectTemplate.tsx';
 import UploadImageDialog from '../editor/utils/UploadImageDialog.js';
-import VideoCanvas from './editor/VideoCanvas.js';
+import VideoCanvasContainer from './editor/VideoCanvasContainer.js';
 import VideoEditorToolbar from './toolbars/VideoEditorToolbar.js'
 import LoadingImage from './util/LoadingImage.js';
 import ImageLibrary from './util/ImageLibrary.js';
@@ -444,7 +444,7 @@ export default function VideoEditorContainer(props) {
     setIsTemplateSelectViewSelected(!isTemplateSelectViewSelected);
   }
 
-  const showAttestationDialog = () => {}
+  const showAttestationDialog = () => { }
 
   const addImageItemToActiveList = (payload) => {
     setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
@@ -494,7 +494,8 @@ export default function VideoEditorContainer(props) {
 
       const sessionPayload = {
         image: dataURL,
-        sessionId: id
+        sessionId: id,
+
       };
 
       axios.post(`${PROCESSOR_API_URL}/video_sessions/save_intermediate`, sessionPayload, headers)
@@ -503,6 +504,64 @@ export default function VideoEditorContainer(props) {
         });
     }
   };
+
+  useEffect(() => {
+    if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SMART_SELECT_DISPLAY) {
+      console.log("GET MASK FOR IMAGE");
+      const headers = getHeaders();
+      const originalStage = canvasRef.current.getStage();
+      const clonedStage = originalStage.clone();
+      clonedStage.find('Transformer').forEach(transformer => {
+        transformer.destroy();
+      });
+      clonedStage.draw();
+      const dataURL = clonedStage.toDataURL();
+      const layerId = currentLayer._id.toString();
+      const sessionPayload = {
+        image: dataURL,
+        sessionId: id,
+        layerId: layerId
+      };
+
+      console.log(activeItemList);
+
+      if (activeItemList.length === 0) {
+        return;
+      }
+
+      if (activeItemList.length > 1) {
+
+        const newItemId = `item_${activeItemList.length}`;
+
+        const newItem = {
+          src: dataURL,
+          id: newItemId,
+          type: 'image',
+          x: 0,
+          y: 0,
+          width: STAGE_DIMENSIONS.width,
+          height: STAGE_DIMENSIONS.height
+        };
+        const newItemList = [...activeItemList, newItem];
+
+
+
+        setActiveItemList(newItemList);
+
+        updateSessionLayerActiveItemList(newItemList);
+      }
+
+
+      axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_mask`,
+        sessionPayload, headers
+      ).then(function (dataRes) {
+
+
+      });
+
+    }
+    // SHOW_SMART_SELECT_DISPLAY
+  }, [currentCanvasAction]);
 
   const addImageToCanvas = (templateOption) => {
     const templateURL = `${PROCESSOR_API_URL}/templates/mm_final/${templateOption}`;
@@ -520,17 +579,17 @@ export default function VideoEditorContainer(props) {
     updateSessionActiveItemList(nImageList);
   }
 
-  const updateTargetActiveLayerConfig = (id) => {}
+  const updateTargetActiveLayerConfig = (id) => { }
 
   const updateSessionActiveItemList = (newActiveItemList) => {
     updateSessionLayerActiveItemList(newActiveItemList);
   }
 
-  const showMoveAction = () => {}
+  const showMoveAction = () => { }
 
-  const showResizeAction = () => {}
+  const showResizeAction = () => { }
 
-  const showSaveAction = () => {}
+  const showSaveAction = () => { }
 
   const showUploadAction = () => {
     setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
@@ -654,7 +713,7 @@ export default function VideoEditorContainer(props) {
     updateSessionLayerActiveItemList(updatedItemList);
   };
 
-  const handleBubbleChange = (newAttrs) => {};
+  const handleBubbleChange = (newAttrs) => { };
 
   const combineCurrentLayerItems = async () => {
     const stage = canvasRef.current.getStage();
@@ -686,25 +745,6 @@ export default function VideoEditorContainer(props) {
     setActiveItemList(updatedItemList);
     updateSessionLayerActiveItemList(updatedItemList);
 
-    // const headers = getHeaders();
-    // if (!headers) {
-    //   showLoginDialog();
-    //   return;
-    // }
-    // const payload = {
-    //   sessionId: id,
-    //   activeItemList: updatedItemList,
-    //   layerId: currentLayer._id.toString(),
-    // };
-
-    // axios.post(`${PROCESSOR_API_URL}/video_sessions/update_active_item_list`, payload, headers)
-    //   .then(response => {
-    //     const updatedSession = response.data;
-    //     setActiveItemList(updatedSession.activeItemList);
-    //   })
-    //   .catch(error => {
-    //     console.error('Error updating active item list:', error);
-    //   });
   };
 
   const submitGenerateMusicRequest = (payload) => {
@@ -735,7 +775,7 @@ export default function VideoEditorContainer(props) {
     )
   }
 
-  const exportAnimationFrames = async (updatedItemList) => {};
+  const exportAnimationFrames = async (updatedItemList) => { };
 
   const submitAddTrackToProject = (index, payload) => {
     const headers = getHeaders();
@@ -795,6 +835,9 @@ export default function VideoEditorContainer(props) {
   const resetImageLibrary = () => {
     setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
   }
+
+
+
   if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
     if (currentLayer.imageSession.generationStatus === 'PENDING') {
       viewDisplay = <LoadingImage />;
@@ -806,12 +849,12 @@ export default function VideoEditorContainer(props) {
             addImageItemToActiveList={addImageItemToActiveList}
             selectImageFromLibrary={selectImageFromLibrary}
             resetImageLibrary={resetImageLibrary}
-            />
+          />
 
         )
       } else {
         viewDisplay = (
-          <VideoCanvas ref={canvasRef}
+          <VideoCanvasContainer ref={canvasRef}
             key={`canvas_${currentLayer._id.toString()}`}
             maskGroupRef={maskGroupRef}
             sessionDetails={sessionDetails}
@@ -869,7 +912,7 @@ export default function VideoEditorContainer(props) {
       const updatedSession = response.data;
       const sessionData = updatedSession.videoSession;
       setVideoSessionDetails(sessionData);
-     // setCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
+      // setCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
     });
   }
 
@@ -883,7 +926,7 @@ export default function VideoEditorContainer(props) {
           submitGenerateRequest={submitGenerateRequest}
           submitOutpaintRequest={submitOutpaintRequest}
           saveIntermediateImage={saveIntermediateImage}
-          showAttestationDialog={showAttestationDialog} 
+          showAttestationDialog={showAttestationDialog}
           updateNFTData={updateNFTData}
           setNftData={setNftData}
           nftData={nftData}

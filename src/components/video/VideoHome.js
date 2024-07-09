@@ -80,7 +80,7 @@ export default function VideoHome(props) {
   }, [id]);
 
   useEffect(() => {
-    if (!currentLayer.imageSession || currentLayer.imageSession.activeItemList.length === 0) {
+    if (!currentLayer || !currentLayer.imageSession || currentLayer.imageSession.activeItemList.length === 0) {
       return;
     }
     const fps = 30;

@@ -20,7 +20,7 @@ const config = {
 
 export default function Login(props) {
   const { setCurrentLoginView , siginToTwitter, verifyAndSetUserProfile, setUser,
-    closeAlertDialog
+    closeAlertDialog, getOrCreateUserSession
   } = props;
 
   const { colorMode } = useColorMode();
@@ -43,6 +43,7 @@ export default function Login(props) {
       localStorage.setItem('authToken', authToken);
        setUser(userData);
        closeAlertDialog();
+       getOrCreateUserSession();
     }).catch(function(err) {
       console.log(err);
       setError('Invalid email or password');

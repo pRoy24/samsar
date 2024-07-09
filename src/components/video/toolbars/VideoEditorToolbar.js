@@ -25,6 +25,8 @@ import { RiSpeakLine } from "react-icons/ri";
 import MusicSelectToolbar from './audio/MusicSelectToolbar.js';
 import { LuCombine } from "react-icons/lu";
 import { TbLibraryPhoto } from "react-icons/tb";
+import { GrObjectUngroup } from "react-icons/gr";
+
 
 
 import { SPEAKER_TYPES } from '../../../constants/Types.ts';
@@ -380,11 +382,13 @@ export default function VideoEditorToolbar(props: any) {
 
 
   const toggleCurrentViewDisplay = (view: string) => {
+    setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
     if (view === currentViewDisplay) {
       setCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
     } else {
       setCurrentViewDisplay(view);
     }
+
   }
 
   const showLibraryAction = () => {
@@ -618,8 +622,6 @@ export default function VideoEditorToolbar(props: any) {
             </div>
           )}
 
-
-
         </div>
       </div>
     )
@@ -628,7 +630,7 @@ export default function VideoEditorToolbar(props: any) {
   let selectOptionsDisplay = <span />;
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_SELECT_DISPLAY) {
     selectOptionsDisplay = (
-      <div className={`grid grid-cols-2 ${text2Color} h-auto`}>
+      <div className={`grid grid-cols-3 ${text2Color} h-auto`}>
         <div>
           <div className={`text-center m-auto align-center p-1 h-[50px]  rounded-sm ${cursorSelectOptionVisible ? bgSelectedColor : bgColor}`}
             onClick={() => setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SELECT_LAYER_DISPLAY)}>
@@ -643,6 +645,13 @@ export default function VideoEditorToolbar(props: any) {
           <PiSelectionAll className="text-2xl m-auto cursor-pointer" />
           <div className="text-[10px] tracking-tight m-auto text-center">
             Select Shape
+          </div>
+        </div>
+        <div className={`text-center m-auto align-center p-1 h-[50px]  rounded-sm `}
+          onClick={() => setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SMART_SELECT_DISPLAY)} >
+          <GrObjectUngroup className="text-2xl m-auto cursor-pointer" />
+          <div className="text-[10px] tracking-tight m-auto text-center">
+            Smart Select
           </div>
         </div>
       </div>

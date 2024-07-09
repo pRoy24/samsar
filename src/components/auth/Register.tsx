@@ -19,7 +19,7 @@ const config = {
 
 export default function Register (props) {
   const { setCurrentLoginView , siginToTwitter, verifyAndSetUserProfile,
-     setUser, closeAlertDialog} = props;
+     setUser, closeAlertDialog, getOrCreateUserSession} = props;
   const { colorMode } = useColorMode();
   const formBgColor = colorMode === 'light' ? 'bg-neutral-50' : 'bg-neutral-900';
   const formTextColor = colorMode === 'light' ? 'text-neutral-900' : 'text-neutral-50';
@@ -45,8 +45,7 @@ export default function Register (props) {
       localStorage.setItem('authToken', authToken);
        setUser(userData);
         closeAlertDialog();
-
-
+        getOrCreateUserSession();
     }).catch(function (error) {
       console.log('error: ', error);
       setError('Unable to register user');

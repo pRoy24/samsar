@@ -28,3 +28,46 @@ export const transformImageVertical = (stage, id) => {
   });
 };
 
+
+
+// utils/ImageUtils.js
+
+export const rleDecode = (segmentation) => {
+  const { counts, size } = segmentation;
+  const [height, width] = size;
+  const decoded = new Uint8Array(height * width);
+  let countIndex = 0;
+  let value = 0;
+  let index = 0;
+
+  while (countIndex < counts.length) {
+    let count = 0;
+    while (counts[countIndex] !== undefined && !isNaN(counts[countIndex])) {
+      count = count * 10 + Number(counts[countIndex]);
+      countIndex++;
+    }
+    countIndex++; // Skip the space character
+    for (let i = 0; i < count; i++) {
+      decoded[index] = value;
+      index++;
+    }
+    value = 1 - value; // Flip between 0 and 1
+  }
+
+  return decoded;
+};
+
+
+export const maskToPoints = (mask, width) => {
+  const points = [];
+  for (let y = 0; y < mask.length / width; y++) {
+    for (let x = 0; x < width; x++) {
+      if (mask[y * width + x] === 1) {
+        points.push(x, y);
+      }
+    }
+  }
+  console.log(points);
+  
+  return points;
+};
