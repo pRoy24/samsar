@@ -121,6 +121,7 @@ export default function TopNav(props) {
 
   const gotoViewSessionsPage = () => {
     //    navigate('/sessions');
+    navigate("/my_sessions");
 
   }
 

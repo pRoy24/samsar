@@ -17,6 +17,7 @@ import { Routes, Route } from 'react-router-dom';
 import VideoEditorLanding from "../video/VideoEditorLanding.js";
 import VideoEditorContainer from "../video/VideoEditorContainer.js";
 import VideoEditorLandingHome from "../video/VideoEditorLandingHome.js";
+import ListVideoSessions from "../video/sessions/ListVideoSessions.js";
 
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
@@ -44,6 +45,7 @@ export default function Home() {
         <Route path="/session/:id" element={<EditorHome />} />
         <Route path="/video" element={<VideoEditorLanding />} />
         <Route path="/video/:id" element={<VideoHome />} />
+        <Route path="/my_sessions" element={<ListVideoSessions />} />
 
         <Route path="/account" element={<UserAccount />} />
         <Route path="/publication/:id" element={<PublicationHome />} />

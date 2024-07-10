@@ -505,9 +505,33 @@ export default function VideoEditorContainer(props) {
     }
   };
 
+  const startMaskGenerationPoll = () => {
+    const sessionId = id;
+    axios.get(`${PROCESSOR_API_URL}/video_sessions/generate_mask_status?sessionId=${sessionId}`).then((response) => {
+      const maskGeneration = response.data;
+      if (maskGeneration.status === 'COMPLETED') {
+        const sessionData = maskGeneration.session;
+        setSessionDetails(sessionData);
+        // const newActiveItemList = maskGeneration.activeItemList;
+        // const generatedImageUrlName = maskGeneration.activeGeneratedImage;
+        // const generatedURL = `${generatedImageUrlName}`;
+        // const item_id = `item_${activeItemList.length}`;
+        // const nImageList = [...activeItemList, { src: generatedURL, id: item_id, type: 'image' }];
+
+        // setActiveItemList(nImageList);
+        // setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
+        // updateSessionLayerActiveItemList(nImageList);
+      } else {
+        setTimeout(() => {
+          startMaskGenerationPoll();
+        }, 1000);
+      }
+    });
+
+  }
+
   useEffect(() => {
     if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SMART_SELECT_DISPLAY) {
-      console.log("GET MASK FOR IMAGE");
       const headers = getHeaders();
       const originalStage = canvasRef.current.getStage();
       const clonedStage = originalStage.clone();
@@ -522,9 +546,6 @@ export default function VideoEditorContainer(props) {
         sessionId: id,
         layerId: layerId
       };
-
-      console.log(activeItemList);
-
       if (activeItemList.length === 0) {
         return;
       }
@@ -555,8 +576,7 @@ export default function VideoEditorContainer(props) {
       axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_mask`,
         sessionPayload, headers
       ).then(function (dataRes) {
-
-
+        startMaskGenerationPoll();
       });
 
     }
