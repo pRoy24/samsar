@@ -32,6 +32,7 @@ export default function VideoEditorContainer(props) {
     videoSessionDetails,
     setVideoSessionDetails,
     toggleHideItemInLayer,
+    updateLayerMask, resetLayerMask,
   } = props;
 
   let { id } = useParams();
@@ -426,7 +427,7 @@ export default function VideoEditorContainer(props) {
     const pollStatus = pollStatusData.data;
 
     if (pollStatus.generationStatus === 'COMPLETED') {
-      setSessionDetails(pollStatus.videoSession);
+      setVideoSessionDetails(pollStatus.videoSession);
       setAudioGenerationPending(false);
       setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_PREVIEW_MUSIC_DISPLAY);
       return;
@@ -477,33 +478,60 @@ export default function VideoEditorContainer(props) {
   }
 
   const saveIntermediateImage = () => {
-    if (canvasRef.current) {
-      const originalStage = canvasRef.current.getStage();
-      const clonedStage = originalStage.clone();
-      clonedStage.find('Transformer').forEach(transformer => {
-        transformer.destroy();
-      });
-      clonedStage.draw();
-
-      const dataURL = clonedStage.toDataURL();
-      const headers = getHeaders();
-      if (!headers) {
-        showLoginDialog();
-        return;
-      }
-
-      const sessionPayload = {
-        image: dataURL,
-        sessionId: id,
-
-      };
-
-      axios.post(`${PROCESSOR_API_URL}/video_sessions/save_intermediate`, sessionPayload, headers)
-        .then(function (dataResponse) {
-          setIsIntermediateSaving(false);
-        });
-    }
+    // if (canvasRef.current) {
+    //   const originalStage = canvasRef.current.getStage();
+  
+    //   // Create a new layer for the combined items
+    //   const combinedLayer = new Konva.Layer();
+  
+    //   // Filter activeItemList for items with IDs starting with "item_"
+    //   const filteredItems = activeItemList.filter(item => item.id.startsWith("item_"));
+  
+    //   // Add filtered items to the combined layer
+    //   filteredItems.forEach(item => {
+    //     const imageObj = new Image();
+    //     imageObj.src = item.src;
+  
+    //     const konvaImage = new Konva.Image({
+    //       image: imageObj,
+    //       x: item.x,
+    //       y: item.y,
+    //       width: item.width,
+    //       height: item.height,
+    //       id: item.id
+    //     });
+  
+    //     combinedLayer.add(konvaImage);
+    //   });
+  
+    //   // Draw the combined layer
+    //   combinedLayer.draw();
+  
+    //   // Export the combined layer as a Data URL
+    //   const dataURL = combinedLayer.toDataURL({
+    //     width: STAGE_DIMENSIONS.width,
+    //     height: STAGE_DIMENSIONS.height,
+    //     pixelRatio: 1
+    //   });
+  
+    //   const headers = getHeaders();
+    //   if (!headers) {
+    //     showLoginDialog();
+    //     return;
+    //   }
+  
+    //   const sessionPayload = {
+    //     image: dataURL,
+    //     sessionId: id,
+    //   };
+  
+    //   axios.post(`${PROCESSOR_API_URL}/video_sessions/save_intermediate`, sessionPayload, headers)
+    //     .then(function (dataResponse) {
+    //       setIsIntermediateSaving(false);
+    //     });
+    // }
   };
+  
 
   const startMaskGenerationPoll = () => {
     const sessionId = id;
@@ -511,16 +539,10 @@ export default function VideoEditorContainer(props) {
       const maskGeneration = response.data;
       if (maskGeneration.status === 'COMPLETED') {
         const sessionData = maskGeneration.session;
-        setSessionDetails(sessionData);
-        // const newActiveItemList = maskGeneration.activeItemList;
-        // const generatedImageUrlName = maskGeneration.activeGeneratedImage;
-        // const generatedURL = `${generatedImageUrlName}`;
-        // const item_id = `item_${activeItemList.length}`;
-        // const nImageList = [...activeItemList, { src: generatedURL, id: item_id, type: 'image' }];
+        setVideoSessionDetails(sessionData);
 
-        // setActiveItemList(nImageList);
-        // setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
-        // updateSessionLayerActiveItemList(nImageList);
+        const layerData = sessionData.layers.find(layer => layer._id.toString() === currentLayer._id.toString());
+        updateLayerMask(layerData);
       } else {
         setTimeout(() => {
           startMaskGenerationPoll();
@@ -531,6 +553,7 @@ export default function VideoEditorContainer(props) {
   }
 
   useEffect(() => {
+
     if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SMART_SELECT_DISPLAY) {
       const headers = getHeaders();
       const originalStage = canvasRef.current.getStage();
@@ -564,22 +587,19 @@ export default function VideoEditorContainer(props) {
           height: STAGE_DIMENSIONS.height
         };
         const newItemList = [...activeItemList, newItem];
-
-
-
         setActiveItemList(newItemList);
-
         updateSessionLayerActiveItemList(newItemList);
       }
-
-
+      resetLayerMask();
       axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_mask`,
         sessionPayload, headers
       ).then(function (dataRes) {
         startMaskGenerationPoll();
+
       });
 
     }
+
     // SHOW_SMART_SELECT_DISPLAY
   }, [currentCanvasAction]);
 
@@ -818,7 +838,7 @@ export default function VideoEditorContainer(props) {
     axios.post(`${PROCESSOR_API_URL}/audio/add_track_to_project`, requestPayload, headers).then((response) => {
       const sessionData = response.data;
       if (sessionData && sessionData.videoSession) {
-        setSessionDetails(sessionData.videoSession);
+        setVideoSessionDetails(sessionData.videoSession);
         setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY)
       }
     });

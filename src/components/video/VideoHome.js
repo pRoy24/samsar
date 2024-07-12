@@ -595,6 +595,16 @@ export default function VideoHome(props) {
     });
   }
 
+  const updateLayerMask = (layerData) => {
+    let layerDataNew = Object.assign({}, currentLayer, {objectSelectMaskImage: layerData.objectSelectMaskImage})
+    setCurrentLayer(layerDataNew);
+  }
+
+  const resetLayerMask = () => {
+    let layerDataNew = Object.assign({}, currentLayer, {objectSelectMaskImage: null})
+    setCurrentLayer(layerDataNew);
+  }
+
   return (
     <CommonContainer>
       <div className='m-auto'>
@@ -659,6 +669,8 @@ export default function VideoHome(props) {
               videoSessionDetails={videoSessionDetails}
               setVideoSessionDetails={setVideoSessionDetails}
               toggleHideItemInLayer={toggleHideItemInLayer}
+              updateLayerMask={updateLayerMask}
+              resetLayerMask={resetLayerMask}
             />
           </div>
         </div>

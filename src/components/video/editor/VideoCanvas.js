@@ -35,28 +35,21 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   }, [currentCanvasAction, currentLayer]);
 
   const loadSegmentationMask = async () => {
-    if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' && currentLayer?.maskImagePath) {
-      const maskImageUrl = `${PROCESSOR_API_URL}/${currentLayer.maskImagePath}`;
-      const maskDataUrl = `${PROCESSOR_API_URL}/${currentLayer.objectSelectMaskImage}`;
+    if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' && currentLayer?.segmentation) {
+      const maskData = currentLayer.segmentation;
+      setMaskData(maskData);
+      const boxes = maskData.map((mask) => mask.bbox);
+      setBoundingBoxes(boxes); // Update the state with bounding box data
 
-
-
-      axios.get(maskDataUrl).then((response) => {
-        const maskData = response.data;
-        setMaskData(maskData);
-        const boxes = maskData.map((mask) => mask.bbox);
-        setBoundingBoxes(boxes); // Update the state with bounding box data
-
-        // set setMaskBaseImageId to top image
-        const topItem = activeItemList
+      // set setMaskBaseImageId to top image
+      const topItem = activeItemList
         .filter(item => item.id.startsWith('item_'))
         .sort((a, b) => {
           const idA = parseInt(a.id.replace('item_', ''), 10);
           const idB = parseInt(b.id.replace('item_', ''), 10);
           return idB - idA;
         })[0];
-        setMaskBaseImageId(topItem.id);
-      });
+      setMaskBaseImageId(topItem.id);
     } else {
       setMaskImage(null);
     }
@@ -225,7 +218,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         size: segmentation.size,
         bbox: bbox,
       }
-      const response = await axios.post(`${IMAGE_SERVER_API_URL}/segmentation_image`, payload, {
+      const response = await axios.post(`${PROCESSOR_API_URL}/video_sessions/segmentation_image`, payload, {
         headers: {
           'Content-Type': 'application/json'
         }
@@ -300,9 +293,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   const handleAddButtonClick = () => {
     const stage = ref.current.getStage();
-  
-
-    
     const imageNode = stage.findOne(`#${maskBaseImageId}`);
     if (!imageNode || !imageNode.image()) {
       console.error('No valid image node found.');
@@ -326,18 +316,11 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         setSelectedLayerType(newItem.type);
         setSelectedBbox(null); // Hide the toolbar
       });
-  
-      // Hide the toolbar and reset the current view
-    //  setToolbarShapeProps(null);
-    //  setCurrentCanvasAction(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
-      
     }
   };
-  
+
   const handleRemoveButtonClick = () => {
     const stage = ref.current.getStage();
-  
-  
     const imageNode = stage.findOne(`#${maskBaseImageId}`);
     if (!imageNode || !imageNode.image()) {
       console.error('No valid image node found.');
@@ -346,8 +329,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   
     const imageElement = imageNode.image();
     const imageData = getImageDataFromCanvas(imageElement);
-  
-    console.log(imageData);
   
     const maskImageElement = maskImage ? maskImage.src : null;
     if (maskImageElement) {
@@ -366,10 +347,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         setSelectedLayerType(newItem.type);
         setSelectedBbox(null); // Hide the toolbar
       });
-  
-      // Hide the toolbar and reset the current view
-     // setToolbarShapeProps(null);
-    //  setCurrentCanvasAction(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
     }
   };
 
@@ -414,7 +391,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         width: topItem.width,
         height: topItem.height,
       };
-      console.log(newItem);
   
       const newActiveItemList = activeItemList.map(item => item.id === maskBaseImageId ? newItem : item);
       setActiveItemList(newActiveItemList);
@@ -424,8 +400,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     };
     imageObj.src = dataURL;
   };
-  
-  
+
   const createMaskImage = (imageData, maskData, bbox, callback) => {
     const [x, y, width, height] = bbox;
   
@@ -469,19 +444,16 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         width: width,
         height: height,
       };
-      console.log(newItem);
   
       addNewItem(newItem);
       if (callback) callback(newItem); // Call the callback with the new item
     };
     imageObj.src = dataURL;
   };
-  
+
   const debouncedHandleMouseOver = debounce((e) => {
     handleMouseOver(e);
   }, 300); // Adjust the debounce delay as needed
-
-  console.log(currentCanvasAction);
 
   return (
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
