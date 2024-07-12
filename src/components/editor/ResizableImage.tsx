@@ -20,6 +20,9 @@ export default function ResizableImage({
 
   const { isDraggable, x, y } = props;
 
+  console.log(props);
+
+
   let imageSrc;
   
   if (image.src.startsWith('data:image')) {
@@ -34,21 +37,6 @@ export default function ResizableImage({
   const trRef = useRef();
   const { showMask, id } = props;
 
-  const imageDimensions = {
-    width: img?.width,
-    height: img?.height,
-  };
-  const scalingFactor = getScalingFactor(imageDimensions);
-
-  const updateTargetActiveLayerPosition = (id, x, y, width, height) => {
-    const newConfig = {
-      x: x,
-      y: y,
-      width: width,
-      height: height,
-    };
-    updateTargetActiveLayerConfig(id, newConfig);
-  };
 
   useEffect(() => {
     if (img && shapeRef.current) {
@@ -118,16 +106,35 @@ export default function ResizableImage({
 
     node.scaleX(1);
     node.scaleY(1);
-    updateTargetActiveLayerPosition(id, x, y, width, height);
+   
+   const newConfig = {
+      x: x,
+      y: y,
+      width: width,
+      height: height,
+    };
+    updateTargetActiveLayerConfig(id, newConfig);
 
-    // Reset the flag after a short delay to allow for any subsequent events to be ignored
     setTimeout(() => setTransformEndCalled(false), 0);
   };
 
   const handleDragEnd = (e) => {
     const node = e.target;
-    updateTargetActiveLayerPosition(id, node.x(), node.y(), node.width() * node.scaleX(), node.height() * node.scaleY());
+
+    const newConfig = {
+      x: node.x(),
+      y: node.y(),
+      width: node.width() * node.scaleX(),
+      height: node.height() * node.scaleY(),
+    
+    }
+    updateTargetActiveLayerConfig(id, newConfig);
+    
   };
+
+  console.log("FEEEEEE");
+  console.log(props);
+  
 
   return (
     <Group id={`group_${id}`}>

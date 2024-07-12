@@ -14,8 +14,7 @@ import axios from "axios";
 import { useUser } from "../../contexts/UserContext";
 
 import { Routes, Route } from 'react-router-dom';
-import VideoEditorLanding from "../video/VideoEditorLanding.js";
-import VideoEditorContainer from "../video/VideoEditorContainer.js";
+
 import VideoEditorLandingHome from "../video/VideoEditorLandingHome.js";
 import ListVideoSessions from "../video/sessions/ListVideoSessions.js";
 
@@ -43,7 +42,7 @@ export default function Home() {
       <Routes>
         <Route path="/" element={<VideoEditorLandingHome />} />
         <Route path="/session/:id" element={<EditorHome />} />
-        <Route path="/video" element={<VideoEditorLanding />} />
+        <Route path="/video" element={<VideoEditorLandingHome />} />
         <Route path="/video/:id" element={<VideoHome />} />
         <Route path="/my_sessions" element={<ListVideoSessions />} />
 

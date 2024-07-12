@@ -23,7 +23,6 @@ const IPFS_URL_BASE = process.env.REACT_APP_IPFS_URL_BASE;
 
 export default function VideoEditorContainer(props) {
   const { selectedLayerId, currentLayerSeek,
-    currentEditorView, setCurrentEditorView, setFrameEditDisplay,
     currentLayer, updateSessionLayerActiveItemList,
     updateSessionLayerActiveItemListAnimations,
     activeItemList, setActiveItemList, isLayerSeeking,
@@ -38,19 +37,11 @@ export default function VideoEditorContainer(props) {
   let { id } = useParams();
 
   const showLoginDialog = () => {
-
     const loginComponent = (
       <AuthContainer />
     )
     openAlertDialog(loginComponent);
-
   };
-
-  const resetSession = () => {
-    if (props.resetCurrentSession) {
-      props.resetCurrentSession();
-    }
-  }
 
   if (!id) {
     id = props.id;
@@ -92,7 +83,6 @@ export default function VideoEditorContainer(props) {
   const [pencilWidth, setPencilWidth] = useState(10);
   const [pencilColor, setPencilColor] = useState('#000000');
   const [eraserWidth, setEraserWidth] = useState(30);
-  const [pencilOptionsVisible, setPencilOptionsVisible] = useState(false);
   const [eraserOptionsVisible, setEraserOptionsVisible] = useState(false);
   const [cursorSelectOptionVisible, setCursorSelectOptionVisible] = useState(false);
 
@@ -126,7 +116,6 @@ export default function VideoEditorContainer(props) {
   const { openAlertDialog, closeAlertDialog, setIsAlertActionPending } = useAlertDialog();
   const { user } = useUser();
 
-  const [sessionDetails, setSessionDetails] = useState({});
   const [showMask, setShowMask] = useState(false);
 
   const canvasRef = useRef(null);
@@ -160,7 +149,7 @@ export default function VideoEditorContainer(props) {
 
     const newItemList = [...activeItemList, newItem];
     setActiveItemList(newItemList);
-    updateSessionActiveItemList(newItemList);
+    updateSessionLayerActiveItemList(newItemList);
     closeAlertDialog();
 
   }, [activeItemList]);
@@ -477,62 +466,6 @@ export default function VideoEditorContainer(props) {
     });
   }
 
-  const saveIntermediateImage = () => {
-    // if (canvasRef.current) {
-    //   const originalStage = canvasRef.current.getStage();
-  
-    //   // Create a new layer for the combined items
-    //   const combinedLayer = new Konva.Layer();
-  
-    //   // Filter activeItemList for items with IDs starting with "item_"
-    //   const filteredItems = activeItemList.filter(item => item.id.startsWith("item_"));
-  
-    //   // Add filtered items to the combined layer
-    //   filteredItems.forEach(item => {
-    //     const imageObj = new Image();
-    //     imageObj.src = item.src;
-  
-    //     const konvaImage = new Konva.Image({
-    //       image: imageObj,
-    //       x: item.x,
-    //       y: item.y,
-    //       width: item.width,
-    //       height: item.height,
-    //       id: item.id
-    //     });
-  
-    //     combinedLayer.add(konvaImage);
-    //   });
-  
-    //   // Draw the combined layer
-    //   combinedLayer.draw();
-  
-    //   // Export the combined layer as a Data URL
-    //   const dataURL = combinedLayer.toDataURL({
-    //     width: STAGE_DIMENSIONS.width,
-    //     height: STAGE_DIMENSIONS.height,
-    //     pixelRatio: 1
-    //   });
-  
-    //   const headers = getHeaders();
-    //   if (!headers) {
-    //     showLoginDialog();
-    //     return;
-    //   }
-  
-    //   const sessionPayload = {
-    //     image: dataURL,
-    //     sessionId: id,
-    //   };
-  
-    //   axios.post(`${PROCESSOR_API_URL}/video_sessions/save_intermediate`, sessionPayload, headers)
-    //     .then(function (dataResponse) {
-    //       setIsIntermediateSaving(false);
-    //     });
-    // }
-  };
-  
-
   const startMaskGenerationPoll = () => {
     const sessionId = id;
     axios.get(`${PROCESSOR_API_URL}/video_sessions/generate_mask_status?sessionId=${sessionId}`).then((response) => {
@@ -608,7 +541,7 @@ export default function VideoEditorContainer(props) {
     const nImageList = [...activeItemList, { src: templateURL, id: `item_${nImageList.length}`, type: 'image' }];
     setActiveItemList(nImageList);
     setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
-    updateSessionActiveItemList(nImageList);
+    updateSessionLayerActiveItemList(nImageList);
   }
 
   const addTextBoxToCanvas = (payload) => {
@@ -616,14 +549,9 @@ export default function VideoEditorContainer(props) {
 
     const nImageList = [...activeItemList, { ...payload, id: `item_${activeItemList.length}` }];
     setActiveItemList(nImageList);
-    updateSessionActiveItemList(nImageList);
+    updateSessionLayerActiveItemList(nImageList);
   }
 
-  const updateTargetActiveLayerConfig = (id) => { }
-
-  const updateSessionActiveItemList = (newActiveItemList) => {
-    updateSessionLayerActiveItemList(newActiveItemList);
-  }
 
   const showMoveAction = () => { }
 
@@ -660,7 +588,7 @@ export default function VideoEditorContainer(props) {
     }];
     setActiveItemList(currentLayerList);
     setSelectedId(`item_${activeItemList.length}`);
-    updateSessionActiveItemList(currentLayerList);
+    updateSessionLayerActiveItemList(currentLayerList);
   }
 
   const applyFilter = (index, filter, value) => {
@@ -824,7 +752,7 @@ export default function VideoEditorContainer(props) {
       return;
     }
     const sessionId = id;
-    const audioLayers = sessionDetails.audioLayers;
+    const audioLayers = videoSessionDetails.audioLayers;
     const latestAudioLayer = audioLayers[audioLayers.length - 1];
     const layerId = latestAudioLayer._id.toString();
 
@@ -867,7 +795,7 @@ export default function VideoEditorContainer(props) {
     };
     const newItemList = [...activeItemList, newItem];
     setActiveItemList(newItemList);
-    updateSessionActiveItemList(newItemList);
+    updateSessionLayerActiveItemList(newItemList);
     setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
 
   }
@@ -875,8 +803,6 @@ export default function VideoEditorContainer(props) {
   const resetImageLibrary = () => {
     setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
   }
-
-
 
   if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
     if (currentLayer.imageSession.generationStatus === 'PENDING') {
@@ -897,7 +823,7 @@ export default function VideoEditorContainer(props) {
           <VideoCanvasContainer ref={canvasRef}
             key={`canvas_${currentLayer._id.toString()}`}
             maskGroupRef={maskGroupRef}
-            sessionDetails={sessionDetails}
+            sessionDetails={videoSessionDetails}
             activeItemList={activeItemList}
             setActiveItemList={setActiveItemList}
             editBrushWidth={editBrushWidth}
@@ -925,8 +851,7 @@ export default function VideoEditorContainer(props) {
             exportAnimationFrames={exportAnimationFrames}
             currentLayerSeek={currentLayerSeek}
             currentLayer={currentLayer}
-            updateTargetActiveLayerConfig={updateTargetActiveLayerConfig}
-            updateSessionActiveItemList={updateSessionActiveItemList}
+            updateSessionActiveItemList={updateSessionLayerActiveItemList}
             selectedLayerSelectShape={selectedLayerSelectShape}
             setCurrentView={setCurrentView}
             isLayerSeeking={isLayerSeeking}
@@ -965,7 +890,6 @@ export default function VideoEditorContainer(props) {
         <VideoEditorToolbar promptText={promptText} setPromptText={setPromptText}
           submitGenerateRequest={submitGenerateRequest}
           submitOutpaintRequest={submitOutpaintRequest}
-          saveIntermediateImage={saveIntermediateImage}
           showAttestationDialog={showAttestationDialog}
           updateNFTData={updateNFTData}
           setNftData={setNftData}
@@ -1024,7 +948,7 @@ export default function VideoEditorContainer(props) {
           updateSessionLayerActiveItemListAnimations={updateSessionLayerActiveItemListAnimations}
           eraserOptionsVisible={eraserOptionsVisible}
           submitGenerateMusicRequest={submitGenerateMusicRequest}
-          audioLayers={sessionDetails.audioLayers}
+          audioLayers={videoSessionDetails.audioLayers}
           audioGenerationPending={audioGenerationPending}
           submitAddTrackToProject={submitAddTrackToProject}
           combineCurrentLayerItems={combineCurrentLayerItems}

@@ -19,7 +19,12 @@ const IMAGE_SERVER_API_URL = process.env.REACT_APP_IMAGE_SERVER_API;
 
 const VideoCanvas = forwardRef((props: any, ref: any) => {
   const {
-    activeItemList, setActiveItemList, currentView, editBrushWidth, editMasklines, currentCanvasAction, setCurrentCanvasAction, setSelectedId, selectedId, buttonPositions, setButtonPositions, selectedLayerType, setSelectedLayerType, applyFilter, onChange, sessionId, selectedFrameId, currentLayer, updateSessionActiveItemList, selectedLayerSelectShape, isLayerSeeking, applyFinalFilter, flipImageVertical, flipImageHorizontal, onCopyShapeLayer, onReplaceShapeLayer, handleResetShapeLayer, removeItem, updateTargetActiveLayerConfig, updateTargetShapeActiveLayerConfig, addPaintImage, resetPaintImage, shapeSelectTransformerCircleRef, shapeSelectTransformerRectangleRef, replaceEraserImage, duplicateEraserImage, handleLayerMouseDown, handleLayerMouseMove, handleLayerMouseUp, resetEraserImage, showMask, eraserToolbarVisible, eraserToolbarPosition, eraserWidthRef, toolbarShapeProps, setToolbarShapeProps, paintToolbarPosition, paintToolbarVisible, isDrawing, shapeSet, showPencil, pencilLines, overlayImage, shapeSelectToolbarVisible, shapeSelectToolbarPosition,
+    activeItemList, setActiveItemList, currentView, editBrushWidth, editMasklines, currentCanvasAction,
+    setCurrentCanvasAction, setSelectedId, selectedId, buttonPositions, setButtonPositions, selectedLayerType,
+    setSelectedLayerType, applyFilter, onChange, sessionId, selectedFrameId, currentLayer,
+    updateSessionActiveItemList, selectedLayerSelectShape, isLayerSeeking, applyFinalFilter, flipImageVertical,
+    flipImageHorizontal, onCopyShapeLayer, onReplaceShapeLayer, handleResetShapeLayer, removeItem,
+    updateTargetActiveLayerConfig, updateTargetShapeActiveLayerConfig, addPaintImage, resetPaintImage, shapeSelectTransformerCircleRef, shapeSelectTransformerRectangleRef, replaceEraserImage, duplicateEraserImage, handleLayerMouseDown, handleLayerMouseMove, handleLayerMouseUp, resetEraserImage, showMask, eraserToolbarVisible, eraserToolbarPosition, eraserWidthRef, toolbarShapeProps, setToolbarShapeProps, paintToolbarPosition, paintToolbarVisible, isDrawing, shapeSet, showPencil, pencilLines, overlayImage, shapeSelectToolbarVisible, shapeSelectToolbarPosition,
   } = props;
 
   const [maskImage, setMaskImage] = useState(null);

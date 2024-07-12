@@ -21,8 +21,6 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
 
   const [eraserLayer, setEraserLayer] = useState(null);
   const [isShapeVisible, setIsShapeVisible] = useState(false);
-
-
   const [showMask, setShowMask] = useState(false);
   const [showEraser, setShowEraser] = useState(false);
   const [isPainting, setIsPainting] = useState(false);
@@ -40,9 +38,6 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
     height: 0,
     radius: 0
   });
-
-
-
 
   const [shapeSet, setShapeSet] = useState(false);
 
@@ -775,7 +770,7 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
     updateSessionActiveItemList(reorderedItems);
   }
 
-  const updateTargetActiveLayerConfig = (id, newConfig) => {
+  const updateTargetActiveLayerConfig = (id, newConfig, updateState = true) => {
     const newActiveItemList = activeItemList.map((item) => {
       if (item.id === id) {
         return {
@@ -785,7 +780,10 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
       }
       return item;
     });
-    setActiveItemList(newActiveItemList);
+    console.log(newActiveItemList);
+    if (updateState) {
+      setActiveItemList(newActiveItemList);
+    }
     updateSessionActiveItemList(newActiveItemList);
   }
 

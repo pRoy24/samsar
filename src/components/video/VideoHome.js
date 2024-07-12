@@ -360,8 +360,10 @@ export default function VideoHome(props) {
     axios.post(`${PROCESSOR_API_URL}/video_sessions/update_active_item_list`, reqPayload, headers).then((response) => {
       const videoSessionData = response.data;
       const updatedItemList = videoSessionData.activeItemList;
+      console.log(updatedItemList);
+
       if (updatedItemList && updatedItemList.length > 0) {
-        setActiveItemList(updatedItemList);
+         setActiveItemList(updatedItemList);
       }
     });
   }, 5);
@@ -564,7 +566,7 @@ export default function VideoHome(props) {
 
   const updateCurrentActiveLayer = (imageItem) => {
     const newActiveItemList = activeItemList.concat(imageItem);
-    setActiveItemList(newActiveItemList);
+  //  setActiveItemList(newActiveItemList);
     debouncedUpdateSessionLayerActiveItemList();
   }
 

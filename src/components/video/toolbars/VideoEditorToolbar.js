@@ -36,7 +36,6 @@ import { SPEAKER_TYPES } from '../../../constants/Types.ts';
 
 export default function VideoEditorToolbar(props: any) {
   const {
-    saveIntermediateImage,
     showAttestationDialog,
     sessionDetails, nftData, setNftData,
     chainList, setSelectedChain, selectedChain,
