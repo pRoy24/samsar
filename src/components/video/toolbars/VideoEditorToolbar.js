@@ -865,18 +865,13 @@ export default function VideoEditorToolbar(props: any) {
           </div>
         </div>
         <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
-          <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_ACTIONS_DISPLAY)}>
+          <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_GENERATE_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
-              Actions
+              Generate Image
             </div>
             <FaChevronDown className='inline-flex float-right mr-4 mt-2 text-sm' />
           </div>
-          <div className={`${textInnerColor}`}>
-            {actionsOptionsDisplay}
-          </div>
-          <div>
-            {actionsSubOptionsDisplay}
-          </div>
+          {generateDisplay}
         </div>
         <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_AUDIO_DISPLAY)}>
@@ -892,6 +887,21 @@ export default function VideoEditorToolbar(props: any) {
             {audioSubOptionsDisplay}
           </div>
         </div>
+        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
+          <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_ACTIONS_DISPLAY)}>
+            <div className='inline-flex ml-4 pl-4'>
+              Actions
+            </div>
+            <FaChevronDown className='inline-flex float-right mr-4 mt-2 text-sm' />
+          </div>
+          <div className={`${textInnerColor}`}>
+            {actionsOptionsDisplay}
+          </div>
+          <div>
+            {actionsSubOptionsDisplay}
+          </div>
+        </div>
+
 
         <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_SELECT_DISPLAY)}>
@@ -919,16 +929,7 @@ export default function VideoEditorToolbar(props: any) {
             {animateOptionsDisplay}
           </div>
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm  text-left pl-2 pr-2`}>
-          <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_GENERATE_DISPLAY)}>
-            <div className='inline-flex ml-4 pl-4'>
-              Generate Image
-            </div>
-            <FaRobot className='inline-flex text-lg ml-1 mb-1 text-neutral-500' />
-            <FaChevronDown className='inline-flex float-right mr-4 mt-2 text-sm' />
-          </div>
-          {generateDisplay}
-        </div>
+
         <div className={`pt-4 pb-4 ${buttonBgcolor}  mt-4 rounded-sm  text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_EDIT_MASK_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
