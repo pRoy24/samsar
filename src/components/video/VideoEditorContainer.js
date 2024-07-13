@@ -701,7 +701,7 @@ export default function VideoEditorContainer(props) {
 
     const combinedItem = {
       src: combinedImageDataUrl,
-      id: `item_${activeItemList.length}`,
+      id: `item_0`,
       type: 'image',
       x: 0,
       y: 0,
@@ -710,7 +710,6 @@ export default function VideoEditorContainer(props) {
     };
 
     const updatedItemList = [combinedItem];
-    setActiveItemList(updatedItemList);
     updateSessionLayerActiveItemList(updatedItemList);
 
   };
