@@ -35,6 +35,8 @@ export default function VideoHome(props) {
   const [audioLayers, setAudioLayers] = useState([]);
   const [isAudioLayerDirty, setIsAudioLayerDirty] = useState(false);
   const [generationImages, setGenerationImages] = useState([]);
+  const [ layerListRequestAdded, setLayerListRequestAdded ] = useState(false);
+
   let { id } = useParams();
   const activeItemListRef = useRef(activeItemList);
 
@@ -48,6 +50,14 @@ export default function VideoHome(props) {
   useEffect(() => {
     activeItemListRef.current = activeItemList;
   }, [activeItemList]);
+
+  useEffect(() => {
+    if (layerListRequestAdded) {
+      pollForLayersUpdate();
+    }
+  }, [layerListRequestAdded, layers]);
+
+  
 
   useEffect(() => {
     const headers = getHeaders();
@@ -148,6 +158,7 @@ export default function VideoHome(props) {
       return;
     }
 
+
     const timer = setInterval(() => {
       axios.post(`${PROCESSOR_API_URL}/video_sessions/refresh_session_layers`, { id: id }, headers).then((dataRes) => {
         const frameResponse = dataRes.data;
@@ -156,10 +167,14 @@ export default function VideoHome(props) {
           let layersUpdated = false;
           let isGenerationPending = false;
           for (let i = 0; i < newLayers.length; i++) {
-            if (layers[i].imageSession.generationStatus !== newLayers[i].imageSession.generationStatus) {
+            if (!layers[i]) {
+              continue;
+            }
+
+            if (layers[i].imageSession && layers[i].imageSession.generationStatus !== newLayers[i].imageSession.generationStatus) {
               layersUpdated = true;
             }
-            if (newLayers[i].imageSession.generationStatus === 'PENDING') {
+            if (layers[i].imageSession && newLayers[i].imageSession.generationStatus === 'PENDING') {
               isGenerationPending = true;
             }
           }
@@ -360,8 +375,6 @@ export default function VideoHome(props) {
     axios.post(`${PROCESSOR_API_URL}/video_sessions/update_active_item_list`, reqPayload, headers).then((response) => {
       const videoSessionData = response.data;
       const updatedItemList = videoSessionData.activeItemList;
-      console.log(updatedItemList);
-
       if (updatedItemList && updatedItemList.length > 0) {
          setActiveItemList(updatedItemList);
       }
@@ -570,32 +583,40 @@ export default function VideoHome(props) {
     debouncedUpdateSessionLayerActiveItemList();
   }
 
+
   const addLayersViaPromptList = (payload) => {
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
       return;
     }
-
+  
     const { promptList, duration } = payload;
-
+  
     const reqPayload = {
       sessionId: id,
       promptList: promptList,
       duration: duration,
     };
-
+  
+    setLayerListRequestAdded(false);
     axios.post(`${PROCESSOR_API_URL}/video_sessions/add_layers_via_prompt_list`, reqPayload, headers).then((response) => {
       const videoSessionDataResponse = response.data;
       const videoSessionData = videoSessionDataResponse.videoSession;
-
+  
       setVideoSessionDetails(videoSessionData);
-
+  
       const updatedLayers = videoSessionData.layers;
       setLayers(updatedLayers);
+      setLayerListRequestAdded(true);
       setCurrentLayer(updatedLayers[updatedLayers.length - 1]);
+
+
+
     });
   }
+
+
 
   const updateLayerMask = (layerData) => {
     let layerDataNew = Object.assign({}, currentLayer, {objectSelectMaskImage: layerData.objectSelectMaskImage})
