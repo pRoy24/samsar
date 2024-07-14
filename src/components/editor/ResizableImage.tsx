@@ -20,9 +20,6 @@ export default function ResizableImage({
 
   const { isDraggable, x, y } = props;
 
-  console.log(props);
-
-
   let imageSrc;
   
   if (image.src.startsWith('data:image')) {
@@ -131,10 +128,6 @@ export default function ResizableImage({
     updateTargetActiveLayerConfig(id, newConfig);
     
   };
-
-  console.log("FEEEEEE");
-  console.log(props);
-  
 
   return (
     <Group id={`group_${id}`}>

@@ -93,6 +93,8 @@ export default function VideoEditorContainer(props) {
 
   const [audioGenerationPending, setAudioGenerationPending] = useState(false);
 
+  const [enableSegmentationMask, setEnableSegmentationMask] = useState(false);
+
   const [textConfig, setTextConfig] = useState({
     fontSize: 40,
     fontFamily: 'Times New Roman',
@@ -524,10 +526,13 @@ export default function VideoEditorContainer(props) {
         updateSessionLayerActiveItemList(newItemList);
       }
       resetLayerMask();
+      setEnableSegmentationMask(false);
+      
       axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_mask`,
         sessionPayload, headers
       ).then(function (dataRes) {
         startMaskGenerationPoll();
+        setEnableSegmentationMask(true);
 
       });
 
@@ -854,6 +859,8 @@ export default function VideoEditorContainer(props) {
             selectedLayerSelectShape={selectedLayerSelectShape}
             setCurrentView={setCurrentView}
             isLayerSeeking={isLayerSeeking}
+            setEnableSegmentationMask={setEnableSegmentationMask}
+            enableSegmentationMask={enableSegmentationMask}
           />
         )
       }

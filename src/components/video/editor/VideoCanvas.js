@@ -13,7 +13,7 @@ import CanvasToolbar from "./CanvasToolbar.js";
 import { ActiveRenderItem } from './CanvasUtils.js';
 
 const SELECTABLE_TYPES = ['SHOW_DEFAULT_DISPLAY', 'SHOW_CURSOR_SELECT_DISPLAY',
- 'SHOW_ANIMATE_DISPLAY', 'SHOW_UPLOAD_DISPLAY', 'SHOW_LAYERS_DISPLAY', 'SHOW_SELECT_DISPLAY'];
+  'SHOW_ANIMATE_DISPLAY', 'SHOW_UPLOAD_DISPLAY', 'SHOW_LAYERS_DISPLAY', 'SHOW_SELECT_DISPLAY'];
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 const IMAGE_SERVER_API_URL = process.env.REACT_APP_IMAGE_SERVER_API;
 
@@ -24,7 +24,12 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     setSelectedLayerType, applyFilter, onChange, sessionId, selectedFrameId, currentLayer,
     updateSessionActiveItemList, selectedLayerSelectShape, isLayerSeeking, applyFinalFilter, flipImageVertical,
     flipImageHorizontal, onCopyShapeLayer, onReplaceShapeLayer, handleResetShapeLayer, removeItem,
-    updateTargetActiveLayerConfig, updateTargetShapeActiveLayerConfig, addPaintImage, resetPaintImage, shapeSelectTransformerCircleRef, shapeSelectTransformerRectangleRef, replaceEraserImage, duplicateEraserImage, handleLayerMouseDown, handleLayerMouseMove, handleLayerMouseUp, resetEraserImage, showMask, eraserToolbarVisible, eraserToolbarPosition, eraserWidthRef, toolbarShapeProps, setToolbarShapeProps, paintToolbarPosition, paintToolbarVisible, isDrawing, shapeSet, showPencil, pencilLines, overlayImage, shapeSelectToolbarVisible, shapeSelectToolbarPosition,
+    updateTargetActiveLayerConfig, updateTargetShapeActiveLayerConfig, addPaintImage, resetPaintImage,
+    shapeSelectTransformerCircleRef, shapeSelectTransformerRectangleRef, replaceEraserImage, duplicateEraserImage,
+    handleLayerMouseDown, handleLayerMouseMove, handleLayerMouseUp, resetEraserImage, showMask, eraserToolbarVisible,
+    eraserToolbarPosition, eraserWidthRef, toolbarShapeProps, setToolbarShapeProps, paintToolbarPosition,
+    paintToolbarVisible, isDrawing, shapeSet, showPencil, pencilLines, overlayImage, shapeSelectToolbarVisible,
+    shapeSelectToolbarPosition, enableSegmentationMask
   } = props;
 
   const [maskImage, setMaskImage] = useState(null);
@@ -36,13 +41,21 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const [maskBaseImageId, setMaskBaseImageId] = useState(null);
 
   useEffect(() => {
-    loadSegmentationMask();
+    if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' ) {
+      loadSegmentationMask();
+    }
   }, [currentCanvasAction, currentLayer]);
 
   const loadSegmentationMask = async () => {
-    if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' && currentLayer?.segmentation) {
+ 
       const maskData = currentLayer.segmentation;
+      console.log("MASK DATA");
+      console.log(maskData);
+
       setMaskData(maskData);
+      if (!maskData || maskData.length === 0) {
+        return;
+      }
       const boxes = maskData.map((mask) => mask.bbox);
       setBoundingBoxes(boxes); // Update the state with bounding box data
 
@@ -55,9 +68,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
           return idB - idA;
         })[0];
       setMaskBaseImageId(topItem.id);
-    } else {
-      setMaskImage(null);
-    }
+
   };
 
   useEffect(() => {
@@ -78,6 +89,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const bgColor = colorMode === 'dark' ? `bg-gray-900` : `bg-neutral-300`;
   const textColor = colorMode === 'dark' ? `text-white` : `text-black`;
 
+
+  console.log(selectedBbox);
+  console.log("EETEE");
+  
   const selectLayer = (item) => {
     if (item.config) setSelectedId(item.id);
   };
@@ -228,11 +243,11 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
           'Content-Type': 'application/json'
         }
       });
-  
+
       if (response.data && response.data.mask_image) {
         const base64Image = `data:image/png;base64,${response.data.mask_image}`;
         const [x, y, width, height] = bbox;
-  
+
         const imageObj = new Image();
         imageObj.onload = () => {
           const maskPreviewImage = {
@@ -291,6 +306,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       }, null);
 
       const { bbox, index } = smallestBox;
+
       const { segmentation } = maskData[index];
       handleBoundingBoxClick(e, bbox, segmentation);
     }
@@ -303,10 +319,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       console.error('No valid image node found.');
       return;
     }
-  
+
     const imageElement = imageNode.image();
     const imageData = getImageDataFromCanvas(imageElement);
-    
+
     const maskImageElement = maskImage ? maskImage.src : null;
     if (maskImageElement) {
       const maskCanvas = document.createElement('canvas');
@@ -314,7 +330,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       maskCanvas.height = maskImage.height;
       const maskCtx = maskCanvas.getContext('2d');
       maskCtx.drawImage(maskImageElement, 0, 0);
-  
+
       const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
       createMaskImage(imageData, maskData, selectedBbox.bbox, (newItem) => {
         setSelectedId(newItem.id);
@@ -331,10 +347,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       console.error('No valid image node found.');
       return;
     }
-  
+
     const imageElement = imageNode.image();
     const imageData = getImageDataFromCanvas(imageElement);
-  
+
     const maskImageElement = maskImage ? maskImage.src : null;
     if (maskImageElement) {
       const maskCanvas = document.createElement('canvas');
@@ -342,7 +358,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       maskCanvas.height = maskImage.height;
       const maskCtx = maskCanvas.getContext('2d');
       maskCtx.drawImage(maskImageElement, 0, 0);
-  
+
       const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
 
       const topItem = activeItemList.find(item => item.id === maskBaseImageId);
@@ -357,22 +373,22 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   const removeMaskImage = (imageData, maskData, bbox, topItem, callback) => {
     const [x, y, width, height] = bbox;
-  
+
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvas.width = imageData.width;
     offscreenCanvas.height = imageData.height;
     const offscreenCtx = offscreenCanvas.getContext('2d');
     offscreenCtx.putImageData(imageData, 0, 0);
-  
+
     const extractedData = new ImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
-  
+
     for (let j = 0; j < height; j++) {
       for (let i = 0; i < width; i++) {
         const sourceX = x + i;
         const sourceY = y + j;
         const maskIndex = (j * width + i) * 4; // maskData is in RGBA format
         const extractIndex = (sourceY * extractedData.width + sourceX) * 4;
-  
+
         if (maskData.data[maskIndex + 3] !== 0) { // Check alpha channel of the maskData
           extractedData.data[extractIndex] = 0; // R
           extractedData.data[extractIndex + 1] = 0; // G
@@ -381,10 +397,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         }
       }
     }
-  
+
     offscreenCtx.putImageData(extractedData, 0, 0);
     const dataURL = offscreenCanvas.toDataURL();
-  
+
     const imageObj = new Image();
     imageObj.onload = () => {
       const newItem = {
@@ -396,7 +412,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         width: topItem.width,
         height: topItem.height,
       };
-  
+
       const newActiveItemList = activeItemList.map(item => item.id === maskBaseImageId ? newItem : item);
       setActiveItemList(newActiveItemList);
       updateSessionActiveItemList(newActiveItemList);
@@ -408,14 +424,14 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   const createMaskImage = (imageData, maskData, bbox, callback) => {
     const [x, y, width, height] = bbox;
-  
+
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvas.width = width;
     offscreenCanvas.height = height;
     const offscreenCtx = offscreenCanvas.getContext('2d');
-  
+
     const extractedData = new ImageData(width, height);
-  
+
     for (let j = 0; j < height; j++) {
       for (let i = 0; i < width; i++) {
         const sourceX = x + i;
@@ -423,7 +439,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         const maskIndex = (j * width + i) * 4; // maskData is in RGBA format
         const imageIndex = (sourceY * imageData.width + sourceX) * 4;
         const extractIndex = (j * width + i) * 4;
-  
+
         if (maskData.data[maskIndex + 3] !== 0) { // Check alpha channel of the maskData
           extractedData.data[extractIndex] = imageData.data[imageIndex]; // R
           extractedData.data[extractIndex + 1] = imageData.data[imageIndex + 1]; // G
@@ -434,10 +450,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         }
       }
     }
-  
+
     offscreenCtx.putImageData(extractedData, 0, 0);
     const dataURL = offscreenCanvas.toDataURL();
-  
+
     const imageObj = new Image();
     imageObj.onload = () => {
       const newItem = {
@@ -449,7 +465,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         width: width,
         height: height,
       };
-  
+
       addNewItem(newItem);
       if (callback) callback(newItem); // Call the callback with the new item
     };
@@ -479,7 +495,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
               strokeWidth={2}
             />
           ))}
-  
+
           {showMask && (
             <Group id="maskGroup">
               {editMasklines.map((line, i) => (
@@ -522,7 +538,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
           {currentShapeSelectDisplay}
         </Layer>
       </Stage>
-  
+
       <CanvasToolbar
         buttonPositions={buttonPositions}
         selectedId={selectedId}

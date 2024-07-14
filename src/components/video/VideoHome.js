@@ -619,12 +619,12 @@ export default function VideoHome(props) {
 
 
   const updateLayerMask = (layerData) => {
-    let layerDataNew = Object.assign({}, currentLayer, {objectSelectMaskImage: layerData.objectSelectMaskImage})
+    let layerDataNew = Object.assign({}, currentLayer, {segmentation: layerData.segmentation})
     setCurrentLayer(layerDataNew);
   }
 
   const resetLayerMask = () => {
-    let layerDataNew = Object.assign({}, currentLayer, {objectSelectMaskImage: null})
+    let layerDataNew = Object.assign({}, currentLayer, {segmentation: null})
     setCurrentLayer(layerDataNew);
   }
 
