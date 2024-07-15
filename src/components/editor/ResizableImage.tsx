@@ -129,6 +129,7 @@ export default function ResizableImage({
     
   };
 
+  
   return (
     <Group id={`group_${id}`}>
       <Image

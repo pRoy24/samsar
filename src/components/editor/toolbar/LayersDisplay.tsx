@@ -6,7 +6,15 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 const grid = 8;
 
 const LayersDisplay = (props) => {
-  const { activeItemList, setActiveItemList, updateSessionLayerActiveItemList, hideItemInLayer } = props;
+  const { 
+    activeItemList, 
+    setActiveItemList,
+    updateSessionLayerActiveItemList, 
+    hideItemInLayer,
+    selectedId,
+    setSelectedId 
+  } = props;
+
   const { colorMode } = useColorMode();
 
   const bgColorDragging = colorMode === 'dark' ? '#1f2937' : '#fafafa';
@@ -70,6 +78,7 @@ const LayersDisplay = (props) => {
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
+                    onClick={() => setSelectedId(item.id)}
                     style={{
                       ...provided.draggableProps.style,
                       margin: '8px',
@@ -80,15 +89,19 @@ const LayersDisplay = (props) => {
                       borderRadius: '5px',
                       display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'space-between'
+                      justifyContent: 'space-between',
+                      cursor: 'pointer'
                     }}
                   >
                     {`item ${item.id} - ${item.type}`}
                     <div className='ml-1 mr-1'>
-                      <FaEye onClick={() => hideItemInLayer(item.id)}/>
+                      <FaEye onClick={() => hideItemInLayer(item.id)} />
                     </div>
                     <button
-                      onClick={() => deleteItem(item.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteItem(item.id);
+                      }}
                       style={{ color: 'white' }}
                     >
                       <FaTimes />

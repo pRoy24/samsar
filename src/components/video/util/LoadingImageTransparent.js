@@ -7,9 +7,9 @@ export default function LoadingImageTransparent() {
   const bgColor = colorMode === 'dark' ? 'bg-gray-600 text-neutral-50' : 'bg-gray-200 text-neutral-900';
   
   return (
-    <div className={`loading-image h-screen w-full flex justify-center items-center `}>
+    <div className={`loading-image h-screen w-full flex justify-center items-center text-gray-800`}>
       <div className='flex flex-col items-center'>
-        <FaSpinner className="animate-spin text-4xl mb-2" />
+        <FaSpinner className="animate-spin text-4xl mb-2 " />
       </div>
     </div>
   );

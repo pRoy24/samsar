@@ -11,10 +11,14 @@ import axios from 'axios';
 import debounce from 'lodash/debounce';
 import CanvasToolbar from "./CanvasToolbar.js";
 import { ActiveRenderItem } from './CanvasUtils.js';
-import LoadingImageTransparent from '../util/LoadingImageTransparent.js';
 
-const SELECTABLE_TYPES = ['SHOW_DEFAULT_DISPLAY', 'SHOW_CURSOR_SELECT_DISPLAY',
-  'SHOW_ANIMATE_DISPLAY', 'SHOW_UPLOAD_DISPLAY', 'SHOW_LAYERS_DISPLAY', 'SHOW_SELECT_DISPLAY'];
+
+const SELECTABLE_TYPES = ['SHOW_DEFAULT_DISPLAY',
+ 'SHOW_CURSOR_SELECT_DISPLAY',
+  'SHOW_ANIMATE_DISPLAY',
+   'SHOW_UPLOAD_DISPLAY',
+   'SHOW_LAYERS_DISPLAY',
+   'SHOW_SELECT_DISPLAY'];
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 const IMAGE_SERVER_API_URL = process.env.REACT_APP_IMAGE_SERVER_API;
 
@@ -42,6 +46,16 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const [maskBaseImageId, setMaskBaseImageId] = useState(null);
 
   const [isOperationLoading, setIsOperationLoading] = useState(false);
+
+  const [ showAddRemoveMaskedItemButton, setShowAddRemoveMaskedItemButton ] = useState(false);
+
+  useEffect(() => {
+    if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' && enableSegmentationMask && selectedBbox) {
+      setShowAddRemoveMaskedItemButton(true);
+    } else {
+      setShowAddRemoveMaskedItemButton(false);
+    }
+  }, [currentCanvasAction, selectedBbox]);
 
   useEffect(() => {
     if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' && enableSegmentationMask) {
@@ -72,6 +86,8 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     setMaskBaseImageId(topItem.id);
 
   };
+
+
 
   useEffect(() => {
     const stage = ref.current.getStage();
@@ -159,7 +175,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   let imageStackList = <span />;
 
+
+  
   if (activeItemList && activeItemList.length > 0) {
+
     imageStackList = activeItemList.map((item, index) => {
       if (item.isHidden) {
         return null;
@@ -213,11 +232,12 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   }
 
   const addNewItem = (newItem) => {
+
     const newActiveItemList = [...activeItemList, newItem];
     setActiveItemList(newActiveItemList);
     updateSessionActiveItemList(newActiveItemList);
-    setSelectedId(newItem.id); // Ensure the new item is selected
-    setSelectedLayerType(newItem.type); // Ensure the new item is set to the correct layer type
+  //  setSelectedId(newItem.id); // Ensure the new item is selected
+  //  setSelectedLayerType(newItem.type); // Ensure the new item is set to the correct layer type
   };
 
   const handleMouseOver = (e) => {
@@ -331,9 +351,9 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
       const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
       createMaskImage(imageData, maskData, selectedBbox.bbox, (newItem) => {
-        setSelectedId(newItem.id);
-        setSelectedLayerType(newItem.type);
-        setSelectedBbox(null); // Hide the toolbar
+       // setSelectedId(newItem.id);
+       // setSelectedLayer(newItem);
+       /// setSelectedBbox(null); // Hide the toolbar
       });
     }
   };
@@ -474,18 +494,10 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     handleMouseOver(e);
   }, 100); 
 
-  let loadingIndicator = <span />;
-  if (isOperationLoading) {
-    loadingIndicator = (
-      <div className="absolute t-0 h-[1024px] w-[1024px] z-10 pt-[60px]">
-        <LoadingImageTransparent />
-      </div>
-    )
-  }
+
 
   return (
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
-      {loadingIndicator}
       <Stage width={STAGE_DIMENSIONS.width} height={STAGE_DIMENSIONS.height} ref={ref} id="samsar-konva-stage" onMouseMove={debouncedHandleMouseOver} onClick={handleCanvasClick}>
         <Layer onMouseDown={handleLayerMouseDown} onMouseMove={handleLayerMouseMove} onMouseUp={handleLayerMouseUp}>
           <Group id="baseGroup">
@@ -575,7 +587,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         addPaintImage={addPaintImage}
         resetPaintImage={resetPaintImage}
       />
-      {selectedBbox && (
+      {showAddRemoveMaskedItemButton && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white p-2 rounded-lg shadow-lg z-50">
           <button className="mr-4" onClick={handleAddButtonClick}>Add</button>
           <button onClick={handleRemoveButtonClick}>Remove</button>

@@ -13,6 +13,7 @@ import UploadImageDialog from '../editor/utils/UploadImageDialog.js';
 import VideoCanvasContainer from './editor/VideoCanvasContainer.js';
 import VideoEditorToolbar from './toolbars/VideoEditorToolbar.js'
 import LoadingImage from './util/LoadingImage.js';
+import LoadingImageTransparent from './util/LoadingImageTransparent.js';
 import ImageLibrary from './util/ImageLibrary.js';
 import AuthContainer from '../auth/AuthContainer.js';
 import './home.css';
@@ -101,6 +102,8 @@ export default function VideoEditorContainer(props) {
   const [audioGenerationPending, setAudioGenerationPending] = useState(false);
 
   const [enableSegmentationMask, setEnableSegmentationMask] = useState(false);
+
+  const [canvasActionLoading, setCanvasActionLoading] = useState(false);
 
   const [textConfig, setTextConfig] = useState({
     fontSize: 40,
@@ -486,6 +489,7 @@ export default function VideoEditorContainer(props) {
         const layerData = sessionData.layers.find(layer => layer._id.toString() === currentLayer._id.toString());
         const segmentationData = layerData.segmentation;
         setSegmentationData(segmentationData);
+        setCanvasActionLoading(false);
 
        // updateLayerMask(layerData);
       } else {
@@ -543,6 +547,7 @@ export default function VideoEditorContainer(props) {
       ).then(function (dataRes) {
         startMaskGenerationPoll();
         setEnableSegmentationMask(true);
+        setCanvasActionLoading(true);
 
       });
 
@@ -818,6 +823,15 @@ export default function VideoEditorContainer(props) {
     setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
   }
 
+  let canvasInternalLoading = <span />;
+  if (canvasActionLoading) {
+    canvasInternalLoading = (
+      <div className='absolute t-0 mt-[50px] w-[1024px] h-[1024px] z-10'>
+        <LoadingImageTransparent />
+      </div>
+    )
+  }
+
   if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.activeItemList) {
     if (currentLayer.imageSession.generationStatus === 'PENDING') {
       viewDisplay = <LoadingImage />;
@@ -834,6 +848,8 @@ export default function VideoEditorContainer(props) {
         )
       } else {
         viewDisplay = (
+          <div>
+              {canvasInternalLoading}
           <VideoCanvasContainer ref={canvasRef}
             key={`canvas_${currentLayer._id.toString()}`}
             maskGroupRef={maskGroupRef}
@@ -874,6 +890,7 @@ export default function VideoEditorContainer(props) {
             segmentationData={segmentationData}
             setSegmentationData={setSegmentationData}
           />
+          </div>
         )
       }
     }
@@ -945,6 +962,7 @@ export default function VideoEditorContainer(props) {
           generationError={generationError}
           outpaintError={outpaintError}
           selectedId={selectedId}
+          setSelectedId={setSelectedId}
           exportAnimationFrames={exportAnimationFrames}
           showMoveAction={showMoveAction}
           showResizeAction={showResizeAction}

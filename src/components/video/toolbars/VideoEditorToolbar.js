@@ -52,12 +52,9 @@ export default function VideoEditorToolbar(props: any) {
     fillColor, setFillColor,
     strokeColor, setStrokeColor,
     strokeWidthValue, setStrokeWidthValue,
-    generationError,
-    outpaintError,
-    isPublicationPending,
     selectedId,
     exportAnimationFrames,
-
+    setSelectedId,
     pencilWidth,
     setPencilWidth,
     pencilColor,
@@ -374,7 +371,11 @@ export default function VideoEditorToolbar(props: any) {
       <div>
         <LayersDisplay activeItemList={activeItemList} setActiveItemList={setActiveItemList}
           updateSessionLayerActiveItemList={updateSessionLayerActiveItemList}
-          hideItemInLayer={hideItemInLayer} />
+          hideItemInLayer={hideItemInLayer}
+          selectedId={selectedId}
+          setSelectedId={setSelectedId}
+          
+          />
       </div>
     )
   }
