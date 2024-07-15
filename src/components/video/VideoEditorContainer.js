@@ -31,8 +31,9 @@ export default function VideoEditorContainer(props) {
     videoSessionDetails,
     setVideoSessionDetails,
     toggleHideItemInLayer,
-    updateLayerMask, resetLayerMask,
   } = props;
+
+  const [ segmentationData, setSegmentationData] = useState([]);
 
   let { id } = useParams();
 
@@ -42,6 +43,12 @@ export default function VideoEditorContainer(props) {
     )
     openAlertDialog(loginComponent);
   };
+
+
+  useEffect(() => {
+    setSegmentationData(currentLayer.segmentation);
+
+  }, [currentLayer]);
 
   if (!id) {
     id = props.id;
@@ -477,7 +484,10 @@ export default function VideoEditorContainer(props) {
         setVideoSessionDetails(sessionData);
 
         const layerData = sessionData.layers.find(layer => layer._id.toString() === currentLayer._id.toString());
-        updateLayerMask(layerData);
+        const segmentationData = layerData.segmentation;
+        setSegmentationData(segmentationData);
+
+       // updateLayerMask(layerData);
       } else {
         setTimeout(() => {
           startMaskGenerationPoll();
@@ -525,7 +535,7 @@ export default function VideoEditorContainer(props) {
         setActiveItemList(newItemList);
         updateSessionLayerActiveItemList(newItemList);
       }
-      resetLayerMask();
+     // resetLayerMask();
       setEnableSegmentationMask(false);
       
       axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_mask`,
@@ -861,6 +871,8 @@ export default function VideoEditorContainer(props) {
             isLayerSeeking={isLayerSeeking}
             setEnableSegmentationMask={setEnableSegmentationMask}
             enableSegmentationMask={enableSegmentationMask}
+            segmentationData={segmentationData}
+            setSegmentationData={setSegmentationData}
           />
         )
       }

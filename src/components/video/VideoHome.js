@@ -605,27 +605,23 @@ export default function VideoHome(props) {
       const videoSessionData = videoSessionDataResponse.videoSession;
   
       setVideoSessionDetails(videoSessionData);
-  
       const updatedLayers = videoSessionData.layers;
       setLayers(updatedLayers);
       setLayerListRequestAdded(true);
       setCurrentLayer(updatedLayers[updatedLayers.length - 1]);
-
-
-
     });
   }
 
 
 
   const updateLayerMask = (layerData) => {
-    let layerDataNew = Object.assign({}, currentLayer, {segmentation: layerData.segmentation})
+    let layerDataNew = Object.assign({}, currentLayer, {segmentation: layerData.segmentation})    
     setCurrentLayer(layerDataNew);
   }
 
   const resetLayerMask = () => {
-    let layerDataNew = Object.assign({}, currentLayer, {segmentation: null})
-    setCurrentLayer(layerDataNew);
+   let layerDataNew = Object.assign({}, currentLayer, {segmentation: null})
+   // setCurrentLayer(layerDataNew);
   }
 
   return (

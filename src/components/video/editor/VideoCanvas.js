@@ -11,6 +11,7 @@ import axios from 'axios';
 import debounce from 'lodash/debounce';
 import CanvasToolbar from "./CanvasToolbar.js";
 import { ActiveRenderItem } from './CanvasUtils.js';
+import LoadingImageTransparent from '../util/LoadingImageTransparent.js';
 
 const SELECTABLE_TYPES = ['SHOW_DEFAULT_DISPLAY', 'SHOW_CURSOR_SELECT_DISPLAY',
   'SHOW_ANIMATE_DISPLAY', 'SHOW_UPLOAD_DISPLAY', 'SHOW_LAYERS_DISPLAY', 'SHOW_SELECT_DISPLAY'];
@@ -29,7 +30,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     handleLayerMouseDown, handleLayerMouseMove, handleLayerMouseUp, resetEraserImage, showMask, eraserToolbarVisible,
     eraserToolbarPosition, eraserWidthRef, toolbarShapeProps, setToolbarShapeProps, paintToolbarPosition,
     paintToolbarVisible, isDrawing, shapeSet, showPencil, pencilLines, overlayImage, shapeSelectToolbarVisible,
-    shapeSelectToolbarPosition, enableSegmentationMask
+    shapeSelectToolbarPosition, enableSegmentationMask, segmentationData, setSegmentationData
   } = props;
 
   const [maskImage, setMaskImage] = useState(null);
@@ -40,34 +41,35 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   const [maskBaseImageId, setMaskBaseImageId] = useState(null);
 
+  const [isOperationLoading, setIsOperationLoading] = useState(false);
+
   useEffect(() => {
-    if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' ) {
+    if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' && enableSegmentationMask) {
       loadSegmentationMask();
     }
-  }, [currentCanvasAction, currentLayer]);
+  }, [currentCanvasAction, segmentationData]);
 
   const loadSegmentationMask = async () => {
- 
-      const maskData = currentLayer.segmentation;
-      console.log("MASK DATA");
-      console.log(maskData);
+    const maskData = segmentationData;
 
-      setMaskData(maskData);
-      if (!maskData || maskData.length === 0) {
-        return;
-      }
-      const boxes = maskData.map((mask) => mask.bbox);
-      setBoundingBoxes(boxes); // Update the state with bounding box data
+    if (!maskData || maskData.length === 0) {
+      return;
+    }
+    setMaskData(maskData);
 
-      // set setMaskBaseImageId to top image
-      const topItem = activeItemList
-        .filter(item => item.id.startsWith('item_'))
-        .sort((a, b) => {
-          const idA = parseInt(a.id.replace('item_', ''), 10);
-          const idB = parseInt(b.id.replace('item_', ''), 10);
-          return idB - idA;
-        })[0];
-      setMaskBaseImageId(topItem.id);
+    const boxes = maskData.map((mask) => mask.bbox);
+    setBoundingBoxes(boxes); // Update the state with bounding box data
+
+    // set setMaskBaseImageId to top image
+    const topItem = activeItemList
+      .filter(item => item.id.startsWith('item_'))
+      .sort((a, b) => {
+        const idA = parseInt(a.id.replace('item_', ''), 10);
+        const idB = parseInt(b.id.replace('item_', ''), 10);
+        return idB - idA;
+      })[0];
+
+    setMaskBaseImageId(topItem.id);
 
   };
 
@@ -89,10 +91,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const bgColor = colorMode === 'dark' ? `bg-gray-900` : `bg-neutral-300`;
   const textColor = colorMode === 'dark' ? `text-white` : `text-black`;
 
-
-  console.log(selectedBbox);
-  console.log("EETEE");
-  
   const selectLayer = (item) => {
     if (item.config) setSelectedId(item.id);
   };
@@ -474,10 +472,20 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   const debouncedHandleMouseOver = debounce((e) => {
     handleMouseOver(e);
-  }, 300); // Adjust the debounce delay as needed
+  }, 100); 
+
+  let loadingIndicator = <span />;
+  if (isOperationLoading) {
+    loadingIndicator = (
+      <div className="absolute t-0 h-[1024px] w-[1024px] z-10 pt-[60px]">
+        <LoadingImageTransparent />
+      </div>
+    )
+  }
 
   return (
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
+      {loadingIndicator}
       <Stage width={STAGE_DIMENSIONS.width} height={STAGE_DIMENSIONS.height} ref={ref} id="samsar-konva-stage" onMouseMove={debouncedHandleMouseOver} onClick={handleCanvasClick}>
         <Layer onMouseDown={handleLayerMouseDown} onMouseMove={handleLayerMouseMove} onMouseUp={handleLayerMouseUp}>
           <Group id="baseGroup">
