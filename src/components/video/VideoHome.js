@@ -502,6 +502,7 @@ export default function VideoHome(props) {
       const newLayers = videoSessionDetails.layers;
       setLayers(newLayers);
       setCurrentLayer(newLayers[newLayers.length - 1]);
+      setSelectedLayerIndex(newLayers.length - 1);
     });
   }
 
@@ -570,7 +571,8 @@ export default function VideoHome(props) {
       layerId: layerId
     }
     axios.post(`${PROCESSOR_API_URL}/video_sessions/remove_layer`, reqPayload, headers).then((response) => {
-      const videoSessionData = response.data;
+      const videoSessionDataResponse = response.data;
+      const videoSessionData = videoSessionDataResponse.videoSession;
       const updatedLayers = videoSessionData.layers;
       setSelectedLayerIndex(0);
       setLayers(updatedLayers);

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import { FaTwitter } from 'react-icons/fa6';
 
 import '@farcaster/auth-kit/styles.css';
@@ -17,13 +17,13 @@ const config = {
 
 
 
-export default function Register (props) {
-  const { setCurrentLoginView , siginToTwitter, verifyAndSetUserProfile,
-     setUser, closeAlertDialog, getOrCreateUserSession} = props;
+export default function Register(props) {
+  const { setCurrentLoginView, siginToTwitter, verifyAndSetUserProfile,
+    setUser, closeAlertDialog, getOrCreateUserSession } = props;
   const { colorMode } = useColorMode();
   const formBgColor = colorMode === 'light' ? 'bg-neutral-50' : 'bg-neutral-900';
   const formTextColor = colorMode === 'light' ? 'text-neutral-900' : 'text-neutral-50';
-  const [ error, setError ] = useState(null);
+  const [error, setError] = useState(null);
 
 
   const submitUserRegister = (evt) => {
@@ -43,9 +43,9 @@ export default function Register (props) {
       const userData = dataRes.data;
       const authToken = userData.authToken;
       localStorage.setItem('authToken', authToken);
-       setUser(userData);
-        closeAlertDialog();
-        getOrCreateUserSession();
+      setUser(userData);
+      closeAlertDialog();
+      getOrCreateUserSession();
     }).catch(function (error) {
       console.log('error: ', error);
       setError('Unable to register user');
@@ -62,47 +62,47 @@ export default function Register (props) {
           {error && <div className='text-red-500 text-center'>
             {error}
           </div>}
-        </div>  
+        </div>
 
         <div>
           <form onSubmit={submitUserRegister}>
 
 
 
-          <div className='form-group'>
-            <input type='text' name='email'
-            className={`form-control mb-2 mt-2
+            <div className='form-group'>
+              <input type='text' name='email'
+                className={`form-control mb-2 mt-2
             rounded-lg p-1 pl-4 h-[45px] w-[250px]
             ${formBgColor} ${formTextColor}`}
-            placeholder='email' />
-          </div>
-          <div>
-            <input type='password' name='password'
-            className={`form-control mb-2 mt-2
+                placeholder='email' />
+            </div>
+            <div>
+              <input type='password' name='password'
+                className={`form-control mb-2 mt-2
             rounded-lg p-1 pl-4 h-[45px] w-[250px]
             ${formBgColor} ${formTextColor}`} placeholder='password' />
-          </div>
-          <div>
-            <input type='password' name='confirmPassword'
-            className={`form-control mb-2 mt-2
+            </div>
+            <div>
+              <input type='password' name='confirmPassword'
+                className={`form-control mb-2 mt-2
             rounded-lg p-1 pl-4 h-[45px] w-[250px]
             ${formBgColor} ${formTextColor}`}
-             placeholder='confirm password' />
-          </div>          
-          <div>
-            <LoginButton type="submit">
-              Register
-            </LoginButton>  
-          </div>
+                placeholder='confirm password' />
+            </div>
+            <div>
+              <LoginButton type="submit">
+                Register
+              </LoginButton>
+            </div>
           </form>
         </div>
         <div>
           <div className='mt-4 mb-4 text-center font-bold'>
             Or register with a social provider
           </div>
-        </div>  
+        </div>
         <div className='flex flex-row text-center mb-4'>
-          <div className='basis-1/2 pl-4 pr-4'>
+          <div className='basis-full pl-4 pr-4'>
             <div className='bg-neutral-900 text-neutral-100 p-2 rounded-lg cursor-pointer h-[50px]
             text-center m-auto' onClick={() => siginToTwitter()}>
               <div className='text-center text-lg font-bold pt-[2px]'>
@@ -114,11 +114,6 @@ export default function Register (props) {
               </div>
 
             </div>
-          </div>
-          <div className='basis-1/2 pl-4 pr-4'>
-            <SignInButton
-              onSuccess={verifyAndSetUserProfile}
-            />
           </div>
         </div>
         <div>

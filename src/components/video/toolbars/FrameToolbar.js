@@ -97,10 +97,7 @@ export default function FrameToolbar(props) {
     // updateSessionLayer(layer);
   };
 
-  const layerDurationCellUpdated = (value, index) => {
-
-    console.log("BEMEMEM");
-    
+  const layerDurationCellUpdated = (value, index) => {    
     setLayerDuration(value, index);
   };
 
@@ -132,6 +129,7 @@ export default function FrameToolbar(props) {
 
   let layersList = <span />;
   if (layers) {
+
     const layersContent = layers.map((layer, index) => {
       let bgSelected = selectedLayerIndex === index ? bgSelectedColor : '';
 
@@ -291,7 +289,7 @@ export default function FrameToolbar(props) {
     if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
       // Handle audio view specific actions
     } else {
-      console.log("BE HERE");
+     
     }
   }, [frameToolbarView]);
 
