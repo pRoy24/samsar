@@ -47,7 +47,9 @@ export default function VideoEditorContainer(props) {
 
 
   useEffect(() => {
-    setSegmentationData(currentLayer.segmentation);
+    if (currentLayer && currentLayer.segmentation) {
+      setSegmentationData(currentLayer.segmentation);
+    }
 
   }, [currentLayer]);
 
