@@ -846,6 +846,8 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
     setPaintToolbarVisible(false);
   };
 
+
+  
   return (
     <div>
       <VideoCanvas

@@ -11,6 +11,7 @@ import axios from 'axios';
 import debounce from 'lodash/debounce';
 import CanvasToolbar from "./CanvasToolbar.js";
 import { ActiveRenderItem } from './CanvasUtils.js';
+import CanvasControlBar from "../toolbars/CanvasControlBar.js";
 
 
 const SELECTABLE_TYPES = ['SHOW_DEFAULT_DISPLAY',
@@ -494,10 +495,36 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     handleMouseOver(e);
   }, 100); 
 
+  const downloadCurrentFrame = () => {
+    const stage = ref.current.getStage();
+    const transformers = stage.find('Transformer');
+    const masks = stage.find('#maskGroup, #pencilGroup');
+
+    // Hide transformers and masks
+    transformers.forEach(tr => tr.visible(false));
+    masks.forEach(mask => mask.visible(false));
+
+    const dataURL = stage.toDataURL({ pixelRatio: 2 });
+
+    // Restore transformers and masks visibility
+    transformers.forEach(tr => tr.visible(true));
+    masks.forEach(mask => mask.visible(true));
+
+    // Create a download link and trigger the download
+    const link = document.createElement('a');
+    link.href = dataURL;
+    link.download = 'canvas_image.png';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
 
   return (
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
+      <CanvasControlBar 
+      downloadCurrentFrame={downloadCurrentFrame}
+      />
       <Stage width={STAGE_DIMENSIONS.width} height={STAGE_DIMENSIONS.height} ref={ref} id="samsar-konva-stage" onMouseMove={debouncedHandleMouseOver} onClick={handleCanvasClick}>
         <Layer onMouseDown={handleLayerMouseDown} onMouseMove={handleLayerMouseMove} onMouseUp={handleLayerMouseUp}>
           <Group id="baseGroup">
