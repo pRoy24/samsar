@@ -21,12 +21,12 @@ export default function ResizableImage({
   const { isDraggable, x, y } = props;
 
   let imageSrc;
-  
+
   if (image.src.startsWith('data:image')) {
     imageSrc = image.src;
   } else {
     imageSrc = `${IMAGE_BASE}/${image.src}`;
-}
+  }
   const [img] = useImage(imageSrc, 'anonymous');
   const [transformEndCalled, setTransformEndCalled] = useState(false);
 
@@ -43,17 +43,26 @@ export default function ResizableImage({
       };
       const scalingFactor = 1;
 
-      // Set the initial position of the image based on props
-      shapeRef.current.setAttrs({
-        x: x !== undefined ? x : (STAGE_DIMENSIONS.width - imageDimensions.width * scalingFactor) / 2,
-        y: y !== undefined ? y : (STAGE_DIMENSIONS.height - imageDimensions.height * scalingFactor) / 2,
-        scaleX: scalingFactor,
-        scaleY: scalingFactor,
-      });
+      if (!shapeRef.current) {
+        return;
+      }
+      try {
+        // Set the initial position of the image based on props
+        shapeRef.current.setAttrs({
+          x: x !== undefined ? x : (STAGE_DIMENSIONS.width - imageDimensions.width * scalingFactor) / 2,
+          y: y !== undefined ? y : (STAGE_DIMENSIONS.height - imageDimensions.height * scalingFactor) / 2,
+          scaleX: scalingFactor,
+          scaleY: scalingFactor,
+        });
 
-      if (trRef.current && isSelected) {
-        trRef.current.nodes([shapeRef.current]);
-        trRef.current.getLayer().batchDraw();
+        if (trRef.current && isSelected) {
+          trRef.current.nodes([shapeRef.current]);
+          trRef.current.getLayer().batchDraw();
+        }
+      } catch (e) {
+        console.log(e);
+        console.log("**");
+
       }
     }
   }, [img]);
@@ -62,7 +71,7 @@ export default function ResizableImage({
     if (!animations || animations.length === 0 || !isLayerSeeking) {
       return;
     }
-    const translateAnimationFound = animations.find((animation) =>  animation.type === 'rotate');
+    const translateAnimationFound = animations.find((animation) => animation.type === 'rotate');
     if (translateAnimationFound) {
       const node = shapeRef.current;
       const clientRect = node.getClientRect();
@@ -103,8 +112,8 @@ export default function ResizableImage({
 
     node.scaleX(1);
     node.scaleY(1);
-   
-   const newConfig = {
+
+    const newConfig = {
       x: x,
       y: y,
       width: width,
@@ -123,13 +132,12 @@ export default function ResizableImage({
       y: node.y(),
       width: node.width() * node.scaleX(),
       height: node.height() * node.scaleY(),
-    
+
     }
     updateTargetActiveLayerConfig(id, newConfig);
-    
+
   };
 
-  
   return (
     <Group id={`group_${id}`}>
       <Image

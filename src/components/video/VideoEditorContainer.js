@@ -732,7 +732,12 @@ export default function VideoEditorContainer(props) {
     };
 
     const updatedItemList = [combinedItem];
+    setActiveItemList(updatedItemList);
+    
     updateSessionLayerActiveItemList(updatedItemList);
+    setSelectedId('item_0');
+
+    
 
   };
 
@@ -828,7 +833,7 @@ export default function VideoEditorContainer(props) {
   let canvasInternalLoading = <span />;
   if (canvasActionLoading) {
     canvasInternalLoading = (
-      <div className='absolute t-0 mt-[50px] w-[1024px] h-[1024px] z-10'>
+      <div className='absolute t-0 pt-[150px] w-[1024px]  z-10'>
         <LoadingImageTransparent />
       </div>
     )
