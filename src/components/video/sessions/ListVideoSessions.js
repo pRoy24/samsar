@@ -25,13 +25,14 @@ export default function ListVideoSessions() {
     localStorage.setItem('sessionId', newSessionId);
     navigate(`/video/${newSessionId}`);
   }
+  if (!sessionList) return null;
 
   return (
     <OverflowContainer>
       <div className='p-4 pt-8 pb-8 bg-gray-900 h-full w-full min-h-[100vh] mt-[50px]'>
         <div className='grid grid-cols-4 gap-2'>
           {sessionList.map(function (session, index) {
-            if (!session.thumbnail) return null;
+            if (!session) return null;
             return (
               <div key={index} className='cursor-pointer' onClick={() => (gotoPage(session))}>
                 <div className='text-neutral-100 '>{session.name}</div>
