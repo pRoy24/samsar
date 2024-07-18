@@ -38,7 +38,6 @@ export default function VideoHome(props) {
   const [ layerListRequestAdded, setLayerListRequestAdded ] = useState(false);
 
   let { id } = useParams();
-  const activeItemListRef = useRef(activeItemList);
 
   const showLoginDialog = () => {
     const loginComponent = (
@@ -46,10 +45,6 @@ export default function VideoHome(props) {
     );
     openAlertDialog(loginComponent);
   };
-
-  useEffect(() => {
-    activeItemListRef.current = activeItemList;
-  }, [activeItemList]);
 
   useEffect(() => {
     if (layerListRequestAdded) {
@@ -147,7 +142,7 @@ export default function VideoHome(props) {
 
   useEffect(() => {
     if (isLayerGenerationPending) {
-      pollForLayersUpdate();
+    pollForLayersUpdate();
     }
   }, [isLayerGenerationPending]);
 
@@ -157,7 +152,6 @@ export default function VideoHome(props) {
       showLoginDialog();
       return;
     }
-
 
     const timer = setInterval(() => {
       axios.post(`${PROCESSOR_API_URL}/video_sessions/refresh_session_layers`, { id: id }, headers).then((dataRes) => {
@@ -574,14 +568,15 @@ export default function VideoHome(props) {
       const videoSessionDataResponse = response.data;
       const videoSessionData = videoSessionDataResponse.videoSession;
       const updatedLayers = videoSessionData.layers;
-      setSelectedLayerIndex(0);
+    
       setLayers(updatedLayers);
+      setCurrentLayer(updatedLayers[0]);
+      setSelectedLayerIndex(0);
     });
   }
 
   const updateCurrentActiveLayer = (imageItem) => {
     const newActiveItemList = activeItemList.concat(imageItem);
-  //  setActiveItemList(newActiveItemList);
     debouncedUpdateSessionLayerActiveItemList();
   }
 
@@ -692,6 +687,7 @@ export default function VideoHome(props) {
               toggleHideItemInLayer={toggleHideItemInLayer}
               updateLayerMask={updateLayerMask}
               resetLayerMask={resetLayerMask}
+              pollForLayersUpdate={pollForLayersUpdate}
             />
           </div>
         </div>

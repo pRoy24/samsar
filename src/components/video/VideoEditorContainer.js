@@ -32,9 +32,10 @@ export default function VideoEditorContainer(props) {
     videoSessionDetails,
     setVideoSessionDetails,
     toggleHideItemInLayer,
+    pollForLayersUpdate,
   } = props;
 
-  const [ segmentationData, setSegmentationData] = useState([]);
+  const [segmentationData, setSegmentationData] = useState([]);
 
   let { id } = useParams();
 
@@ -45,12 +46,38 @@ export default function VideoEditorContainer(props) {
     openAlertDialog(loginComponent);
   };
 
+  const generationPollIntervalRef = useRef(null);
+  const outpaintPollIntervalRef = useRef(null);
+  const audioGenerationPollIntervalRef = useRef(null);
+  const maskGenerationPollIntervalRef = useRef(null);
+
+
+
 
   useEffect(() => {
     if (currentLayer && currentLayer.segmentation) {
       setSegmentationData(currentLayer.segmentation);
     }
 
+
+    if (currentLayer && currentLayer.imageSession.generationStatus === 'PENDING') {
+      pollForLayersUpdate();
+    //  startGenerationPoll();
+      // setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_LIBRARY_DISPLAY);
+    }
+
+
+    return () => {
+      if (generationPollIntervalRef.current) {
+        clearInterval(generationPollIntervalRef.current);
+      }
+      if (outpaintPollIntervalRef.current) {
+        clearInterval(outpaintPollIntervalRef.current);
+      }
+      if (maskGenerationPollIntervalRef.current) {
+        clearInterval(maskGenerationPollIntervalRef.current);
+      }
+    };
   }, [currentLayer]);
 
   if (!id) {
@@ -138,6 +165,7 @@ export default function VideoEditorContainer(props) {
   useEffect(() => {
     setIsAlertActionPending(isPublicationPending);
   }, [isPublicationPending]);
+
 
   useEffect(() => {
     if (currentView !== CURRENT_TOOLBAR_VIEW.SHOW_EDIT_MASK_DISPLAY) {
@@ -364,7 +392,6 @@ export default function VideoEditorContainer(props) {
         src: generatedURL, id: item_id, type: 'image',
         x: 0, y: 0, width: STAGE_DIMENSIONS.width, height: STAGE_DIMENSIONS.height
       }];
-
       setActiveItemList(nImageList);
       setIsGenerationPending(false);
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
@@ -375,7 +402,7 @@ export default function VideoEditorContainer(props) {
       setGenerationError(pollStatus.generationError);
       return;
     } else {
-      setTimeout(() => {
+      generationPollIntervalRef.current = setTimeout(() => {
         startGenerationPoll();
       }, 1000);
     }
@@ -412,7 +439,7 @@ export default function VideoEditorContainer(props) {
       setOutpaintError(pollStatus.outpaintError);
       return;
     } else {
-      setTimeout(() => {
+      outpaintPollIntervalRef.current = setTimeout(() => {
         startOutpaintPoll();
       }, 1000);
     }
@@ -438,7 +465,7 @@ export default function VideoEditorContainer(props) {
       setAudioGenerationPending(false);
       return;
     } else {
-      setTimeout(() => {
+      audioGenerationPollIntervalRef.current = setTimeout(() => {
         startAudioGenerationPoll();
       }, 1000);
     }
@@ -493,9 +520,9 @@ export default function VideoEditorContainer(props) {
         setSegmentationData(segmentationData);
         setCanvasActionLoading(false);
 
-       // updateLayerMask(layerData);
+        // updateLayerMask(layerData);
       } else {
-        setTimeout(() => {
+        maskGenerationPollIntervalRef.current = setTimeout(() => {
           startMaskGenerationPoll();
         }, 1000);
       }
@@ -541,9 +568,9 @@ export default function VideoEditorContainer(props) {
         setActiveItemList(newItemList);
         updateSessionLayerActiveItemList(newItemList);
       }
-     // resetLayerMask();
+      // resetLayerMask();
       setEnableSegmentationMask(false);
-      
+
       axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_mask`,
         sessionPayload, headers
       ).then(function (dataRes) {
@@ -733,12 +760,9 @@ export default function VideoEditorContainer(props) {
 
     const updatedItemList = [combinedItem];
     setActiveItemList(updatedItemList);
-    
+
     updateSessionLayerActiveItemList(updatedItemList);
     setSelectedId('item_0');
-
-    
-
   };
 
   const submitGenerateMusicRequest = (payload) => {
@@ -806,7 +830,6 @@ export default function VideoEditorContainer(props) {
     }
   }, [cursorSelectOptionVisible]);
 
-
   const selectImageFromLibrary = (imageItem) => {
     const newItemId = `item_${activeItemList.length}`;
 
@@ -823,7 +846,6 @@ export default function VideoEditorContainer(props) {
     setActiveItemList(newItemList);
     updateSessionLayerActiveItemList(newItemList);
     setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
-
   }
 
   const resetImageLibrary = () => {
@@ -851,52 +873,51 @@ export default function VideoEditorContainer(props) {
             selectImageFromLibrary={selectImageFromLibrary}
             resetImageLibrary={resetImageLibrary}
           />
-
         )
       } else {
         viewDisplay = (
           <div>
-              {canvasInternalLoading}
-          <VideoCanvasContainer ref={canvasRef}
-            key={`canvas_${currentLayer._id.toString()}`}
-            maskGroupRef={maskGroupRef}
-            sessionDetails={videoSessionDetails}
-            activeItemList={activeItemList}
-            setActiveItemList={setActiveItemList}
-            editBrushWidth={editBrushWidth}
-            currentView={currentView}
-            editMasklines={editMasklines}
-            setEditMaskLines={setEditMaskLines}
-            currentCanvasAction={currentCanvasAction}
-            setCurrentCanvasAction={setCurrentCanvasAction}
-            fillColor={fillColor}
-            strokeColor={strokeColor}
-            selectedId={selectedId}
-            setSelectedId={setSelectedId}
-            buttonPositions={buttonPositions}
-            setButtonPositions={setButtonPositions}
-            selectedLayerType={selectedLayerType}
-            setSelectedLayerType={setSelectedLayerType}
-            applyFilter={applyFilter}
-            applyFinalFilter={applyFinalFilter}
-            onChange={handleBubbleChange}
-            pencilColor={pencilColor}
-            pencilWidth={pencilWidth}
-            eraserWidth={eraserWidth}
-            sessionId={id}
-            selectedLayerId={selectedLayerId}
-            exportAnimationFrames={exportAnimationFrames}
-            currentLayerSeek={currentLayerSeek}
-            currentLayer={currentLayer}
-            updateSessionActiveItemList={updateSessionLayerActiveItemList}
-            selectedLayerSelectShape={selectedLayerSelectShape}
-            setCurrentView={setCurrentView}
-            isLayerSeeking={isLayerSeeking}
-            setEnableSegmentationMask={setEnableSegmentationMask}
-            enableSegmentationMask={enableSegmentationMask}
-            segmentationData={segmentationData}
-            setSegmentationData={setSegmentationData}
-          />
+            {canvasInternalLoading}
+            <VideoCanvasContainer ref={canvasRef}
+              key={`canvas_${currentLayer._id.toString()}`}
+              maskGroupRef={maskGroupRef}
+              sessionDetails={videoSessionDetails}
+              activeItemList={activeItemList}
+              setActiveItemList={setActiveItemList}
+              editBrushWidth={editBrushWidth}
+              currentView={currentView}
+              editMasklines={editMasklines}
+              setEditMaskLines={setEditMaskLines}
+              currentCanvasAction={currentCanvasAction}
+              setCurrentCanvasAction={setCurrentCanvasAction}
+              fillColor={fillColor}
+              strokeColor={strokeColor}
+              selectedId={selectedId}
+              setSelectedId={setSelectedId}
+              buttonPositions={buttonPositions}
+              setButtonPositions={setButtonPositions}
+              selectedLayerType={selectedLayerType}
+              setSelectedLayerType={setSelectedLayerType}
+              applyFilter={applyFilter}
+              applyFinalFilter={applyFinalFilter}
+              onChange={handleBubbleChange}
+              pencilColor={pencilColor}
+              pencilWidth={pencilWidth}
+              eraserWidth={eraserWidth}
+              sessionId={id}
+              selectedLayerId={selectedLayerId}
+              exportAnimationFrames={exportAnimationFrames}
+              currentLayerSeek={currentLayerSeek}
+              currentLayer={currentLayer}
+              updateSessionActiveItemList={updateSessionLayerActiveItemList}
+              selectedLayerSelectShape={selectedLayerSelectShape}
+              setCurrentView={setCurrentView}
+              isLayerSeeking={isLayerSeeking}
+              setEnableSegmentationMask={setEnableSegmentationMask}
+              enableSegmentationMask={enableSegmentationMask}
+              segmentationData={segmentationData}
+              setSegmentationData={setSegmentationData}
+            />
           </div>
         )
       }
