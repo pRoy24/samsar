@@ -9,6 +9,8 @@ import DraggableToolbarCircle from "../toolbars/toolbar_shapes/DraggableToolbarC
 import { generateCursor } from "../util/GenerateSVG.js";
 import axios from 'axios';
 import debounce from 'lodash/debounce';
+import { isTypeSelectable } from '../util/ImageUtils.js';
+
 import CanvasToolbar from "./CanvasToolbar.js";
 import { ActiveRenderItem } from './CanvasUtils.js';
 import CanvasControlBar from "../toolbars/CanvasControlBar.js";
@@ -163,7 +165,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     );
   };
 
-  const isDraggable = SELECTABLE_TYPES.includes(currentView);
+  const isDraggable = isTypeSelectable(currentView, currentCanvasAction);
 
   const previousViewRef = useRef();
 

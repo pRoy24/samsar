@@ -68,6 +68,31 @@ export const maskToPoints = (mask, width) => {
     }
   }
   console.log(points);
-  
+
   return points;
 };
+
+export const isTypeSelectable = (currentView, currentCanvasAction) => {
+  console.log("CURRENT VIEW " + currentView);
+  console.log("CURRENT CANVAS ACTION " + currentCanvasAction);
+  const selectableViews = [
+    'SHOW_DEFAULT_DISPLAY',
+    'SHOW_CURSOR_SELECT_DISPLAY',
+    'SHOW_ANIMATE_DISPLAY',
+    'SHOW_UPLOAD_DISPLAY',
+    'SHOW_LAYERS_DISPLAY',
+    'SHOW_SELECT_DISPLAY'
+  ];
+  if (selectableViews.includes(currentView)) {
+    if (currentView === 'SHOW_SELECT_DISPLAY') {
+      if (currentCanvasAction === 'SHOW_SELECT_LAYER_DISPLAY') {
+        return true;
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
+  return false;
+}
