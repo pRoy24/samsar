@@ -540,6 +540,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
               height={bbox[3]}
               stroke="red"
               strokeWidth={2}
+              id={`bbox_rect_${index}`}
             />
           ))}
 

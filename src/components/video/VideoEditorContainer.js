@@ -531,11 +531,16 @@ export default function VideoEditorContainer(props) {
   }
 
   useEffect(() => {
-
     if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_SMART_SELECT_DISPLAY) {
       const headers = getHeaders();
       const originalStage = canvasRef.current.getStage();
       const clonedStage = originalStage.clone();
+  
+      // Remove elements with IDs starting with 'bbox_rect_'
+      clonedStage.find(node => node.id().startsWith('bbox_rect_')).forEach(node => {
+        node.destroy();
+      });
+  
       clonedStage.find('Transformer').forEach(transformer => {
         transformer.destroy();
       });
@@ -547,14 +552,14 @@ export default function VideoEditorContainer(props) {
         sessionId: id,
         layerId: layerId
       };
+  
       if (activeItemList.length === 0) {
         return;
       }
-
+  
       if (activeItemList.length > 1) {
-
         const newItemId = `item_${activeItemList.length}`;
-
+  
         const newItem = {
           src: dataURL,
           id: newItemId,
@@ -568,23 +573,21 @@ export default function VideoEditorContainer(props) {
         setActiveItemList(newItemList);
         updateSessionLayerActiveItemList(newItemList);
       }
-      // resetLayerMask();
+  
       setEnableSegmentationMask(false);
-
-      axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_mask`,
-        sessionPayload, headers
-      ).then(function (dataRes) {
-        startMaskGenerationPoll();
-        setEnableSegmentationMask(true);
-        setCanvasActionLoading(true);
-
-      });
-
+  
+      axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_mask`, sessionPayload, headers)
+        .then(function (dataRes) {
+          startMaskGenerationPoll();
+          setEnableSegmentationMask(true);
+          setCanvasActionLoading(true);
+        });
     }
-
+  
     // SHOW_SMART_SELECT_DISPLAY
   }, [currentCanvasAction]);
 
+  
   const addImageToCanvas = (templateOption) => {
     const templateURL = `${PROCESSOR_API_URL}/templates/mm_final/${templateOption}`;
     const nImageList = [...activeItemList, { src: templateURL, id: `item_${nImageList.length}`, type: 'image' }];
