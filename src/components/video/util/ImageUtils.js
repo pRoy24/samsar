@@ -73,8 +73,6 @@ export const maskToPoints = (mask, width) => {
 };
 
 export const isTypeSelectable = (currentView, currentCanvasAction) => {
-  console.log("CURRENT VIEW " + currentView);
-  console.log("CURRENT CANVAS ACTION " + currentCanvasAction);
   const selectableViews = [
     'SHOW_DEFAULT_DISPLAY',
     'SHOW_CURSOR_SELECT_DISPLAY',

@@ -36,8 +36,9 @@ export default function CanvasToolbar(props) {
     paintToolbarPosition,
     addPaintImage,
     resetPaintImage
-
   } = props;
+
+  console.log("shapeSelectToolbarVisible " + shapeSelectToolbarVisible );
 
   return (
     <div>

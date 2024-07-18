@@ -367,6 +367,9 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
           setShapeSet(true);
         }
       }
+    } else {
+      setShapeSet(false);
+      setShapeSelectToolbarVisible(false);
     }
 
     if (currentView === CURRENT_TOOLBAR_VIEW.SHOW_ACTIONS_DISPLAY && currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_PENCIL_DISPLAY) {
