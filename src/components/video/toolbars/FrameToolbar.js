@@ -295,7 +295,7 @@ export default function FrameToolbar(props) {
 
   let containerWdidth = 'w-[14%] z-1';
   if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
-    containerWdidth = 'w-[30%] z-10';
+    containerWdidth = 'w-[30%] z-[102]';
   }
 
   let audioTrackViewDisplay = <span />;
