@@ -92,7 +92,7 @@ for generation/edit calls and server-side generation calls.
   Finally you can render your scenes as upto 2 min long mp4 videos and download.
 
 
-![Demo Video](https://samsar-resources.s3.us-west-2.amazonaws.com/dg51.gif)
+![Demo Video](https://samsar-resources.s3.us-west-2.amazonaws.com/frt.gif)
 
 More feature demoes as well as end result demoes will be added as and when I record them.
 
