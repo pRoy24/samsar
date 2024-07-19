@@ -24,7 +24,7 @@ for generation/edit calls and server-side generation calls.
 * Create new video projects.
 
 Create new video projects or open existing projects from the view projects page.
-![Generate video demo](https://dgyheyjs5bch6.cloudfront.net/rm/1.gif)
+![Generate video demo](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/1.gif)
 
 * Generative image generations and edits.
 
