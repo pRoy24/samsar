@@ -24,11 +24,12 @@ for generation/edit calls and server-side generation calls.
 * Create new video projects.
 
 Create new video projects or open existing projects from the view projects page.
-
+![Generate video demo](https://dgyheyjs5bch6.cloudfront.net/rm/1.gif)
 
 * Generative image generations and edits.
 
 Generate & edit images with text-prompts using best-in-class models.
+
 
 
 * Generative speech using text prompts.
