@@ -18,7 +18,7 @@ yarn
 You should leave the API server params as is so that your local client can communicate with remote samsar servers
 for generation/edit calls and server-side generation calls.
 
-![Demo Video](https://samsar-resources.s3.us-west-2.amazonaws.com/dg51.gif)
+
 
 ### samsar has the following features-
 
@@ -76,7 +76,15 @@ Select a shape from the canvas to crop it out as a new layer or remove it from t
 
 Animate each layer in the scene individually or combine the layers to animate them together.
 
+* Segmentation and object detection.
 
+Use smart-select to select objects in the canvas, add or remove them from the layer.
+
+* Smart layering within a scene. 
+
+Show, hide or re-arrange layers within the canvas for easy manipulation.
+
+![Demo Video](https://samsar-resources.s3.us-west-2.amazonaws.com/dg51.gif)
 
 More feature demoes as well as end result demoes will be added as and when I record them.
 
