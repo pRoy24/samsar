@@ -17,3 +17,34 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.custom-toast-container {
+  width: auto;
+  min-width: 0;
+}
+
+.custom-toast {
+  background-color: #0f172a !important;
+  color: white !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out !important;
+}
+
+.custom-toast-body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  padding: 0 !important;
+}
+
+/* Add this to hide the default toastify icon */
+.custom-toast .Toastify__toast-icon {
+  display: none !important;
+}
+

@@ -16,7 +16,10 @@ import LoadingImage from './util/LoadingImage.js';
 import LoadingImageTransparent from './util/LoadingImageTransparent.js';
 import ImageLibrary from './util/ImageLibrary.js';
 import AuthContainer from '../auth/AuthContainer.js';
-import './home.css';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FaCheck, FaTimes } from 'react-icons/fa';
+
 
 const PUBLISHER_URL = process.env.REACT_APP_PUBLISHER_URL;
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
@@ -51,21 +54,14 @@ export default function VideoEditorContainer(props) {
   const audioGenerationPollIntervalRef = useRef(null);
   const maskGenerationPollIntervalRef = useRef(null);
 
-
-
-
   useEffect(() => {
     if (currentLayer && currentLayer.segmentation) {
       setSegmentationData(currentLayer.segmentation);
     }
 
-
     if (currentLayer && currentLayer.imageSession.generationStatus === 'PENDING') {
       pollForLayersUpdate();
-    //  startGenerationPoll();
-      // setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_LIBRARY_DISPLAY);
     }
-
 
     return () => {
       if (generationPollIntervalRef.current) {
@@ -146,13 +142,7 @@ export default function VideoEditorContainer(props) {
     setCurrentView(view);
   }
 
-  const [nftData, setNftData] = useState({
-    name: "",
-    description: "",
-    external_url: "",
-    image: "",
-    attributes: []
-  });
+
 
   const { openAlertDialog, closeAlertDialog, setIsAlertActionPending } = useAlertDialog();
   const { user } = useUser();
@@ -193,7 +183,10 @@ export default function VideoEditorContainer(props) {
     setActiveItemList(newItemList);
     updateSessionLayerActiveItemList(newItemList);
     closeAlertDialog();
-
+    toast.success(<div><FaCheck className='inline-flex mr-2'/> Image uploaded successfully!</div>, {
+      position: "bottom-center",
+      className: "custom-toast",
+    });
   }, [activeItemList]);
 
   useEffect(() => {
@@ -221,10 +214,6 @@ export default function VideoEditorContainer(props) {
     prevLengthRef.current = currentLength;
   }, [activeItemList.length]);
 
-  const updateNFTData = (value) => {
-    let newNftData = Object.assign({}, nftData, value);
-    setNftData(newNftData);
-  }
 
   const submitGenerateRequest = async () => {
     const payload = {
@@ -240,8 +229,21 @@ export default function VideoEditorContainer(props) {
       showLoginDialog();
       return;
     }
-    const generateStatus = await axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate`, payload, headers);
-    startGenerationPoll();
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate`, payload, headers)
+      .then(() => {
+        startGenerationPoll();
+        toast.success(<div><FaCheck className='inline-flex mr-2'/> Generation request submitted successfully!</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      })
+      .catch(error => {
+        setGenerationError(error.message);
+        toast.error(<div><FaTimes /> Failed to submit generation request.</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      });
   }
 
   const submitOutpaintRequest = async (evt) => {
@@ -279,8 +281,21 @@ export default function VideoEditorContainer(props) {
       return;
     }
 
-    const outpaintStatus = await axios.post(`${PROCESSOR_API_URL}/video_sessions/request_outpaint`, payload, headers);
-    startOutpaintPoll();
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/request_outpaint`, payload, headers)
+      .then(() => {
+        startOutpaintPoll();
+        toast.success(<div><FaCheck className='inline-flex mr-2'/> Outpaint request submitted successfully!</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      })
+      .catch(error => {
+        setOutpaintError(error.message);
+        toast.error(<div><FaTimes /> Failed to submit outpaint request.</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      });
   }
 
   const exportBaseGroup = () => {
@@ -395,11 +410,18 @@ export default function VideoEditorContainer(props) {
       setActiveItemList(nImageList);
       setIsGenerationPending(false);
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
-
+      toast.success(<div><FaCheck className='inline-flex mr-2'/> Generation completed successfully!</div>, {
+        position: "bottom-center",
+        className: "custom-toast",
+      });
       return;
     } else if (pollStatus.generationStatus === 'FAILED') {
       setIsGenerationPending(false);
       setGenerationError(pollStatus.generationError);
+      toast.error(<div><FaTimes /> Generation failed.</div>, {
+        position: "bottom-center",
+        className: "custom-toast",
+      });
       return;
     } else {
       generationPollIntervalRef.current = setTimeout(() => {
@@ -432,11 +454,18 @@ export default function VideoEditorContainer(props) {
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
       setActiveItemList(nImageList);
       setIsOutpaintPending(false);
-
+      toast.success(<div><FaCheck className='inline-flex mr-2'/> Outpaint completed successfully!</div>, {
+        position: "bottom-center",
+        className: "custom-toast",
+      });
       return;
     } else if (pollStatus.outpaintStatus === 'FAILED') {
       setIsOutpaintPending(false);
       setOutpaintError(pollStatus.outpaintError);
+      toast.error(<div><FaTimes /> Outpaint failed.</div>, {
+        position: "bottom-center",
+        className: "custom-toast",
+      });
       return;
     } else {
       outpaintPollIntervalRef.current = setTimeout(() => {
@@ -460,9 +489,17 @@ export default function VideoEditorContainer(props) {
       setVideoSessionDetails(pollStatus.videoSession);
       setAudioGenerationPending(false);
       setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_PREVIEW_MUSIC_DISPLAY);
+      toast.success(<div><FaCheck className='inline-flex mr-2'/> Audio generation completed successfully!</div>, {
+        position: "bottom-center",
+        className: "custom-toast",
+      });
       return;
     } else if (pollStatus.generationStatus === 'FAILED') {
       setAudioGenerationPending(false);
+      toast.error(<div><FaTimes /> Audio generation failed.</div>, {
+        position: "bottom-center",
+        className: "custom-toast",
+      });
       return;
     } else {
       audioGenerationPollIntervalRef.current = setTimeout(() => {
@@ -489,10 +526,21 @@ export default function VideoEditorContainer(props) {
       return;
     }
 
-    axios.get(`${PROCESSOR_API_URL}/utils/template_list?page=${page}`, headers).then((response) => {
-      const generatedImageUrlName = response.data.activeGeneratedImage;
-      setTemplateOptionList(response.data);
-    });
+    axios.get(`${PROCESSOR_API_URL}/utils/template_list?page=${page}`, headers)
+      .then((response) => {
+        const generatedImageUrlName = response.data.activeGeneratedImage;
+        setTemplateOptionList(response.data);
+        toast.success(<div><FaCheck className='inline-flex mr-2'/> Templates loaded successfully!</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      })
+      .catch(() => {
+        toast.error(<div><FaTimes /> Failed to load templates.</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      });
   }
 
   const submitTemplateSearch = (query) => {
@@ -502,31 +550,51 @@ export default function VideoEditorContainer(props) {
       return;
     }
 
-    axios.get(`${PROCESSOR_API_URL}/utils/search_template?query=${query}`, headers).then((response) => {
-      setTemplateOptionList(response.data);
-    });
+    axios.get(`${PROCESSOR_API_URL}/utils/search_template?query=${query}`, headers)
+      .then((response) => {
+        setTemplateOptionList(response.data);
+        toast.success(<div><FaCheck className='inline-flex mr-2'/> Template search completed successfully!</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      })
+      .catch(() => {
+        toast.error(<div><FaTimes /> Failed to search templates.</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      });
   }
 
   const startMaskGenerationPoll = () => {
     const sessionId = id;
-    axios.get(`${PROCESSOR_API_URL}/video_sessions/generate_mask_status?sessionId=${sessionId}`).then((response) => {
-      const maskGeneration = response.data;
-      if (maskGeneration.status === 'COMPLETED') {
-        const sessionData = maskGeneration.session;
-        setVideoSessionDetails(sessionData);
+    axios.get(`${PROCESSOR_API_URL}/video_sessions/generate_mask_status?sessionId=${sessionId}`)
+      .then((response) => {
+        const maskGeneration = response.data;
+        if (maskGeneration.status === 'COMPLETED') {
+          const sessionData = maskGeneration.session;
+          setVideoSessionDetails(sessionData);
 
-        const layerData = sessionData.layers.find(layer => layer._id.toString() === currentLayer._id.toString());
-        const segmentationData = layerData.segmentation;
-        setSegmentationData(segmentationData);
-        setCanvasActionLoading(false);
-
-        // updateLayerMask(layerData);
-      } else {
-        maskGenerationPollIntervalRef.current = setTimeout(() => {
-          startMaskGenerationPoll();
-        }, 1000);
-      }
-    });
+          const layerData = sessionData.layers.find(layer => layer._id.toString() === currentLayer._id.toString());
+          const segmentationData = layerData.segmentation;
+          setSegmentationData(segmentationData);
+          setCanvasActionLoading(false);
+          toast.success(<div><FaCheck className='inline-flex mr-2'/> Mask generation completed successfully!</div>, {
+            position: "bottom-center",
+            className: "custom-toast",
+          });
+        } else {
+          maskGenerationPollIntervalRef.current = setTimeout(() => {
+            startMaskGenerationPoll();
+          }, 1000);
+        }
+      })
+      .catch(() => {
+        toast.error(<div><FaTimes /> Failed to generate mask.</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      });
 
   }
 
@@ -536,7 +604,6 @@ export default function VideoEditorContainer(props) {
       const originalStage = canvasRef.current.getStage();
       const clonedStage = originalStage.clone();
   
-      // Remove elements with IDs starting with 'bbox_rect_'
       clonedStage.find(node => node.id().startsWith('bbox_rect_')).forEach(node => {
         node.destroy();
       });
@@ -581,13 +648,20 @@ export default function VideoEditorContainer(props) {
           startMaskGenerationPoll();
           setEnableSegmentationMask(true);
           setCanvasActionLoading(true);
+          toast.success(<div><FaCheck className='inline-flex mr-2'/> Mask generation request submitted successfully!</div>, {
+            position: "bottom-center",
+            className: "custom-toast",
+          });
+        })
+        .catch(() => {
+          toast.error(<div><FaTimes /> Failed to submit mask generation request.</div>, {
+            position: "bottom-center",
+            className: "custom-toast",
+          });
         });
     }
-  
-    // SHOW_SMART_SELECT_DISPLAY
   }, [currentCanvasAction]);
 
-  
   const addImageToCanvas = (templateOption) => {
     const templateURL = `${PROCESSOR_API_URL}/templates/mm_final/${templateOption}`;
     const nImageList = [...activeItemList, { src: templateURL, id: `item_${nImageList.length}`, type: 'image' }];
@@ -597,13 +671,10 @@ export default function VideoEditorContainer(props) {
   }
 
   const addTextBoxToCanvas = (payload) => {
-
-
     const nImageList = [...activeItemList, { ...payload, id: `item_${activeItemList.length}` }];
     setActiveItemList(nImageList);
     updateSessionLayerActiveItemList(nImageList);
   }
-
 
   const showMoveAction = () => { }
 
@@ -775,11 +846,22 @@ export default function VideoEditorContainer(props) {
       return;
     }
     payload.sessionId = id;
-    axios.post(`${PROCESSOR_API_URL}/audio/request_generate_audio`, payload, headers).then((response) => {
-      const audioGeneration = response.data;
-      setAudioGenerationPending(true);
-      startAudioGenerationPoll(audioGeneration);
-    });
+    axios.post(`${PROCESSOR_API_URL}/audio/request_generate_audio`, payload, headers)
+      .then((response) => {
+        const audioGeneration = response.data;
+        setAudioGenerationPending(true);
+        startAudioGenerationPoll(audioGeneration);
+        toast.success(<div><FaCheck className='inline-flex mr-2'/> Audio generation request submitted successfully!</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      })
+      .catch(() => {
+        toast.error(<div><FaTimes /> Failed to submit audio generation request.</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      });
   }
 
   let viewDisplay = <span />;
@@ -816,13 +898,24 @@ export default function VideoEditorContainer(props) {
       ...payload
     }
 
-    axios.post(`${PROCESSOR_API_URL}/audio/add_track_to_project`, requestPayload, headers).then((response) => {
-      const sessionData = response.data;
-      if (sessionData && sessionData.videoSession) {
-        setVideoSessionDetails(sessionData.videoSession);
-        setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY)
-      }
-    });
+    axios.post(`${PROCESSOR_API_URL}/audio/add_track_to_project`, requestPayload, headers)
+      .then((response) => {
+        const sessionData = response.data;
+        if (sessionData && sessionData.videoSession) {
+          setVideoSessionDetails(sessionData.videoSession);
+          setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
+          toast.success(<div><FaCheck className='inline-flex mr-2'/> Track added to project successfully!</div>, {
+            position: "bottom-center",
+            className: "custom-toast",
+          });
+        }
+      })
+      .catch(() => {
+        toast.error(<div><FaTimes /> Failed to add track to project.</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      });
   }
 
   useEffect(() => {
@@ -849,6 +942,10 @@ export default function VideoEditorContainer(props) {
     setActiveItemList(newItemList);
     updateSessionLayerActiveItemList(newItemList);
     setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_DEFAULT_DISPLAY);
+    toast.success(<div><FaCheck className='inline-flex mr-2'/> Image added from library successfully!</div>, {
+      position: "bottom-center",
+      className: "custom-toast",
+    });
   }
 
   const resetImageLibrary = () => {
@@ -939,12 +1036,22 @@ export default function VideoEditorContainer(props) {
       sessionId: id,
       defaults: Object.fromEntries(formData),
     };
-    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers).then((response) => {
-      const updatedSession = response.data;
-      const sessionData = updatedSession.videoSession;
-      setVideoSessionDetails(sessionData);
-      // setCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
-    });
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers)
+      .then((response) => {
+        const updatedSession = response.data;
+        const sessionData = updatedSession.videoSession;
+        setVideoSessionDetails(sessionData);
+        toast.success(<div><FaCheck className='inline-flex mr-2'/> Session defaults updated successfully!</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      })
+      .catch(() => {
+        toast.error(<div><FaTimes /> Failed to update session defaults.</div>, {
+          position: "bottom-center",
+          className: "custom-toast",
+        });
+      });
   }
 
   return (
@@ -957,9 +1064,6 @@ export default function VideoEditorContainer(props) {
           submitGenerateRequest={submitGenerateRequest}
           submitOutpaintRequest={submitOutpaintRequest}
           showAttestationDialog={showAttestationDialog}
-          updateNFTData={updateNFTData}
-          setNftData={setNftData}
-          nftData={nftData}
           selectedChain={selectedChain}
           setSelectedChain={setSelectedChain}
           selectedAllocation={selectedAllocation}
@@ -1024,7 +1128,22 @@ export default function VideoEditorContainer(props) {
           submitUpdateSessionDefaults={submitUpdateSessionDefaults}
           hideItemInLayer={toggleHideItemInLayer}
         />
+        <ToastContainer 
+          position="bottom-center"
+          autoClose={5000}
+          hideProgressBar={true}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          className="custom-toast-container"
+          toastClassName="custom-toast"
+          bodyClassName="custom-toast-body"
+        />
       </div>
     </div>
   )
 }
+
