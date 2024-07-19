@@ -34,7 +34,12 @@ export default function UserAccount() {
   }
 
   const gotoHome = () => {
-    navigate("/");
+    const sessionIDLocal = localStorage.getItem("videoSessionId");
+    if (sessionIDLocal) {
+      navigate(`/video/${sessionIDLocal}`)
+    } else {
+      navigate("/");
+    }
   }
 
   const logoutUser = () => {
