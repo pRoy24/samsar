@@ -24,23 +24,22 @@ for generation/edit calls and server-side generation calls.
 * Create new video projects.
 
 Create new video projects or open existing projects from the view projects page.
-![Generate video demo](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/1.gif)
+
 
 * Generative image generations and edits.
 
 Generate & edit images with text-prompts using best-in-class models.
-![Generate video demo](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/2.gif)
 
 
 * Generative speech using text prompts.
 
 Choose from 7 different voices to generate speech using generative Text To Speech interface.
-![Generate video demo](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/3.gif)
+
 
 * Generative music using text prompts.
 
 Create generative songs or instrumental music from text prompts.
-![Generate video demo](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/4.gif)
+
 
 * Mainuplate audio layers.
 
