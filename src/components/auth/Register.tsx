@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { FaTwitter } from 'react-icons/fa6';
 
-import '@farcaster/auth-kit/styles.css';
-import { AuthKitProvider } from '@farcaster/auth-kit';
-import { SignInButton } from '@farcaster/auth-kit';
+
 import LoginButton from './LoginButton.tsx';
 import { useColorMode } from '../../contexts/ColorMode.js';
 import axios from 'axios';

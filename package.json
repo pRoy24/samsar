@@ -3,9 +3,6 @@
   "version": "0.2.1",
   "private": true,
   "dependencies": {
-    "@dynamic-labs/ethereum": "^1.4.5",
-    "@dynamic-labs/sdk-react-core": "^1.4.5",
-    "@farcaster/auth-kit": "^0.2.1",
     "@stripe/stripe-js": "^3.4.1",
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs": "^4.20.0",
@@ -22,7 +19,6 @@
     "fast-rle": "^0.1.0",
     "konva": "^9.3.6",
     "lodash": "^4.17.21",
-    "pinata-fdk": "^3.6.1",
     "react": "^18.2.0",
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
@@ -38,7 +34,6 @@
     "react-slider": "^2.0.6",
     "react-toastify": "^10.0.5",
     "slick-carousel": "^1.8.1",
-    "thirdweb": "^5.19.0",
     "uuid": "^9.0.1",
     "viem": "^2.9.15",
     "web-vitals": "^2.1.4"
