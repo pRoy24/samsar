@@ -53,32 +53,32 @@ for generation/edit calls and server-side generation calls.
 
 
 * **Export any frame as image.**
-
+  ![Add Scenes](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/7.png)
   You can export any frame in your project as a 1024x1024px image. So you get an image-editor & video-editor in one.
 
 
 * **Magic eraser tool.**
-
+  ![Add Scenes](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/8.png)
   Use the magic eraser to delete parts of an image that you don't want and reveal the layer below.
 
 
 * **Free-hand sketch tool.**
-
+  ![Add Scenes](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/9.png)
   Pencil tool for doing freehand sketches or writing stuff on the canvas.
 
 
 * **Select shape tool.**
-
+  ![Add Scenes](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/10.png)
   Select a shape from the canvas to crop it out as a new layer or remove it from the existing layer.
 
 
 * **Animate tools.**
-
+  ![Add Scenes](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/11.png)
   Animate each layer in the scene individually or combine the layers to animate them together.
 
 
 * **Segmentation and object detection.**
-
+  ![Add Scenes](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/12.png)
   Use smart-select to select objects in the canvas, add or remove them from the layer.
 
 
