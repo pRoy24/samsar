@@ -156,6 +156,10 @@ export default function VideoEditorToolbar(props: any) {
 
     const selectedItem = activeItemList.find(item => item.id === selectedId);
 
+    if (!selectedItem || activeItemList.length === 0) {
+      return;
+    }
+
     let animationParams = null;
     if (selectedItem) {
       animationParams = selectedItem.animations;

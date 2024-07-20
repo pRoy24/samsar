@@ -11,11 +11,11 @@ function AddSessionDropdown(props) {
   const { colorMode } = useColorMode();
   const [isOpen, setIsOpen] = useState(false);
 
-  const bgColor = colorMode === 'dark' ? 'bg-gray-900 hover:bg-gray-700 ' : 'bg-neutral-200 hover:bg-neutral-300';
+  const bgColor = colorMode === 'dark' ? 'bg-gray-900 hover:bg-gray-700' : 'bg-neutral-200 hover:bg-neutral-300';
   const textColor = colorMode === 'dark' ? 'text-neutral-100' : 'text-neutral-700';
 
   
-
+  const borderColor = colorMode === 'dark' ? 'border-gray-600 border-2' : 'border-gray-300 border-2';
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
   };
@@ -28,7 +28,6 @@ function AddSessionDropdown(props) {
   };
 
   const viewSessions = () => {
-    console.log('Copy current layer');
     gotoViewSessionsPage();
     setIsOpen(false);
   };
@@ -47,19 +46,19 @@ function AddSessionDropdown(props) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0  mt-2 w-32 origin-top-right rounded-md
-         shadow-lg ring-1 ring-black ring-opacity-5 " style={{zIndex: 100}}>
-          <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+        <div className={`absolute right-0  mt-2 w-32 origin-top-right rounded-md
+         shadow-lg ring-1 ring-black ring-opacity-5 ${borderColor} `} style={{zIndex: 100}}>
+          <div  role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             <button
               onClick={addNewSession}
-              className={`block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${textColor} ${bgColor}}`}
+              className={`block px-2 py-2 text-sm text-gray-700 hover:bg-gray-600 w-full text-left ${textColor} ${bgColor}}`}
               role="menuitem"
             >
                Create New
             </button>
             <button
               onClick={viewSessions}
-              className={`block px-2 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left ${textColor} ${bgColor}}`}
+              className={`block px-2 py-2 text-sm text-gray-700 hover:bg-gray-600 w-full text-left ${textColor} ${bgColor}}`}
               role="menuitem"
             >
               View Projects 
