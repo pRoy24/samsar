@@ -33,7 +33,7 @@ export default function AuthContainer() {
       window.open(twitterAuthUrl, '_blank');
     })
     closeAlertDialog();
-    getOrCreateUserSession();
+  
   }
 
   const verifyAndSetUserProfile = (profile) => {
