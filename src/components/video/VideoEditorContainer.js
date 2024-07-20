@@ -37,6 +37,7 @@ export default function VideoEditorContainer(props) {
     setVideoSessionDetails,
     toggleHideItemInLayer,
     pollForLayersUpdate,
+    setIsCanvasDirty,
   } = props;
 
   const [segmentationData, setSegmentationData] = useState([]);

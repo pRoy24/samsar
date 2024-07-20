@@ -192,12 +192,14 @@ export default function TopNav(props) {
   }
 
   let daysToUpdate = <span />;
+  let userCreditsDisplay = <span />;
   if (user && user._id) {
     if (user.isPremiumUser) {
       daysToUpdate = <div>{nextUpdate} days until update</div>;
     } else {
       daysToUpdate = <div>Free Tier</div>;
     }
+    userCreditsDisplay = <div>{userCredits} credits</div>;
   }
 
   return (
@@ -210,7 +212,7 @@ export default function TopNav(props) {
           <div className="flex justify-end items-center space-x-4">
             <div>{addSessionButton}</div>
             <div className="text-xs text-left mr-2">
-              <div>{userCredits} credits</div>
+              <div>{userCreditsDisplay}</div>
               <div>{daysToUpdate}</div>
             </div>
             <div>{userProfile}</div>

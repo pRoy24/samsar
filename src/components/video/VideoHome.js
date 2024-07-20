@@ -37,6 +37,8 @@ export default function VideoHome(props) {
   const [generationImages, setGenerationImages] = useState([]);
   const [ layerListRequestAdded, setLayerListRequestAdded ] = useState(false);
 
+  const [isCanvasDirty, setIsCanvasDirty] = useState(false);
+
   let { id } = useParams();
 
   const showLoginDialog = () => {
@@ -204,6 +206,7 @@ export default function VideoHome(props) {
           setRenderedVideoPath(`${PROCESSOR_API_URL}/${videoLink}`);
           setDownloadVideoDisplay(true);
           setIsVideoGenerating(false);
+          setIsCanvasDirty(false);
         }
       });
     }, 1000);
@@ -688,6 +691,7 @@ export default function VideoHome(props) {
               updateLayerMask={updateLayerMask}
               resetLayerMask={resetLayerMask}
               pollForLayersUpdate={pollForLayersUpdate}
+              setIsCanvasDirty={setIsCanvasDirty}
             />
           </div>
         </div>
