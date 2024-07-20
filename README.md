@@ -23,32 +23,32 @@ for generation/edit calls and server-side generation calls.
 ### The UI has the following features-
 
 * **Create new video projects.**
-
+  ![Create project](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/1.png)
   Create new video projects or open existing projects from the view projects page.
 
 
 * **Generative image generations and edits.**
-
+  ![Generate images](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/2.png)
   Generate & edit images with text-prompts using best-in-class models.
 
 
 * **Generative speech using text prompts.**
-
+  ![Text to speech](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/3.png)
   Choose from 7 different voices to generate speech using generative Text To Speech interface.
 
 
 * **Generative music using text prompts.**
-
+  ![Generative music](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/4.png)
   Create generative songs or instrumental music from text prompts.
 
 
 * **Mainuplate audio layers.**
-
+  ![Layer Duration](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/5.png)
   Easily manipulate your audio layer duration, timing and volume.
 
 
 * **Add scenes to your project.**
-
+  ![Add Scenes](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/6.png)
   Add single or batch scenes with initial generation prompts for batch processing, you can also copy or delete any scene.
 
 
