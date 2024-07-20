@@ -38,8 +38,6 @@ export default function CanvasToolbar(props) {
     resetPaintImage
   } = props;
 
-  console.log("shapeSelectToolbarVisible " + shapeSelectToolbarVisible );
-
   return (
     <div>
       {buttonPositions.map((pos, index) => {

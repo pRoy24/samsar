@@ -38,6 +38,7 @@ export default function VideoEditorContainer(props) {
     toggleHideItemInLayer,
     pollForLayersUpdate,
     setIsCanvasDirty,
+    updateCurrentLayer,
   } = props;
 
   const [segmentationData, setSegmentationData] = useState([]);
@@ -401,8 +402,11 @@ export default function VideoEditorContainer(props) {
 
     const pollStatus = pollStatusData.data;
 
-    if (pollStatus.generationStatus === 'COMPLETED') {
-      const generatedImageUrlName = pollStatus.activeGeneratedImage;
+    if (pollStatus.status === 'COMPLETED') {
+      const layerData = pollStatus.layer;
+      const imageSession = layerData.imageSession;
+
+      const generatedImageUrlName = imageSession.activeGeneratedImage;
       const generatedURL = `/generations/${generatedImageUrlName}`;
       const item_id = `item_${activeItemList.length}`;
       const nImageList = [...activeItemList, {
@@ -416,8 +420,9 @@ export default function VideoEditorContainer(props) {
         position: "bottom-center",
         className: "custom-toast",
       });
+      updateCurrentLayer(layerData);
       return;
-    } else if (pollStatus.generationStatus === 'FAILED') {
+    } else if (pollStatus.status === 'FAILED') {
       setIsGenerationPending(false);
       setGenerationError(pollStatus.generationError);
       toast.error(<div><FaTimes /> Generation failed.</div>, {
@@ -981,7 +986,6 @@ export default function VideoEditorContainer(props) {
           <div>
             {canvasInternalLoading}
             <VideoCanvasContainer ref={canvasRef}
-              key={`canvas_${currentLayer._id.toString()}`}
               maskGroupRef={maskGroupRef}
               sessionDetails={videoSessionDetails}
               activeItemList={activeItemList}

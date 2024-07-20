@@ -101,15 +101,17 @@ export default function VideoHome(props) {
       const nextLayerIndex = layers.findIndex(layer => layer._id === currentLayer._id) + 1;
       if (nextLayerIndex < layers.length) {
         setCurrentLayer(layers[nextLayerIndex]);
+        setSelectedLayerIndex(nextLayerIndex);
       } else {
         console.log("No more layers to switch to");
       }
-    }
-
+    } 
+    
     if (currentLayerSeek < currentLayerStartFrame) {
       const prevLayerIndex = layers.findIndex(layer => layer._id === currentLayer._id) - 1;
       if (prevLayerIndex >= 0) {
         setCurrentLayer(layers[prevLayerIndex]);
+        setSelectedLayerIndex(prevLayerIndex);
       } else {
         console.log("Already at the first layer");
       }
@@ -624,6 +626,18 @@ export default function VideoHome(props) {
    // setCurrentLayer(layerDataNew);
   }
 
+  const updateCurrentLayer = (layerData) => {
+    const layerId = layerData._id.toString();
+    const updatedLayers = layers.map(layer => {
+      if (layer._id.toString() === layerId) {
+        return layerData;
+      }
+      return layer;
+    });
+    setLayers(updatedLayers);
+    setCurrentLayer(layerData);
+  }
+
   return (
     <CommonContainer>
       <div className='m-auto'>
@@ -692,6 +706,7 @@ export default function VideoHome(props) {
               resetLayerMask={resetLayerMask}
               pollForLayersUpdate={pollForLayersUpdate}
               setIsCanvasDirty={setIsCanvasDirty}
+              updateCurrentLayer={updateCurrentLayer}
             />
           </div>
         </div>
