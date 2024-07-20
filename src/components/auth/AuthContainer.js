@@ -26,6 +26,16 @@ export default function AuthContainer() {
 
   }
 
+  const registerToTwitter = () => {
+    axios.get(`${PROCESSOR_SERVER}/users/twitter_login`).then(function (dataRes) {
+      const authPayload = dataRes.data;
+      const twitterAuthUrl = authPayload.loginUrl;
+      window.open(twitterAuthUrl, '_blank');
+    })
+    closeAlertDialog();
+    getOrCreateUserSession();
+  }
+
   const verifyAndSetUserProfile = (profile) => {
     axios.post(`${PROCESSOR_SERVER}/users/verify`, profile).then(function (dataRes) {
       const userData = dataRes.data;
@@ -37,11 +47,11 @@ export default function AuthContainer() {
   }
 
   const getOrCreateUserSession = () => {
+
     const headers = getHeaders();
 
     axios.get(`${API_SERVER}/video_sessions/get_or_create_session`, headers).then((res) => {
       const sessionData = res.data;
-      console.log(sessionData);
       localStorage.setItem('videoSessionId', sessionData._id);
       navigate(`/video/${sessionData._id}`);
     });
@@ -61,7 +71,7 @@ export default function AuthContainer() {
   }
   return (
     <Register setCurrentLoginView={setCurrentLoginView} 
-    siginToTwitter={siginToTwitter}
+    registerToTwitter={registerToTwitter}
     verifyAndSetUserProfile={verifyAndSetUserProfile} 
     setUser={setUser}
     getOrCreateUserSession={getOrCreateUserSession}

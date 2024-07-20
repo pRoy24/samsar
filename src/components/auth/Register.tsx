@@ -18,7 +18,7 @@ const config = {
 
 
 export default function Register(props) {
-  const { setCurrentLoginView, siginToTwitter, verifyAndSetUserProfile,
+  const { setCurrentLoginView, registerToTwitter, verifyAndSetUserProfile,
     setUser, closeAlertDialog, getOrCreateUserSession } = props;
   const { colorMode } = useColorMode();
   const formBgColor = colorMode === 'light' ? 'bg-neutral-50' : 'bg-neutral-900';
@@ -104,7 +104,7 @@ export default function Register(props) {
         <div className='flex flex-row text-center mb-4'>
           <div className='basis-full pl-4 pr-4'>
             <div className='bg-neutral-900 text-neutral-100 p-2 rounded-lg cursor-pointer h-[50px]
-            text-center m-auto' onClick={() => siginToTwitter()}>
+            text-center m-auto' onClick={() => registerToTwitter()}>
               <div className='text-center text-lg font-bold pt-[2px]'>
                 <FaTwitter className='inline-block mr-1' />
                 <div className='inline-block'>
