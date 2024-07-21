@@ -19,7 +19,7 @@ import AuthContainer from '../auth/AuthContainer.js';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FaCheck, FaTimes } from 'react-icons/fa';
-import AssistantHome from '../assistant/AssistantHome.js';
+
 
 
 const PUBLISHER_URL = process.env.REACT_APP_PUBLISHER_URL;
@@ -1148,7 +1148,7 @@ export default function VideoEditorContainer(props) {
           toastClassName="custom-toast"
           bodyClassName="custom-toast-body"
         />
-        {/* <AssistantHome />  */}
+
       </div>
     </div>
   )

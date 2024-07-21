@@ -16,6 +16,7 @@
     "axios": "^1.6.8",
     "bson-objectid": "^2.0.4",
     "canvas": "^2.11.2",
+    "dayjs": "^1.11.12",
     "fast-rle": "^0.1.0",
     "konva": "^9.3.6",
     "lodash": "^4.17.21",

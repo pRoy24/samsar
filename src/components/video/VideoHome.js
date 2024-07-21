@@ -11,6 +11,7 @@ import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
 import { debounce } from './util/debounce.js';
 import AuthContainer from '../auth/AuthContainer.js';
 import LoadingImage from './util/LoadingImage.js';
+import AssistantHome from '../assistant/AssistantHome.js';
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -35,9 +36,14 @@ export default function VideoHome(props) {
   const [audioLayers, setAudioLayers] = useState([]);
   const [isAudioLayerDirty, setIsAudioLayerDirty] = useState(false);
   const [generationImages, setGenerationImages] = useState([]);
-  const [ layerListRequestAdded, setLayerListRequestAdded ] = useState(false);
+  const [layerListRequestAdded, setLayerListRequestAdded] = useState(false);
+
+  const [ sessionMessages, setSessionMessages ] = useState([]);
+
 
   const [isCanvasDirty, setIsCanvasDirty] = useState(false);
+
+  const [isAssistantQueryGenerating, setIsAssistantQueryGenerating] = useState(false);
 
   let { id } = useParams();
 
@@ -77,7 +83,7 @@ export default function VideoHome(props) {
     setLayerListRequestAdded(false);
     setIsCanvasDirty(false);
   }, [id]);
-  
+
 
   useEffect(() => {
     const headers = getHeaders();
@@ -106,6 +112,7 @@ export default function VideoHome(props) {
       });
       setIsLayerGenerationPending(isLayerPending);
       setGenerationImages(sessionDetails.generations);
+      setSessionMessages(sessionDetails.sessionMessages);
     });
   }, [id]);
 
@@ -128,8 +135,8 @@ export default function VideoHome(props) {
       } else {
         console.log("No more layers to switch to");
       }
-    } 
-    
+    }
+
     if (currentLayerSeek < currentLayerStartFrame) {
       const prevLayerIndex = layers.findIndex(layer => layer._id === currentLayer._id) - 1;
       if (prevLayerIndex >= 0) {
@@ -169,7 +176,7 @@ export default function VideoHome(props) {
 
   useEffect(() => {
     if (isLayerGenerationPending) {
-    pollForLayersUpdate();
+      pollForLayersUpdate();
     }
   }, [isLayerGenerationPending]);
 
@@ -398,8 +405,8 @@ export default function VideoHome(props) {
       const videoSessionData = response.data;
       const updatedItemList = videoSessionData.activeItemList;
       if (updatedItemList && updatedItemList.length > 0) {
-         setActiveItemList(updatedItemList);
-         setIsCanvasDirty(true);
+        setActiveItemList(updatedItemList);
+        setIsCanvasDirty(true);
       }
     });
   }, 5);
@@ -600,7 +607,7 @@ export default function VideoHome(props) {
       const videoSessionDataResponse = response.data;
       const videoSessionData = videoSessionDataResponse.videoSession;
       const updatedLayers = videoSessionData.layers;
-    
+
       setLayers(updatedLayers);
       setCurrentLayer(updatedLayers[0]);
       setSelectedLayerIndex(0);
@@ -620,20 +627,20 @@ export default function VideoHome(props) {
       showLoginDialog();
       return;
     }
-  
+
     const { promptList, duration } = payload;
-  
+
     const reqPayload = {
       sessionId: id,
       promptList: promptList,
       duration: duration,
     };
-  
+
     setLayerListRequestAdded(false);
     axios.post(`${PROCESSOR_API_URL}/video_sessions/add_layers_via_prompt_list`, reqPayload, headers).then((response) => {
       const videoSessionDataResponse = response.data;
       const videoSessionData = videoSessionDataResponse.videoSession;
-  
+
       setVideoSessionDetails(videoSessionData);
       const updatedLayers = videoSessionData.layers;
       setLayers(updatedLayers);
@@ -646,13 +653,13 @@ export default function VideoHome(props) {
 
 
   const updateLayerMask = (layerData) => {
-    let layerDataNew = Object.assign({}, currentLayer, {segmentation: layerData.segmentation})    
+    let layerDataNew = Object.assign({}, currentLayer, { segmentation: layerData.segmentation })
     setCurrentLayer(layerDataNew);
   }
 
   const resetLayerMask = () => {
-   let layerDataNew = Object.assign({}, currentLayer, {segmentation: null})
-   // setCurrentLayer(layerDataNew);
+    let layerDataNew = Object.assign({}, currentLayer, { segmentation: null })
+    // setCurrentLayer(layerDataNew);
   }
 
   const updateCurrentLayer = (layerData) => {
@@ -666,6 +673,47 @@ export default function VideoHome(props) {
     setLayers(updatedLayers);
     setCurrentLayer(layerData);
   }
+
+
+  const startAssistantQueryPoll = () => {
+    const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      axios.get(`${PROCESSOR_API_URL}/assistants/assistant_query_status?id=${id}`, headers).then((dataRes) => {
+        const assistantQueryData = dataRes.data;
+        const assistantQueryStatus = assistantQueryData.status;
+        if (assistantQueryStatus === 'COMPLETED') {
+          const sessionData = assistantQueryData.sessionDetails;
+          clearInterval(timer);
+          const assistantQueryResponse = assistantQueryData.response;
+          setSessionMessages(sessionData.sessionMessages);
+          setIsAssistantQueryGenerating(false);
+          
+        }
+      });
+    }, 1000);
+
+  }
+
+
+  const submitAssistantQuery = (query) => {
+    console.log(query);
+    setIsAssistantQueryGenerating(true);
+    const headers = getHeaders();
+    axios.post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers).then((response) => {
+      const assistantResponse = response.data;
+      startAssistantQueryPoll();
+
+    }).catch(function(err) {
+      setIsAssistantQueryGenerating(false);
+    });
+  }
+
+
 
   return (
     <CommonContainer>
@@ -739,6 +787,10 @@ export default function VideoHome(props) {
               updateCurrentLayer={updateCurrentLayer}
             />
           </div>
+          <AssistantHome
+            submitAssistantQuery={submitAssistantQuery}
+            sessionMessages={sessionMessages}
+            isAssistantQueryGenerating={isAssistantQueryGenerating} />
         </div>
       </div>
     </CommonContainer>
