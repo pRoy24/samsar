@@ -1148,7 +1148,7 @@ export default function VideoEditorContainer(props) {
           toastClassName="custom-toast"
           bodyClassName="custom-toast-body"
         />
-        {/* <AssistantHome /> */}
+        <AssistantHome /> 
       </div>
     </div>
   )

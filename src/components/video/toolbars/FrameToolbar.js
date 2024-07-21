@@ -32,7 +32,8 @@ export default function FrameToolbar(props) {
     removeAudioLayer, handleVolumeChange,
     updateChangesToActiveLayers, addLayerToComposition,
     copyCurrentLayerBelow, removeSessionLayer,
-    addLayersViaPromptList, defaultSceneDuration
+    addLayersViaPromptList, defaultSceneDuration,
+    isCanvasDirty
   } = props;
 
   const { colorMode } = useColorMode();
@@ -211,7 +212,7 @@ export default function FrameToolbar(props) {
   let submitRenderDisplay = (
     <CommonButton onClick={submitRenderVideo} isPending={isVideoGenerating}>Render</CommonButton>
   );
-  if (downloadVideoDisplay && renderedVideoPath) {
+  if (downloadVideoDisplay && renderedVideoPath && !isCanvasDirty) {
     submitRenderDisplay = (
       <a href={renderedVideoPath} download={`${sessionId}.mp4`}>
         <CommonButton>Download</CommonButton>

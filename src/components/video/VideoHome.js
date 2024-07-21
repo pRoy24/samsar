@@ -54,6 +54,29 @@ export default function VideoHome(props) {
     }
   }, [layerListRequestAdded, layers]);
 
+  useEffect(() => {
+    setVideoSessionDetails(null);
+    setSelectedLayerIndex(0);
+    setCurrentLayer({});
+    setLayers([]);
+    setFrames([]);
+    setCurrentLayerSeek(0);
+    setTotalDuration(0);
+    setIsLayerGenerationPending(false);
+    setAudioFileTrack(null);
+    setCurrentEditorView(CURRENT_EDITOR_VIEW.VIEW);
+    setDownloadVideoDisplay(false);
+    setRenderedVideoPath(null);
+    setActiveItemList([]);
+    setIsLayerSeeking(false);
+    setIsVideoGenerating(false);
+    setFrameToolbarView(FRAME_TOOLBAR_VIEW.DEFAULT);
+    setAudioLayers([]);
+    setIsAudioLayerDirty(false);
+    setGenerationImages([]);
+    setLayerListRequestAdded(false);
+    setIsCanvasDirty(false);
+  }, [id]);
   
 
   useEffect(() => {
@@ -376,6 +399,7 @@ export default function VideoHome(props) {
       const updatedItemList = videoSessionData.activeItemList;
       if (updatedItemList && updatedItemList.length > 0) {
          setActiveItemList(updatedItemList);
+         setIsCanvasDirty(true);
       }
     });
   }, 5);
@@ -502,6 +526,7 @@ export default function VideoHome(props) {
       setLayers(newLayers);
       setCurrentLayer(newLayers[newLayers.length - 1]);
       setSelectedLayerIndex(newLayers.length - 1);
+      setIsCanvasDirty(true);
     });
   }
 
@@ -531,6 +556,7 @@ export default function VideoHome(props) {
       setLayers(newLayers);
       setSelectedLayerIndex(newLayerIndex);
       setCurrentLayer(newLayers[newLayerIndex]);
+      setIsCanvasDirty(true);
     });
   };
 
@@ -553,6 +579,7 @@ export default function VideoHome(props) {
         const updatedLayers = videoSessionData.layers;
         setLayers(updatedLayers);
         setCurrentLayer(updatedLayer);
+        setIsCanvasDirty(true);
       }
     });
   } // Adjust the delay as needed
@@ -577,6 +604,7 @@ export default function VideoHome(props) {
       setLayers(updatedLayers);
       setCurrentLayer(updatedLayers[0]);
       setSelectedLayerIndex(0);
+      setIsCanvasDirty(true);
     });
   }
 
@@ -611,6 +639,7 @@ export default function VideoHome(props) {
       setLayers(updatedLayers);
       setLayerListRequestAdded(true);
       setCurrentLayer(updatedLayers[updatedLayers.length - 1]);
+      setIsCanvasDirty(true);
     });
   }
 
@@ -678,6 +707,7 @@ export default function VideoHome(props) {
               removeSessionLayer={removeSessionLayer}
               addLayersViaPromptList={addLayersViaPromptList}
               defaultSceneDuration={videoSessionDetails.defaultSceneDuration}
+              isCanvasDirty={isCanvasDirty}
             />
           </div>
           <div className='w-[86%] bg-cyber-black inline-block'>
