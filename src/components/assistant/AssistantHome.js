@@ -102,7 +102,7 @@ export default function AssistantHome(props) {
             </button>
           </div>
           <div className="mb-4 space-y-2 w-[512px] max-h-[400px] overflow-y-scroll">
-            {sessionMessages.map((message, index) => (
+            {sessionMessages && sessionMessages.length > 0 ? sessionMessages.map((message, index) => (
               <div 
                 key={index} 
                 className={`p-2 rounded whitespace-pre-wrap relative ${
@@ -130,7 +130,7 @@ export default function AssistantHome(props) {
                   ))}
                 </div>
               </div>
-            ))}
+            )) : <span />}
             <div ref={messagesEndRef} />
           </div>
           <form onSubmit={handleSubmit}>
