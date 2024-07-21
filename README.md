@@ -22,6 +22,7 @@ for generation/edit calls and server-side generation calls.
 
 ### The UI has the following features-
 
+
 * **Create new video projects.**
   ![Create project](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/1.png)
   Create new video projects or open existing projects from the view projects page.
@@ -46,6 +47,9 @@ for generation/edit calls and server-side generation calls.
   ![Layer Duration](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/5.png)
   Easily manipulate your audio layer duration, timing and volume.
 
+* **Custom GPT assistant for design help.**
+  ![Assistant demo](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/13.png)
+  Enter your idea into the assistant for help in designing storyline, theme and prompts.
 
 * **Add scenes to your project.**
   ![Add Scenes](https://samsar-resources.s3.us-west-2.amazonaws.com/rm/6.png)
