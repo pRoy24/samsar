@@ -130,7 +130,7 @@ export default function AssistantHome(props) {
                   ))}
                 </div>
               </div>
-            )) : <span />}
+            )) : (<div className='h-62 bg-slate-800 pt-4 pb-4 text-center'>Chats for the session will appear here.</div>)}
             <div ref={messagesEndRef} />
           </div>
           <form onSubmit={handleSubmit}>
@@ -141,6 +141,7 @@ export default function AssistantHome(props) {
               className="w-full p-2 rounded border focus:outline-none mb-2 resize-none"
               rows="1"
               style={{ backgroundColor: colorMode === 'dark' ? '#2d3748' : '#e2e8f0', color: textColor }}
+              placeholder='type your prompt text here'
             />
             <CommonButton type="submit" isPending={isAssistantQueryGenerating}>
               Submit
