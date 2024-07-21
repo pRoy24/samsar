@@ -236,7 +236,7 @@ export default function FrameToolbar(props) {
     e.preventDefault();
     const formData = new FormData(e.target);
     const promptList = formData.get('promptList');
-    const promptListArray = promptList.split('\n');
+    const promptListArray = promptList.split('\n').filter(prompt => prompt.trim() !== '');
     const duration = formData.get('duration');
     const payload = {
       promptList: promptListArray,
@@ -245,8 +245,8 @@ export default function FrameToolbar(props) {
     
     addLayersViaPromptList(payload);
     closeAlertDialog();
-
   }
+  
   const showBatchLayerDialog = () => {
     openAlertDialog(<BatchPrompt 
       submitPromptList={submitPromptList}

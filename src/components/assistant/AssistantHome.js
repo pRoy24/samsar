@@ -76,7 +76,25 @@ export default function AssistantHome(props) {
       return '#020617';
     }
     return '#e2e8f0';
-  }
+  };
+
+  const parseMessageContent = (content) => {
+    return content.split('\n').map((line, i) => {
+      const boldText = /\*\*(.*?)\*\*/g;
+      const parts = line.split(boldText).map((part, index) =>
+        boldText.test(part) ? (
+          <strong key={index} className="block">{part.replace(/\*\*/g, '')}</strong>
+        ) : (
+          part
+        )
+      );
+      return (
+        <span key={i} className="block">
+          {parts}
+        </span>
+      );
+    });
+  };
 
   return (
     <div className="fixed bottom-4 right-4">
@@ -110,24 +128,18 @@ export default function AssistantHome(props) {
                 }`} 
                 style={{ backgroundColor: colorMode === 'dark' ? getBGColorMode(message.role) : '#e2e8f0', color: textColor }}
               >
-                <div className="text-sm mb-1">
-                  {dayjs(message.timestamp).format('MMM D, YYYY h:mm A')}
+                <div className="flex justify-between items-center text-sm mb-1">
+                  <button
+                    onClick={() => copyToClipboard(message.content)}
+                    className="text-xs p-1 rounded-full shadow-lg focus:outline-none flex items-center"
+                    title="Copy full content to clipboard"
+                  >
+                    <FaCopy className="mr-1" /> Copy
+                  </button>
+                  <span>{dayjs(message.timestamp).format('MMM D, YYYY h:mm A')}</span>
                 </div>
                 <div>
-                  {message.content.split('\n').map((line, i) => (
-                    <span key={i} className="block">
-                      {line}
-                      {line.trim() && (
-                        <button 
-                          onClick={() => copyToClipboard(line)} 
-                          className="ml-2 text-xs"
-                          title="Copy to clipboard"
-                        >
-                          <FaCopy />
-                        </button>
-                      )}
-                    </span>
-                  ))}
+                  {parseMessageContent(message.content)}
                 </div>
               </div>
             )) : (<div className='h-62 bg-slate-800 pt-4 pb-4 text-center'>Chats for the session will appear here.</div>)}
