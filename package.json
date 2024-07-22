@@ -1,7 +1,7 @@
 {
-  "name": "studio",
+  "name": "samsar_studio",
   "version": "0.2.1",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@stripe/stripe-js": "^3.4.1",
     "@tensorflow-models/coco-ssd": "^2.2.3",
@@ -17,8 +17,6 @@
     "bson-objectid": "^2.0.4",
     "canvas": "^2.11.2",
     "dayjs": "^1.11.12",
-    "fast-rle": "^0.1.0",
-    "font-list": "^1.5.1",
     "konva": "^9.3.6",
     "lodash": "^4.17.21",
     "react": "^18.2.0",
