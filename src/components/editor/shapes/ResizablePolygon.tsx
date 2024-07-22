@@ -52,6 +52,7 @@ export default function ResizablePolygon(props) {
   return (
     <Group id={`group_${id}`}>
       <RegularPolygon
+        id={id}
         x={x !== undefined ? x : INIT_DIMENSIONS.x}
         y={y !== undefined ? y : INIT_DIMENSIONS.y}
         sides={sides || 6}

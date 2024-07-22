@@ -42,8 +42,8 @@ export default function CanvasToolbar(props) {
 
   return (
     <div>
-      {buttonPositions.map((pos, index) => {
-        if (!selectedId || (selectedId && pos.id && ((selectedId !== pos.id)))) return null;
+      {buttonPositions.map((pos, index) => {        
+        if (!selectedId || (selectedId && pos.id && ((selectedId !== pos.id)))) return null;        
         if (selectedLayerType === 'image') {
           return (
             <ImageToolbar
@@ -63,6 +63,8 @@ export default function CanvasToolbar(props) {
             />
           );
         } else if (selectedLayerType === 'shape') {
+          console.log("SHAPE SHAPE HERE HERE");
+
           return (
             <ShapeToolbar 
             key={pos.id}

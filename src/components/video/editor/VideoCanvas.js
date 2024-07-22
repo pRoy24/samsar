@@ -111,7 +111,16 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   const textColor = colorMode === 'dark' ? `text-white` : `text-black`;
 
   const selectLayer = (item) => {
+
+
     if (item.config) setSelectedId(item.id);
+    if (item.type === 'image') {
+      setSelectedLayerType('image');
+    } else if (item.type === 'text') {
+      setSelectedLayerType('text');
+    } else if (item.type === 'shape') {
+      setSelectedLayerType('shape');
+    }
   };
 
   if (currentCanvasAction === TOOLBAR_ACTION_VIEW.SHOW_ERASER_DISPLAY) {
@@ -158,6 +167,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   };
 
   const updateToolbarButtonPosition = (id, x, y) => {
+
     setButtonPositions((prevPositions) =>
       prevPositions.map((pos) =>
         pos.id === id ? { ...pos, x: x + 30, y: y + 30 } : pos
@@ -521,7 +531,6 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     document.body.removeChild(link);
   };
 
-
   return (
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
       <CanvasControlBar 
@@ -589,6 +598,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         </Layer>
       </Stage>
 
+      
       <CanvasToolbar
         buttonPositions={buttonPositions}
         selectedId={selectedId}

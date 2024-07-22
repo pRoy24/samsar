@@ -69,6 +69,7 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
 
   useEffect(() => {
     const stage = ref.current.getStage();
+
     const positions = activeItemList.map(item => {
       const itemId = item.id.toString();
       const node = stage.findOne(`#${itemId}`);
@@ -78,6 +79,9 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
       }
       return null;
     }).filter(Boolean);
+
+
+
     setButtonPositions(positions);
   }, [activeItemList, ref, selectedId]);
 
@@ -783,7 +787,6 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
       }
       return item;
     });
-    console.log(newActiveItemList);
     if (updateState) {
       setActiveItemList(newActiveItemList);
     }

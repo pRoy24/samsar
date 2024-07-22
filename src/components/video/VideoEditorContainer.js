@@ -695,6 +695,7 @@ export default function VideoEditorContainer(props) {
   }
 
   const setSelectedShape = (shapeKey) => {
+    
     let shapeConfig;
     if (shapeKey === 'dialog') {
       shapeConfig = {
@@ -716,6 +717,7 @@ export default function VideoEditorContainer(props) {
       'config': shapeConfig,
       'id': `item_${activeItemList.length}`
     }];
+    
     setActiveItemList(currentLayerList);
     setSelectedId(`item_${activeItemList.length}`);
     updateSessionLayerActiveItemList(currentLayerList);

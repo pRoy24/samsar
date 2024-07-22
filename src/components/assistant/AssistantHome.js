@@ -67,8 +67,6 @@ export default function AssistantHome(props) {
   const backgroundColor = colorMode === 'dark' ? '#1a202c' : '#f5f5f5';
   const textColor = colorMode === 'dark' ? '#f5f5f5' : '#1a202c';
 
-  console.log(sessionMessages);
-
   const getBGColorMode = (role) => {
     if (role === 'user') {
       return '#1e293b';

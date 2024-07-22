@@ -108,6 +108,7 @@ const ResizableDialogBubble = ({
       onTap={onSelect}
     >
       <Ellipse
+        id={id}
         x={x}
         y={y}
         width={width}

@@ -53,6 +53,7 @@ export default function ResizableCircle(props) {
   return (
     <Group id={`group_${id}`}>
       <Circle
+        id={id}
         x={x !== undefined ? x : INIT_DIMENSIONS.x}
         y={y !== undefined ? y : INIT_DIMENSIONS.y}
         radius={radius || 70}

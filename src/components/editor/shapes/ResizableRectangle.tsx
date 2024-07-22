@@ -3,9 +3,12 @@ import { Rect, Group, Transformer } from 'react-konva';
 import { INIT_DIMENSIONS } from '../utils/ShapeUtils';
 
 export default function ResizableRectangle(props) {
-  const { shape, config, isSelected, onSelect, id, updateToolbarButtonPosition, updateTargetActiveLayerConfig } = props;
+  const { shape, config, isSelected, onSelect, id, updateToolbarButtonPosition, updateTargetActiveLayerConfig,  } = props;
   const rectangleTransformerRef = useRef();
   const rectangleRef = useRef();
+
+  console.log("INSIDE RECT");
+  console.log(props);
 
   useEffect(() => {
     // Check if the transformer and rectangle references are correctly set
@@ -53,6 +56,7 @@ export default function ResizableRectangle(props) {
   return (
     <Group id={`group_${id}`}>
       <Rect
+        id={id}
         x={x !== undefined ? x : INIT_DIMENSIONS.x}
         y={y !== undefined ? y : INIT_DIMENSIONS.y}
         width={width || 100}
