@@ -1,10 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import CommonButton from "../../common/CommonButton.tsx";
 import { useColorMode } from '../../../contexts/ColorMode.js';
-import { FaAlignCenter, FaAlignLeft, FaAlignRight,
+import Select from 'react-select';
+import {
+  FaAlignCenter, FaAlignLeft, FaAlignRight,
   FaBold, FaItalic, FaUnderline
- } from "react-icons/fa";
+} from "react-icons/fa";
+import SingleSelect from '../../common/SingleSelect.js';
 
+// Predefined list of common web-safe fonts and Google Fonts
+const fontOptions = [
+  { value: 'Arial', label: 'Arial' },
+  { value: 'Verdana', label: 'Verdana' },
+  { value: 'Helvetica', label: 'Helvetica' },
+  { value: 'Times New Roman', label: 'Times New Roman' },
+  { value: 'Georgia', label: 'Georgia' },
+  { value: 'Courier New', label: 'Courier New' },
+  { value: 'Comic Sans MS', label: 'Comic Sans MS' },
+  { value: 'Impact', label: 'Impact' },
+  { value: 'Tahoma', label: 'Tahoma' },
+  { value: 'Trebuchet MS', label: 'Trebuchet MS' },
+  { value: 'Lucida Console', label: 'Lucida Console' },
+  { value: 'Gill Sans', label: 'Gill Sans' },
+  { value: 'Palatino', label: 'Palatino' },
+  { value: 'Garamond', label: 'Garamond' },
+  { value: 'Arial Black', label: 'Arial Black' },
+  { value: 'Sans-Serif', label: 'Sans-Serif' },
+  { value: 'Serif', label: 'Serif' }
+];
 
 export default function AddText(props) {
   const { setAddText, submitAddText, textConfig, setTextConfig } = props;
@@ -70,23 +93,20 @@ export default function AddText(props) {
             <option value="60">60</option>
           </select>
         </div>
-        <div>
+        <div className="col-span-2">
           <div className='text-xs'>Font Family</div>
-          <select
-            value={fontFamily}
-            onChange={(e) => setFontFamily(e.target.value)}
-            className={`${formElementBG} w-full p-2 rounded`}
-          >
-            {/* Example font families */}
-            <option value="Arial">Arial</option>
-            <option value="Verdana">Verdana</option>
-            <option value="Helvetica">Helvetica</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Georgia">Georgia</option>
-            <option value="Courier New">Courier New</option>
-          </select>
+
+          <SingleSelect
+            value={fontOptions.find(option => option.value === fontFamily)}
+            onChange={(option) => setFontFamily(option.value)}
+            options={fontOptions}
+            className={`w-full p-2 rounded ${formElementBG}`}
+          />
+
         </div>
-        <div>
+      </div>
+      <div className='grid grid-cols-2'>
+        <div className=''>
           <div className='text-xs'>Fill Color</div>
           <input
             type="color"
@@ -94,6 +114,27 @@ export default function AddText(props) {
             onChange={(e) => setFillColor(e.target.value)}
             className={`${formElementBG} w-full h-10 border-none`}
           />
+        </div>
+
+        <div className='grid grid-cols-2 '>
+          <div className='pl-2'>
+            <div className='text-xs'>Stroke</div>
+            <input
+              type="color"
+              value={textConfig.strokeColor}
+              onChange={(e) => setTextConfig({ ...textConfig, strokeColor: e.target.value })}
+              className={`${formElementBG}  h-10 border-none`}
+            />
+          </div>
+          <div className='pr-2'>
+            <div className='text-xs'>&nbsp;</div>
+            <input
+              type="number"
+              value={textConfig.strokeWidth}
+              onChange={(e) => setTextConfig({ ...textConfig, strokeWidth: e.target.value })}
+              className={`${formElementBG} w-full h-10 border-none`}
+            />
+          </div>
         </div>
       </div>
       <div className='mt-2 grid grid-cols-2'>
