@@ -701,7 +701,6 @@ export default function VideoHome(props) {
 
 
   const submitAssistantQuery = (query) => {
-    console.log(query);
     setIsAssistantQueryGenerating(true);
     const headers = getHeaders();
     axios.post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers).then((response) => {

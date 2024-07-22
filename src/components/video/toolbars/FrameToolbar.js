@@ -48,6 +48,24 @@ export default function FrameToolbar(props) {
   const [viewRange, setViewRange] = useState([0, totalDurationInFrames]);
   const [startSelectDurationInFrames, setStartSelectDurationInFrames] = useState(0);
   const [endSelectDurationInFrames, setEndSelectDurationInFrames] = useState(0);
+  const [effectiveSliderRange, setEffectiveSliderRange] = useState([0, totalDurationInFrames]);
+  const [visibleLayers, setVisibleLayers] = useState([]);
+
+  useEffect(() => {
+    if (layers) {
+      const filteredLayers = layers.map((layer, index) => {
+        const layerStartFrame = layers.slice(0, index).reduce((acc, l) => acc + l.duration * 30, 0);
+        const layerEndFrame = layerStartFrame + layer.duration * 30;
+        return {
+          layer,
+          originalIndex: index,
+          isVisible: layerEndFrame > effectiveSliderRange[0] && layerStartFrame < effectiveSliderRange[1]
+        };
+      }).filter(item => item.isVisible);
+      setVisibleLayers(filteredLayers);
+    }
+  }, [layers, effectiveSliderRange]);
+
   const { openAlertDialog, closeAlertDialog } = useAlertDialog();
   const parentRef = useRef(null);
 
@@ -69,24 +87,36 @@ export default function FrameToolbar(props) {
 
       setHighlightBoundaries({ start: startPixels, height: heightPixels });
     }
-  }, [selectedLayerIndex, layers, totalDuration, parentRef.current]);
+  }, [selectedLayerIndex, layers, totalDuration]);
+
+  // Update highlightBoundaries based on effectiveSliderRange
+  useEffect(() => {
+    if (selectedLayerIndex >= 0 && parentRef.current && visibleLayers && visibleLayers.length > 0) {
+      const selectedItem = visibleLayers.find(item => item.originalIndex === selectedLayerIndex);
+      if (!selectedItem) return;
+  
+      const effectiveSelectedLayerIndex = visibleLayers.indexOf(selectedItem);
+      
+      const startDuration = visibleLayers.slice(0, effectiveSelectedLayerIndex).reduce((acc, item) => acc + item.layer.duration, 0);
+      const currentLayerDuration = selectedItem.layer.duration;
+      let effectiveTotalDuration = totalDuration;
+      if (visibleLayers.length > 0) {
+        effectiveTotalDuration = visibleLayers.reduce((acc, item) => acc + item.layer.duration, 0);
+      }  
+      const heightPercentage = (currentLayerDuration / effectiveTotalDuration) * 100;
+      const parentHeight = parentRef.current.clientHeight;
+      const heightPixels = (heightPercentage / 100) * parentHeight;
+      const startPixels = (startDuration / effectiveTotalDuration) * parentHeight;
+  
+      setStartSelectDurationInFrames(startDuration * 30);
+      setEndSelectDurationInFrames((startDuration + currentLayerDuration) * 30);
+      setHighlightBoundaries({ start: startPixels, height: heightPixels });
+    }
+  }, [effectiveSliderRange, selectedLayerIndex, visibleLayers, totalDuration]);
+  
 
   const handleViewRangeSliderChange = (values) => {
-    setViewRange(values);
-    if (currentLayerSeek < values[0] || currentLayerSeek > values[1]) {
-      setCurrentLayerSeek(values[0]);
-    }
-  };
-
-  const handleDragTop = (e, data) => {
-    const newStart = Math.max(0, highlightBoundaries.start + data.deltaY);
-    const newHeight = Math.max(0, highlightBoundaries.height - data.deltaY);
-
-    setHighlightBoundaries({ start: newStart, height: newHeight });
-    // Update the layer duration and total duration here
-    const newDuration = (newHeight / parentRef.current.clientHeight) * totalDuration;
-    setLayerDuration(newDuration, selectedLayerIndex);
-    setCurrentLayerSeek(newStart);
+    setEffectiveSliderRange(values);
   };
 
   const layerDurationUpdated = (val) => {
@@ -98,13 +128,13 @@ export default function FrameToolbar(props) {
     // updateSessionLayer(layer);
   };
 
-  const layerDurationCellUpdated = (value, index) => {    
+  const layerDurationCellUpdated = (value, index) => {
     setLayerDuration(value, index);
   };
 
   const handleDurationBlur = (index) => {
     let layer = layers[index];
-   updateSessionLayer(layer);
+    updateSessionLayer(layer);
   };
 
   const removeLayer = (index) => {
@@ -113,8 +143,6 @@ export default function FrameToolbar(props) {
     newLayers.splice(index, 1);
     removeSessionLayer(index);
   };
-
-  
 
   const sliderSettings = {
     dots: false,
@@ -129,24 +157,23 @@ export default function FrameToolbar(props) {
   };
 
   let layersList = <span />;
-  if (layers) {
-
-    const layersContent = layers.map((layer, index) => {
-      let bgSelected = selectedLayerIndex === index ? bgSelectedColor : '';
+  if (visibleLayers) {
+    const layersContent = visibleLayers.map((item) => {
+      let bgSelected = selectedLayerIndex === item.originalIndex ? bgSelectedColor : '';
 
       return (
         <div className={`p-2 pt-1 cursor-pointer ${bg3Color} ${bgSelected} mt-1 ml-1 mr-1 relative h-[60px]`}
-          onClick={() => setSelectedLayer(layer)} key={`layer_duration_set_${index}`}>
+          onClick={() => setSelectedLayer(item.layer)} key={`layer_duration_set_${item.originalIndex}`}>
           <div className='absolute right-2 t-0 cursor-pointer'>
-            <FaTimes className='' onClick={() => removeLayer(index)} />
+            <FaTimes className='' onClick={() => removeLayer(item.originalIndex)} />
           </div>
           <div className='m-auto pl-2'>
-            <div className='text-sm font-bold'>Scene {index + 1}</div>
+            <div className='text-sm font-bold'>Scene {item.originalIndex + 1}</div>
             <div>
               <div>
-                <input type="number" value={layer.duration}
-                  onChange={(e) => layerDurationCellUpdated(e.target.value, index)}
-                  onBlur={() => handleDurationBlur(index)}
+                <input type="number" value={item.layer.duration}
+                  onChange={(e) => layerDurationCellUpdated(e.target.value, item.originalIndex)}
+                  onBlur={() => handleDurationBlur(item.originalIndex)}
                   className={`w-[60px] p-1 rounded-lg ${textColor} ${bg2Color}`} />
               </div>
               <div className='text-[10px]'>Duration</div>
@@ -231,7 +258,6 @@ export default function FrameToolbar(props) {
     ));
   };
 
-
   const submitPromptList = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -242,18 +268,14 @@ export default function FrameToolbar(props) {
       promptList: promptListArray,
       duration: duration
     };
-    
+
     addLayersViaPromptList(payload);
     closeAlertDialog();
-  }
-  
-  const showBatchLayerDialog = () => {
-    openAlertDialog(<BatchPrompt 
-      submitPromptList={submitPromptList}
-      defaultSceneDuration={defaultSceneDuration}
-    />);
+  };
 
-  }
+  const showBatchLayerDialog = () => {
+    openAlertDialog(<BatchPrompt submitPromptList={submitPromptList} defaultSceneDuration={defaultSceneDuration} />);
+  };
 
   const showSelectedAudioTrack = () => {
     const selectedAudioTrack = audioLayers.find((audioTrack) => audioTrack.isSelected);
@@ -285,14 +307,6 @@ export default function FrameToolbar(props) {
       );
     }
   };
-
-  useEffect(() => {
-    if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
-      // Handle audio view specific actions
-    } else {
-     
-    }
-  }, [frameToolbarView]);
 
   let containerWdidth = 'w-[14%] z-1';
   if (frameToolbarView === FRAME_TOOLBAR_VIEW.AUDIO) {
@@ -337,6 +351,15 @@ export default function FrameToolbar(props) {
     );
   }
 
+  useEffect(() => {
+    // Ensure currentLayerSeek is within the effectiveSliderRange
+    if (currentLayerSeek < effectiveSliderRange[0]) {
+      setCurrentLayerSeek(effectiveSliderRange[0]);
+    } else if (currentLayerSeek > effectiveSliderRange[1]) {
+      setCurrentLayerSeek(effectiveSliderRange[1]);
+    }
+  }, [effectiveSliderRange, currentLayerSeek]);
+
   return (
     <div className={`border-r-2 ${bgColor} shadow-lg m-auto fixed top-0 ${containerWdidth} ${textColor} text-left`}>
       <div className={`${mtop} relative`}>
@@ -370,8 +393,14 @@ export default function FrameToolbar(props) {
                 <div className='relative h-full w-full'>
                   {layerSelectOverlay}
                   <div className='inline-flex h-full ml-[10px]'>
-                    <ReactSlider orientation="vertical" className='vertical-slider' thumbClassName='thumb main-slider-thumb'
-                      trackClassName='track' defaultValue={0} min={viewRange[0]} max={viewRange[1]}
+                    <ReactSlider
+                      key={`${effectiveSliderRange[0]}-${effectiveSliderRange[1]}`}
+                      orientation="vertical"
+                      className='vertical-slider'
+                      thumbClassName='thumb main-slider-thumb'
+                      trackClassName='track'
+                      min={effectiveSliderRange[0]}
+                      max={effectiveSliderRange[1]}
                       value={currentLayerSeek}
                       onChange={(value) => setCurrentLayerSeek(value)}
                       onBeforeChange={() => setIsLayerSeeking(true)}
