@@ -116,7 +116,8 @@ export default function VideoHome(props) {
   }, [id]);
 
   useEffect(() => {
-    if (!currentLayer || !currentLayer.imageSession || currentLayer.imageSession.activeItemList.length === 0) {
+
+    if (!currentLayer ) {
       return;
     }
     const fps = 30;
@@ -145,6 +146,7 @@ export default function VideoHome(props) {
         console.log("Already at the first layer");
       }
     }
+
   }, [currentLayerSeek, layers]);
 
   useEffect(() => {

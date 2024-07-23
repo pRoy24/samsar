@@ -377,6 +377,8 @@ export default function FrameToolbar(props) {
     );
   }
 
+
+
   return (
     <div className={`border-r-2 ${bgColor} shadow-lg m-auto fixed top-0 ${containerWdidth} ${textColor} text-left`}>
       <div className={`${mtop} relative`}>
