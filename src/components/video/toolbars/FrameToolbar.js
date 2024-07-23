@@ -3,16 +3,14 @@ import { useColorMode } from '../../../contexts/ColorMode.js';
 import CommonButton from '../../common/CommonButton.tsx';
 import './toolbar.css';
 import ReactSlider from 'react-slider';
-import { FaMusic, FaPause, FaPlay, FaStop, FaChevronRight, FaPlus, FaChevronUp, FaChevronDown } from 'react-icons/fa6';
+import { FaChevronRight, FaTimes , FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import VerticalWaveform from '../util/VerticalWaveform.js';
 import DualThumbSlider from '../util/DualThumbSlider.js';
 import TimeRuler from '../util/TimeRuler.js';
-import Draggable from 'react-draggable';
 import RangeOverlaySlider from '../util/RangeOverlaySlider.js';
 import { FRAME_TOOLBAR_VIEW } from '../../../constants/Types.ts';
 import AudioTrackSlider from '../util/AudioTrackSlider.js';
-import { FaChevronCircleDown, FaChevronCircleUp, FaEdit, FaTimes } from 'react-icons/fa';
 import DropdownButton from '../util/DropdownButton.js';
 import { useAlertDialog } from '../../../contexts/AlertDialogContext.js';
 import Slider from "react-slick";
@@ -50,6 +48,7 @@ export default function FrameToolbar(props) {
   const [endSelectDurationInFrames, setEndSelectDurationInFrames] = useState(0);
   const [effectiveSliderRange, setEffectiveSliderRange] = useState([0, totalDurationInFrames]);
   const [visibleLayers, setVisibleLayers] = useState([]);
+  const sliderRef = useRef(null);
 
   useEffect(() => {
     if (layers) {
@@ -111,9 +110,30 @@ export default function FrameToolbar(props) {
       setStartSelectDurationInFrames(startDuration * 30);
       setEndSelectDurationInFrames((startDuration + currentLayerDuration) * 30);
       setHighlightBoundaries({ start: startPixels, height: heightPixels });
+
+      // Move slider to current selected item
+      if (sliderRef.current) {
+        sliderRef.current.slickGoTo(effectiveSelectedLayerIndex);
+      }
     }
   }, [effectiveSliderRange, selectedLayerIndex, visibleLayers, totalDuration]);
-  
+
+  useEffect(() => {
+    // Ensure currentLayerSeek is within the effectiveSliderRange
+    if (currentLayerSeek < effectiveSliderRange[0]) {
+      setCurrentLayerSeek(effectiveSliderRange[0]);
+    } else if (currentLayerSeek > effectiveSliderRange[1]) {
+      setCurrentLayerSeek(effectiveSliderRange[1]);
+    }
+    // Move slider to current selected item
+    if (sliderRef.current && visibleLayers.length > 0) {
+      const selectedItem = visibleLayers.find(item => item.originalIndex === selectedLayerIndex);
+      if (!selectedItem) return;
+
+      const effectiveSelectedLayerIndex = visibleLayers.indexOf(selectedItem);
+      sliderRef.current.slickGoTo(effectiveSelectedLayerIndex);
+    }
+  }, [currentLayerSeek]);
 
   const handleViewRangeSliderChange = (values) => {
     setEffectiveSliderRange(values);
@@ -184,7 +204,7 @@ export default function FrameToolbar(props) {
     });
 
     layersList = layers.length > 10 ? (
-      <Slider {...sliderSettings}>
+      <Slider ref={sliderRef} {...sliderSettings}>
         {layersContent}
       </Slider>
     ) : (
@@ -350,15 +370,6 @@ export default function FrameToolbar(props) {
       </div>
     );
   }
-
-  useEffect(() => {
-    // Ensure currentLayerSeek is within the effectiveSliderRange
-    if (currentLayerSeek < effectiveSliderRange[0]) {
-      setCurrentLayerSeek(effectiveSliderRange[0]);
-    } else if (currentLayerSeek > effectiveSliderRange[1]) {
-      setCurrentLayerSeek(effectiveSliderRange[1]);
-    }
-  }, [effectiveSliderRange, currentLayerSeek]);
 
   return (
     <div className={`border-r-2 ${bgColor} shadow-lg m-auto fixed top-0 ${containerWdidth} ${textColor} text-left`}>
