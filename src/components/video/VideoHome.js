@@ -38,11 +38,8 @@ export default function VideoHome(props) {
   const [generationImages, setGenerationImages] = useState([]);
   const [layerListRequestAdded, setLayerListRequestAdded] = useState(false);
 
-  const [ sessionMessages, setSessionMessages ] = useState([]);
-
-
+  const [sessionMessages, setSessionMessages] = useState([]);
   const [isCanvasDirty, setIsCanvasDirty] = useState(false);
-
   const [isAssistantQueryGenerating, setIsAssistantQueryGenerating] = useState(false);
 
   let { id } = useParams();
@@ -83,7 +80,6 @@ export default function VideoHome(props) {
     setLayerListRequestAdded(false);
     setIsCanvasDirty(false);
   }, [id]);
-
 
   useEffect(() => {
     const headers = getHeaders();
@@ -160,6 +156,24 @@ export default function VideoHome(props) {
       setActiveItemList([]);
     }
   }, [currentLayer]);
+
+  // Image Preloading Worker Setup
+  useEffect(() => {
+    if (layers.length > 0) {
+      const imagePreloaderWorker = new Worker(new URL('./workers/imagePreloaderWorker.js', import.meta.url));
+
+      imagePreloaderWorker.onmessage = function (e) {
+        console.log('Images preloaded:', e.data.fetchedImages);
+      };
+
+      imagePreloaderWorker.postMessage({ layers });
+
+      return () => {
+        imagePreloaderWorker.terminate();
+      };
+    }
+  }, [layers]);
+
 
   const toggleHideItemInLayer = (itemId) => {
     const updatedActiveItemList = activeItemList.map(item => {
@@ -418,7 +432,6 @@ export default function VideoHome(props) {
     }
   };
 
-
   const updateSessionLayerActiveItemListAnimations = (newActiveItemList) => {
     //setActiveItemList(newActiveItemList);
     if (currentEditorView !== CURRENT_EDITOR_VIEW.SHOW_ANIMATE_DISPLAY) {
@@ -620,7 +633,6 @@ export default function VideoHome(props) {
     debouncedUpdateSessionLayerActiveItemList();
   }
 
-
   const addLayersViaPromptList = (payload) => {
     const headers = getHeaders();
     if (!headers) {
@@ -650,8 +662,6 @@ export default function VideoHome(props) {
     });
   }
 
-
-
   const updateLayerMask = (layerData) => {
     let layerDataNew = Object.assign({}, currentLayer, { segmentation: layerData.segmentation })
     setCurrentLayer(layerDataNew);
@@ -674,7 +684,6 @@ export default function VideoHome(props) {
     setCurrentLayer(layerData);
   }
 
-
   const startAssistantQueryPoll = () => {
     const headers = getHeaders();
     if (!headers) {
@@ -692,13 +701,11 @@ export default function VideoHome(props) {
           const assistantQueryResponse = assistantQueryData.response;
           setSessionMessages(sessionData.sessionMessages);
           setIsAssistantQueryGenerating(false);
-          
         }
       });
     }, 1000);
 
   }
-
 
   const submitAssistantQuery = (query) => {
     setIsAssistantQueryGenerating(true);
@@ -706,12 +713,10 @@ export default function VideoHome(props) {
     axios.post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers).then((response) => {
       const assistantResponse = response.data;
       startAssistantQueryPoll();
-
-    }).catch(function(err) {
+    }).catch(function (err) {
       setIsAssistantQueryGenerating(false);
     });
   }
-
 
 
   return (
@@ -793,5 +798,5 @@ export default function VideoHome(props) {
         </div>
       </div>
     </CommonContainer>
-  )
+  );
 }

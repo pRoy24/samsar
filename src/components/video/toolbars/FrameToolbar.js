@@ -3,7 +3,7 @@ import { useColorMode } from '../../../contexts/ColorMode.js';
 import CommonButton from '../../common/CommonButton.tsx';
 import './toolbar.css';
 import ReactSlider from 'react-slider';
-import { FaChevronRight, FaTimes , FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FaChevronRight, FaTimes, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import VerticalWaveform from '../util/VerticalWaveform.js';
 import DualThumbSlider from '../util/DualThumbSlider.js';
@@ -93,20 +93,20 @@ export default function FrameToolbar(props) {
     if (selectedLayerIndex >= 0 && parentRef.current && visibleLayers && visibleLayers.length > 0) {
       const selectedItem = visibleLayers.find(item => item.originalIndex === selectedLayerIndex);
       if (!selectedItem) return;
-  
+
       const effectiveSelectedLayerIndex = visibleLayers.indexOf(selectedItem);
-      
+
       const startDuration = visibleLayers.slice(0, effectiveSelectedLayerIndex).reduce((acc, item) => acc + item.layer.duration, 0);
       const currentLayerDuration = selectedItem.layer.duration;
       let effectiveTotalDuration = totalDuration;
       if (visibleLayers.length > 0) {
         effectiveTotalDuration = visibleLayers.reduce((acc, item) => acc + item.layer.duration, 0);
-      }  
+      }
       const heightPercentage = (currentLayerDuration / effectiveTotalDuration) * 100;
       const parentHeight = parentRef.current.clientHeight;
       const heightPixels = (heightPercentage / 100) * parentHeight;
       const startPixels = (startDuration / effectiveTotalDuration) * parentHeight;
-  
+
       setStartSelectDurationInFrames(startDuration * 30);
       setEndSelectDurationInFrames((startDuration + currentLayerDuration) * 30);
       setHighlightBoundaries({ start: startPixels, height: heightPixels });
@@ -117,6 +117,12 @@ export default function FrameToolbar(props) {
       }
     }
   }, [effectiveSliderRange, selectedLayerIndex, visibleLayers, totalDuration]);
+
+  useEffect(() => {
+    const newTotalDurationInFrames = layers.reduce((acc, layer) => acc + layer.duration * 30, 0);
+    setEffectiveSliderRange([0, newTotalDurationInFrames]);
+    setViewRange([0, newTotalDurationInFrames]);
+  }, [layers]);
 
   useEffect(() => {
     // Ensure currentLayerSeek is within the effectiveSliderRange
@@ -421,8 +427,11 @@ export default function FrameToolbar(props) {
                 </div>
               </div>
               <div className='inline-flex dual-thumb h-auto w-[30px] ml-[30px] ml-1'>
-                <DualThumbSlider min={0} max={totalDurationInFrames}
+                <DualThumbSlider
+                  key={`dk_${totalDurationInFrames}`}
+                  min={0} max={totalDurationInFrames}
                   defaultValue={[0, totalDurationInFrames]}
+                  value={effectiveSliderRange}
                   onChange={handleViewRangeSliderChange} />
               </div>
               {audioTrackViewDisplay}
