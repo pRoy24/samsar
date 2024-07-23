@@ -27,6 +27,7 @@ export default function ResizableImage({
   } else {
     imageSrc = `${IMAGE_BASE}/${image.src}`;
   }
+
   const [img] = useImage(imageSrc, 'anonymous');
   const [transformEndCalled, setTransformEndCalled] = useState(false);
 

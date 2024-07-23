@@ -14,12 +14,11 @@ export function getScalingFactor(imageDimensions) {
 }
 
 
-export function getRemoteImageLink(imagePath) {
-  console.log(imagePath);
-  console.log("EETE");
-  
+export function getRemoteImageLink(imagePath) {  
   if (imagePath.includes('generation') || imagePath.includes('outpaint')) {
-    return `${API_SERVER}/generations/${imagePath}`;  
+    // Remove "/generations/" from imagePath if it exists
+    const cleanedImagePath = imagePath.replace('/generations/', '');
+    return `${API_SERVER}/generations/${cleanedImagePath}`;  
   } else if (imagePath.includes('/video/')) {
     return `${API_SERVER}${imagePath}`;
   }

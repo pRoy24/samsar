@@ -175,7 +175,7 @@ export default function FrameToolbar(props) {
     infinite: false,
     speed: 500,
     slidesToShow: 9,
-    slidesToScroll: 1,
+    slidesToScroll: 3,
     vertical: true,
     verticalSwiping: true,
     nextArrow: <CustomBottomArrow />,

@@ -12,6 +12,9 @@ import { debounce } from './util/debounce.js';
 import AuthContainer from '../auth/AuthContainer.js';
 import LoadingImage from './util/LoadingImage.js';
 import AssistantHome from '../assistant/AssistantHome.js';
+import { getImagePreloaderWorker } from './workers/imagePreloaderWorkerSingleton'; // Import the worker singleton
+
+
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -160,7 +163,7 @@ export default function VideoHome(props) {
   // Image Preloading Worker Setup
   useEffect(() => {
     if (layers.length > 0) {
-      const imagePreloaderWorker = new Worker(new URL('./workers/imagePreloaderWorker.js', import.meta.url));
+     const imagePreloaderWorker = getImagePreloaderWorker();
 
       imagePreloaderWorker.onmessage = function (e) {
         console.log('Images preloaded:', e.data.fetchedImages);
