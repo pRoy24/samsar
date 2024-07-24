@@ -209,16 +209,19 @@ export default function FrameToolbar(props) {
       );
     });
 
-    layersList = layers.length > 10 ? (
-      <Slider ref={sliderRef} {...sliderSettings}>
-        {layersContent}
-      </Slider>
-    ) : (
-      <div>
-        {layersContent}
-      </div>
-    );
+    if (layers && layers.length > 0) {
+      layersList = layers.length > 10 ? (
+        <Slider ref={sliderRef} {...sliderSettings}>
+          {layersContent}
+        </Slider>
+      ) : (
+        <div>
+          {layersContent}
+        </div>
+      );
+    }
   }
+
 
   let audioSpecogramDisplay = <span />;
   if (audioFileTrack) {

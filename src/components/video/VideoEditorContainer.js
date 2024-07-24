@@ -39,6 +39,7 @@ export default function VideoEditorContainer(props) {
     pollForLayersUpdate,
     setIsCanvasDirty,
     updateCurrentLayer,
+    applyAnimationToAllLayers,
   } = props;
 
   const [segmentationData, setSegmentationData] = useState([]);
@@ -1135,6 +1136,7 @@ export default function VideoEditorContainer(props) {
           sessionDetails={videoSessionDetails}
           submitUpdateSessionDefaults={submitUpdateSessionDefaults}
           hideItemInLayer={toggleHideItemInLayer}
+          applyAnimationToAllLayers={applyAnimationToAllLayers}
         />
         <ToastContainer 
           position="bottom-center"

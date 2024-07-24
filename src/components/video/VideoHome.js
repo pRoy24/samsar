@@ -14,8 +14,6 @@ import LoadingImage from './util/LoadingImage.js';
 import AssistantHome from '../assistant/AssistantHome.js';
 import { getImagePreloaderWorker } from './workers/imagePreloaderWorkerSingleton'; // Import the worker singleton
 
-
-
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
 export default function VideoHome(props) {
@@ -40,7 +38,6 @@ export default function VideoHome(props) {
   const [isAudioLayerDirty, setIsAudioLayerDirty] = useState(false);
   const [generationImages, setGenerationImages] = useState([]);
   const [layerListRequestAdded, setLayerListRequestAdded] = useState(false);
-
   const [sessionMessages, setSessionMessages] = useState([]);
   const [isCanvasDirty, setIsCanvasDirty] = useState(false);
   const [isAssistantQueryGenerating, setIsAssistantQueryGenerating] = useState(false);
@@ -116,7 +113,6 @@ export default function VideoHome(props) {
   }, [id]);
 
   useEffect(() => {
-
     if (!currentLayer ) {
       return;
     }
@@ -723,6 +719,64 @@ export default function VideoHome(props) {
     });
   }
 
+  const applyAnimationToAllLayers = (animationData, animationType) => {
+    const updatedLayers = layers.map(layer => {
+      if (layer.imageSession && layer.imageSession.activeItemList) {
+        const updatedActiveItemList = layer.imageSession.activeItemList.map(item => {
+          if (item.type === 'image') {
+            let animations = item.animations || [];
+            const existingAnimationIndex = animations.findIndex(animation => animation.type === animationType);
+            if (existingAnimationIndex !== -1) {
+              animations[existingAnimationIndex] = {
+                type: animationType,
+                params: animationData
+              };
+            } else {
+              animations.push({
+                type: animationType,
+                params: animationData
+              });
+            }
+            return {
+              ...item,
+              animations: animations
+            };
+          }
+          return item;
+        });
+        return {
+          ...layer,
+          imageSession: {
+            ...layer.imageSession,
+            activeItemList: updatedActiveItemList
+          }
+        };
+      }
+      return layer;
+    });
+
+    setLayers(updatedLayers);
+    updateSessionLayersOnServer(updatedLayers);
+  };
+
+  const updateSessionLayersOnServer = (updatedLayers) => {
+    const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
+
+    const reqPayload = {
+      sessionId: id,
+      layers: updatedLayers
+    };
+
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/update_layers`, reqPayload, headers).then((response) => {
+      const videoSessionData = response.data;
+      setLayers(videoSessionData.layers);
+      setIsCanvasDirty(true);
+    });
+  };
 
   return (
     <CommonContainer>
@@ -794,6 +848,7 @@ export default function VideoHome(props) {
               pollForLayersUpdate={pollForLayersUpdate}
               setIsCanvasDirty={setIsCanvasDirty}
               updateCurrentLayer={updateCurrentLayer}
+              applyAnimationToAllLayers={applyAnimationToAllLayers}
             />
           </div>
           <AssistantHome

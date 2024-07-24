@@ -71,12 +71,14 @@ export default function VideoEditorToolbar(props: any) {
     showAddAudioToProjectDialog,
     submitUpdateSessionDefaults,
     hideItemInLayer,
-    updateSessionLayerActiveItemListAnimations
+    updateSessionLayerActiveItemListAnimations,
+    applyAnimationToAllLayers,
   } = props;
 
   const [selectedAnimationOption, setSelectedAnimationOption] = useState(null);
   const [animationParams, setAnimationParams] = useState({});
   const [addText, setAddText] = useState('');
+  const [animateAllLayersSelected, setAnimateAllLayersSelected] = useState(false);
   const { colorMode } = useColorMode();
 
   const submitAddText = () => {
@@ -108,38 +110,46 @@ export default function VideoEditorToolbar(props: any) {
     const animationType = formValues.type;
     delete formValues.type;
 
-    const newActiveItemList = activeItemList.map(item => {
-      if (item.id === selectedId) {
-        let animations = item.animations || [];
-        const existingAnimationIndex = animations.findIndex(animation => animation.type === animationType);
-        if (existingAnimationIndex !== -1) {
-          animations[existingAnimationIndex] = {
-            type: animationType,
-            params: formValues
-          };
-        } else {
-          animations.push({
-            type: animationType,
-            params: formValues
-          });
-        }
-        return {
-          ...item,
-          animations: animations
-        };
-      }
-      return item;
-    });
+    if (selectedId && !animateAllLayersSelected) {
 
-    setActiveItemList(newActiveItemList);
-    updateSessionLayerActiveItemListAnimations(newActiveItemList);
-    exportAnimationFrames(newActiveItemList);
+      const newActiveItemList = activeItemList.map(item => {
+        if (item.id === selectedId) {
+          let animations = item.animations || [];
+          const existingAnimationIndex = animations.findIndex(animation => animation.type === animationType);
+          if (existingAnimationIndex !== -1) {
+            animations[existingAnimationIndex] = {
+              type: animationType,
+              params: formValues
+            };
+          } else {
+            animations.push({
+              type: animationType,
+              params: formValues
+            });
+          }
+          return {
+            ...item,
+            animations: animations
+          };
+        }
+        return item;
+      });
+
+      setActiveItemList(newActiveItemList);
+      updateSessionLayerActiveItemListAnimations(newActiveItemList);
+      exportAnimationFrames(newActiveItemList);
+
+    } else {
+      applyAnimationToAllLayers(formValues, animationType);
+    }
+
+
   };
 
   const getAnimationBoundariesDisplay = (selectedOption) => {
     const selectedItem = activeItemList.find(item => item.id === selectedId);
 
-    if (!selectedItem || activeItemList.length === 0) {
+    if ((!selectedItem || activeItemList.length === 0) && !animateAllLayersSelected) {
       return;
     }
 
@@ -184,10 +194,18 @@ export default function VideoEditorToolbar(props: any) {
         </div>
       );
     } else if (selectedOption === 'slide') {
-      let startX = selectedItem.x;
-      let startY = selectedItem.y;
-      let endX = selectedItem.x;
-      let endY = selectedItem.y;
+
+      let startX = 0;
+      let startY = 0;
+      let endX = 0;
+      let endY = 0;
+
+      if (selectedItem) {
+        startX = selectedItem.x;
+        startY = selectedItem.y;
+        endX = selectedItem.x;
+        endY = selectedItem.y;
+      }
 
       if (animationParams) {
         let slideAnimationParams = animationParams.find(animation => animation.type === 'slide');
@@ -423,12 +441,31 @@ export default function VideoEditorToolbar(props: any) {
     { value: 'rotate', label: 'Rotate' }
   ];
 
+  const setAnimateAllLayersSelectedFunc = () => {
+    console.log("BE HERE");
+    setAnimateAllLayersSelected(true);
+  }
+
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_ANIMATE_DISPLAY) {
     let animationOptionMeta = <span />;
-    if (!selectedId || selectedId === -1) {
+    if ((!selectedId || selectedId === -1) && !animateAllLayersSelected) {
       animateOptionsDisplay = (
-        <div className={`${text2Color}`}>
-          Please select a layer to animate.
+        <div className={`${text2Color} pl-2`}>
+          <div>
+            <div className=' block mb-4 t-0 text-xs r-0 pr-2 align-right mt-2'>
+              <SecondaryButton onClick={setAnimateAllLayersSelectedFunc}>
+                Animate all layers
+              </SecondaryButton>
+            </div>
+            <div className='block mt-4'>
+              Please select a layer to animate.
+            </div>
+
+          </div>
+
+
+
+
         </div>
       );
     } else {
@@ -439,19 +476,19 @@ export default function VideoEditorToolbar(props: any) {
         <div>
           Select animation
           <div>
-            <Select options={animationOptions} onChange={handleAnimationChange} 
+            <Select options={animationOptions} onChange={handleAnimationChange}
               styles={{
                 menu: (provided) => ({
                   ...provided,
                   backgroundColor: formSelectBgColor,
                 }),
-                singleValue:(provided) => ({
+                singleValue: (provided) => ({
                   ...provided,
                   color: formSelectTextColor,
                 }),
                 control: (provided, state) => ({
                   ...provided,
-                  backgroundColor: formSelectBgColor,                      
+                  backgroundColor: formSelectBgColor,
                   borderColor: state.isFocused ? '#007BFF' : '#ced4da',
                   '&:hover': {
                     borderColor: state.isFocused ? '#007BFF' : '#ced4da'
@@ -463,7 +500,7 @@ export default function VideoEditorToolbar(props: any) {
                 option: (provided, state) => ({
                   ...provided,
                   backgroundColor: formSelectBgColor,
-                  color: state.isSelected ?  formSelectSelectedTextColor: formSelectTextColor,
+                  color: state.isSelected ? formSelectSelectedTextColor : formSelectTextColor,
                   '&:hover': {
                     backgroundColor: formSelectHoverColor
                   }
@@ -671,7 +708,7 @@ export default function VideoEditorToolbar(props: any) {
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_AUDIO_DISPLAY) {
     audioOptionsDisplay = (
       <div className={`grid grid-cols-2 ${text2Color} h-auto`}>
-        <div onClick={() => { setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SPEECH_GENERATE_DISPLAY) }} 
+        <div onClick={() => { setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SPEECH_GENERATE_DISPLAY) }}
           className='cursor-pointer'>
           <RiSpeakLine />
           Speech
@@ -687,7 +724,7 @@ export default function VideoEditorToolbar(props: any) {
       audioSubOptionsDisplay = (
         <div>
           <form name="audioGenerateForm" className="w-full" onSubmit={submitGenerateMusic}>
-            <textarea className={`w-full h-20 ${bgColor} ${text2Color} p-1`} 
+            <textarea className={`w-full h-20 ${bgColor} ${text2Color} p-1`}
               name="promptText" placeholder="Enter prompt text here" />
             <div className='flex flex-row'>
               <div className='basis-1/3'>
@@ -731,7 +768,7 @@ export default function VideoEditorToolbar(props: any) {
                     }),
                     control: (provided, state) => ({
                       ...provided,
-                      backgroundColor: formSelectBgColor,                      
+                      backgroundColor: formSelectBgColor,
                       borderColor: state.isFocused ? '#007BFF' : '#ced4da',
                       '&:hover': {
                         borderColor: state.isFocused ? '#007BFF' : '#ced4da'
@@ -743,7 +780,7 @@ export default function VideoEditorToolbar(props: any) {
                     option: (provided, state) => ({
                       ...provided,
                       backgroundColor: formSelectBgColor,
-                      color: state.isSelected ?  formSelectSelectedTextColor: formSelectTextColor,
+                      color: state.isSelected ? formSelectSelectedTextColor : formSelectTextColor,
                       '&:hover': {
                         backgroundColor: formSelectHoverColor
                       }
