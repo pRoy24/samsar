@@ -224,8 +224,13 @@ export default function VideoHome(props) {
           if (layersUpdated) {
             setLayers(newLayers);
             let isCurrentLayerPending = currentLayer.imageSession.generationStatus === 'PENDING';
+            console.log(isCurrentLayerPending);
+
             if (isCurrentLayerPending) {
-              setCurrentLayer(newLayers[selectedLayerIndex]);
+              const newCurrentLayer = newLayers.find(layer => layer._id === currentLayer._id);
+              if (newCurrentLayer.imageSession.generationStatus === 'COMPLETED') {
+                setCurrentLayer(newCurrentLayer);
+              }
             }
           }
           if (!isGenerationPending) {
