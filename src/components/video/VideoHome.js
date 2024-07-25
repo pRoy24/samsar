@@ -113,7 +113,7 @@ export default function VideoHome(props) {
   }, [id]);
 
   useEffect(() => {
-    if (!currentLayer ) {
+    if (!currentLayer) {
       return;
     }
     const fps = 30;
@@ -161,7 +161,7 @@ export default function VideoHome(props) {
   // Image Preloading Worker Setup
   useEffect(() => {
     if (layers.length > 0) {
-     const imagePreloaderWorker = getImagePreloaderWorker();
+      const imagePreloaderWorker = getImagePreloaderWorker();
 
       imagePreloaderWorker.onmessage = function (e) {
         console.log('Images preloaded:', e.data.fetchedImages);
@@ -195,6 +195,17 @@ export default function VideoHome(props) {
     }
   }, [isLayerGenerationPending]);
 
+
+  useEffect(() => {
+    if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.generationStatus === 'PENDING') {
+      const currentLayerListData = layers.find((layer) => (layer._id.toString() === currentLayer._id.toString()));
+      if (currentLayerListData.imageSession.generationStatus === 'COMPLETED') {
+        setCurrentLayer(currentLayerListData);
+      }
+    }
+
+  }, [layers, currentLayer]);
+
   const pollForLayersUpdate = () => {
     const headers = getHeaders();
     if (!headers) {
@@ -209,30 +220,33 @@ export default function VideoHome(props) {
           const newLayers = frameResponse.layers;
           let layersUpdated = false;
           let isGenerationPending = false;
+          let updatedLayers = [...layers];
+
           for (let i = 0; i < newLayers.length; i++) {
             if (!layers[i]) {
               continue;
             }
 
             if (layers[i].imageSession && layers[i].imageSession.generationStatus !== newLayers[i].imageSession.generationStatus) {
+              updatedLayers[i] = newLayers[i];
               layersUpdated = true;
             }
             if (layers[i].imageSession && newLayers[i].imageSession.generationStatus === 'PENDING') {
               isGenerationPending = true;
             }
           }
-          if (layersUpdated) {
-            setLayers(newLayers);
-            let isCurrentLayerPending = currentLayer.imageSession.generationStatus === 'PENDING';
-            console.log(isCurrentLayerPending);
 
+          if (layersUpdated) {
+            setLayers(updatedLayers);
+            let isCurrentLayerPending = currentLayer.imageSession.generationStatus === 'PENDING';
             if (isCurrentLayerPending) {
-              const newCurrentLayer = newLayers.find(layer => layer._id === currentLayer._id);
+              const newCurrentLayer = updatedLayers.find(layer => layer._id === currentLayer._id);
               if (newCurrentLayer.imageSession.generationStatus === 'COMPLETED') {
-                setCurrentLayer(newCurrentLayer);
+                // setCurrentLayer(newCurrentLayer);
               }
             }
           }
+
           if (!isGenerationPending) {
             clearInterval(timer);
           }
@@ -240,6 +254,7 @@ export default function VideoHome(props) {
       });
     }, 1000);
   }
+
 
   const startVideoRenderPoll = () => {
     const headers = getHeaders();
@@ -658,15 +673,18 @@ export default function VideoHome(props) {
     axios.post(`${PROCESSOR_API_URL}/video_sessions/add_layers_via_prompt_list`, reqPayload, headers).then((response) => {
       const videoSessionDataResponse = response.data;
       const videoSessionData = videoSessionDataResponse.videoSession;
+      const previousLength = layers.length; // Calculate the previous length
 
       setVideoSessionDetails(videoSessionData);
       const updatedLayers = videoSessionData.layers;
       setLayers(updatedLayers);
       setLayerListRequestAdded(true);
-      setCurrentLayer(updatedLayers[updatedLayers.length - 1]);
+      setSelectedLayerIndex(previousLength); // Set selected index to the first item of the new prompt list
+      setCurrentLayer(updatedLayers[previousLength + 1]);
       setIsCanvasDirty(true);
     });
   }
+
 
   const updateLayerMask = (layerData) => {
     let layerDataNew = Object.assign({}, currentLayer, { segmentation: layerData.segmentation })
