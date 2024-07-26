@@ -41,6 +41,7 @@ export default function VideoHome(props) {
   const [sessionMessages, setSessionMessages] = useState([]);
   const [isCanvasDirty, setIsCanvasDirty] = useState(false);
   const [isAssistantQueryGenerating, setIsAssistantQueryGenerating] = useState(false);
+  const [polling, setPolling] = useState(false); // New state variable to track polling status
 
   let { id } = useParams();
 
@@ -53,7 +54,7 @@ export default function VideoHome(props) {
 
   useEffect(() => {
     if (layerListRequestAdded) {
-      pollForLayersUpdate();
+        pollForLayersUpdate();
     }
   }, [layerListRequestAdded, layers]);
 
@@ -79,6 +80,7 @@ export default function VideoHome(props) {
     setGenerationImages([]);
     setLayerListRequestAdded(false);
     setIsCanvasDirty(false);
+    setPolling(false); // Reset polling status
   }, [id]);
 
   useEffect(() => {
@@ -100,7 +102,7 @@ export default function VideoHome(props) {
         totalDuration += layer.duration;
       });
       setTotalDuration(totalDuration);
-      let isLayerPending = false;      
+      let isLayerPending = false;
       layers.forEach(layer => {
         if (layer.imageSession && layer.imageSession.generationStatus === 'PENDING') {
           isLayerPending = true;
@@ -176,7 +178,6 @@ export default function VideoHome(props) {
     }
   }, [layers]);
 
-
   const toggleHideItemInLayer = (itemId) => {
     const updatedActiveItemList = activeItemList.map(item => {
       if (item.id === itemId) {
@@ -192,12 +193,9 @@ export default function VideoHome(props) {
 
   useEffect(() => {
     if (isLayerGenerationPending) {
-
-
       pollForLayersUpdate();
     }
   }, [isLayerGenerationPending]);
-
 
   useEffect(() => {
     if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.generationStatus === 'PENDING') {
@@ -210,6 +208,9 @@ export default function VideoHome(props) {
   }, [layers, currentLayer]);
 
   const pollForLayersUpdate = () => {
+    if (polling) return; // Check if already polling
+    setPolling(true); // Set polling status to true
+
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
@@ -252,12 +253,12 @@ export default function VideoHome(props) {
 
           if (!isGenerationPending) {
             clearInterval(timer);
+            setPolling(false); // Reset polling status
           }
         }
       });
     }, 1000);
   }
-
 
   const startVideoRenderPoll = () => {
     const headers = getHeaders();
@@ -687,7 +688,6 @@ export default function VideoHome(props) {
       setIsCanvasDirty(true);
     });
   }
-
 
   const updateLayerMask = (layerData) => {
     let layerDataNew = Object.assign({}, currentLayer, { segmentation: layerData.segmentation })
