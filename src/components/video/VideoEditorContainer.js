@@ -63,7 +63,7 @@ export default function VideoEditorContainer(props) {
       setSegmentationData(currentLayer.segmentation);
     }
 
-    if (currentLayer && currentLayer.imageSession.generationStatus === 'PENDING') {
+    if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.generationStatus === 'PENDING') {
       pollForLayersUpdate();
     }
 
@@ -1063,6 +1063,37 @@ export default function VideoEditorContainer(props) {
       });
   }
 
+  const submitGenerateLayeredSpeechRequest = (data) => {
+
+    const payload = {
+      ...data,
+      fontSize: 40,
+      fontColor: '#f5f5f5',
+      fontFamily: 'Times New Roman',
+      backgroundColor: '#030712',
+      videoSessionId: id,
+
+
+
+
+    }
+
+
+    const headers = getHeaders();
+
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate_layered_speech`, payload, headers).then((response) => {
+      const sessionData = response.data;
+     // setVideoSessionDetails(sessionData);
+      toast.success(<div><FaCheck className='inline-flex mr-2'/> Layered speech generation request submitted successfully!</div>, {
+        position: "bottom-center",
+        className: "custom-toast",
+      });
+    }).catch((error) => {
+
+    });
+  }
+
+
   return (
     <div className='block'>
       <div className='text-center w-[82%] inline-block h-[100vh] overflow-scroll m-auto  mb-8 '>
@@ -1137,6 +1168,7 @@ export default function VideoEditorContainer(props) {
           submitUpdateSessionDefaults={submitUpdateSessionDefaults}
           hideItemInLayer={toggleHideItemInLayer}
           applyAnimationToAllLayers={applyAnimationToAllLayers}
+          submitGenerateLayeredSpeechRequest={submitGenerateLayeredSpeechRequest}
         />
         <ToastContainer 
           position="bottom-center"

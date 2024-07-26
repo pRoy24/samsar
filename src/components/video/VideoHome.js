@@ -100,12 +100,13 @@ export default function VideoHome(props) {
         totalDuration += layer.duration;
       });
       setTotalDuration(totalDuration);
-      let isLayerPending = false;
+      let isLayerPending = false;      
       layers.forEach(layer => {
-        if (layer.imageSession.generationStatus === 'PENDING') {
+        if (layer.imageSession && layer.imageSession.generationStatus === 'PENDING') {
           isLayerPending = true;
         }
       });
+
       setIsLayerGenerationPending(isLayerPending);
       setGenerationImages(sessionDetails.generations);
       setSessionMessages(sessionDetails.sessionMessages);
@@ -191,6 +192,8 @@ export default function VideoHome(props) {
 
   useEffect(() => {
     if (isLayerGenerationPending) {
+
+
       pollForLayersUpdate();
     }
   }, [isLayerGenerationPending]);

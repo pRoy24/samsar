@@ -8,7 +8,7 @@ import AddShapeDisplay from '../../editor/utils/AddShapeDisplay.tsx';
 import { useColorMode } from '../../../contexts/ColorMode.js';
 import LayersDisplay from '../../editor/toolbar/LayersDisplay.tsx';
 import Select from 'react-select';
-import { CURRENT_EDITOR_VIEW, CURRENT_TOOLBAR_VIEW, TOOLBAR_ACTION_VIEW } from '../../../constants/Types.ts';
+import { CURRENT_EDITOR_VIEW, CURRENT_TOOLBAR_VIEW, TOOLBAR_ACTION_VIEW, SPEECH_SELECT_TYPES } from '../../../constants/Types.ts';
 import CommonButton from '../../common/CommonButton.tsx';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import { PiSelectionAll } from "react-icons/pi";
@@ -73,6 +73,7 @@ export default function VideoEditorToolbar(props: any) {
     hideItemInLayer,
     updateSessionLayerActiveItemListAnimations,
     applyAnimationToAllLayers,
+    submitGenerateLayeredSpeechRequest
   } = props;
 
   const [selectedAnimationOption, setSelectedAnimationOption] = useState(null);
@@ -80,6 +81,8 @@ export default function VideoEditorToolbar(props: any) {
   const [addText, setAddText] = useState('');
   const [animateAllLayersSelected, setAnimateAllLayersSelected] = useState(false);
   const { colorMode } = useColorMode();
+  const [addSubtitles, setAddSubtitles] = useState(true);
+  const [currentSpeechSelectDisplay, setCurrentSpeechSelectDisplay] = useState(SPEECH_SELECT_TYPES.SPEECH_LAYER);
 
   const submitAddText = () => {
     const payload = {
@@ -142,8 +145,6 @@ export default function VideoEditorToolbar(props: any) {
     } else {
       applyAnimationToAllLayers(formValues, animationType);
     }
-
-
   };
 
   const getAnimationBoundariesDisplay = (selectedOption) => {
@@ -442,7 +443,6 @@ export default function VideoEditorToolbar(props: any) {
   ];
 
   const setAnimateAllLayersSelectedFunc = () => {
-    console.log("BE HERE");
     setAnimateAllLayersSelected(true);
   }
 
@@ -460,12 +460,7 @@ export default function VideoEditorToolbar(props: any) {
             <div className='block mt-4'>
               Please select a layer to animate.
             </div>
-
           </div>
-
-
-
-
         </div>
       );
     } else {
@@ -545,7 +540,19 @@ export default function VideoEditorToolbar(props: any) {
       speaker: speaker
     };
 
-    submitGenerateMusicRequest(body);
+    if (currentSpeechSelectDisplay === SPEECH_SELECT_TYPES.SPEECH_PER_SCENE) {
+      const promptList = promptText.split('\n').filter(prompt => prompt && prompt.trim().length > 0);
+      const layeredSpeechBody = {
+        generationType: 'speech',
+        speaker: speaker,
+        promptList: promptList,
+        addSubtitles: addSubtitles
+      }
+      submitGenerateLayeredSpeechRequest(layeredSpeechBody);
+      
+    } else {
+      submitGenerateMusicRequest(body);
+    }
   };
 
   const showTemplateAction = () => {
@@ -703,19 +710,33 @@ export default function VideoEditorToolbar(props: any) {
     );
   }
 
+  const handleAddSingleSpeechLayer = () => {
+    setCurrentSpeechSelectDisplay(SPEECH_SELECT_TYPES.SPEECH_LAYER);
+    console.log('Add Single Speech Layer');
+  };
+
+  const handleAddSpeechPerScene = () => {
+    setCurrentSpeechSelectDisplay(SPEECH_SELECT_TYPES.SPEECH_PER_SCENE);
+    console.log('Add Speech Per Scene');
+  };
+
+
   let audioOptionsDisplay = <span />;
   let audioSubOptionsDisplay = <span />;
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_AUDIO_DISPLAY) {
     audioOptionsDisplay = (
       <div className={`grid grid-cols-2 ${text2Color} h-auto`}>
-        <div onClick={() => { setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SPEECH_GENERATE_DISPLAY) }}
-          className='cursor-pointer'>
+        <div
+          onClick={() => { setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SPEECH_GENERATE_DISPLAY) }}
+          className='cursor-pointer flex flex-col items-center justify-center'>
           <RiSpeakLine />
-          Speech
+          <div className="text-xs">Speech</div>
         </div>
-        <div onClick={() => (setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_MUSIC_GENERATE_DISPLAY))} className='cursor-pointer'>
+        <div
+          onClick={() => (setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_MUSIC_GENERATE_DISPLAY))}
+          className='cursor-pointer flex flex-col items-center justify-center'>
           <FaMusic />
-          Music
+          <div className="text-xs">Music</div>
         </div>
       </div>
     );
@@ -751,6 +772,16 @@ export default function VideoEditorToolbar(props: any) {
 
       audioSubOptionsDisplay = (
         <div>
+          <div className="mb-4">
+            <div className="flex space-x-2">
+              <SecondaryButton onClick={handleAddSingleSpeechLayer} className="px-4 py-2 bg-blue-500 text-white rounded">
+                Speech Layer
+              </SecondaryButton>
+              <SecondaryButton onClick={handleAddSpeechPerScene} className="px-4 py-2 bg-blue-500 text-white rounded">
+                Speech Per Scene
+              </SecondaryButton>
+            </div>
+          </div>
           <form name="audioGenerateForm" className="w-full" onSubmit={submitGenerateSpeech}>
             <textarea className={`w-full h-20 ${bgColor} ${text2Color}`}
               name="promptText" placeholder="Enter prompt text here" />
@@ -795,6 +826,17 @@ export default function VideoEditorToolbar(props: any) {
                 </SecondaryButton>
               </div>
             </div>
+            {currentSpeechSelectDisplay === SPEECH_SELECT_TYPES.SPEECH_PER_SCENE && (
+              <div className="flex items-center mt-2">
+                <input
+                  type="checkbox"
+                  checked={addSubtitles}
+                  onChange={(e) => setAddSubtitles(e.target.checked)}
+                  className="mr-2"
+                />
+                <label className="text-xs">Add subtitles text</label>
+              </div>
+            )}
           </form>
         </div>
       );
@@ -849,7 +891,7 @@ export default function VideoEditorToolbar(props: any) {
   return (
     <div className={`border-l-2 ${bgColor} h-full m-auto fixed top-0 overflow-y-auto pl-2 r-4 w-[16%] pr-2`}>
       <div className='mt-[80px]'>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_SET_DEFAULTS_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Defaults
@@ -863,7 +905,7 @@ export default function VideoEditorToolbar(props: any) {
             {defaultsSubOptionsDisplay}
           </div>
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_GENERATE_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Generate Image
@@ -872,7 +914,7 @@ export default function VideoEditorToolbar(props: any) {
           </div>
           {generateDisplay}
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_AUDIO_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Generate Audio
@@ -886,7 +928,7 @@ export default function VideoEditorToolbar(props: any) {
             {audioSubOptionsDisplay}
           </div>
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_ACTIONS_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Actions
@@ -900,7 +942,7 @@ export default function VideoEditorToolbar(props: any) {
             {actionsSubOptionsDisplay}
           </div>
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_SELECT_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Select
@@ -914,7 +956,7 @@ export default function VideoEditorToolbar(props: any) {
             {selectSubObjectionsDisplay}
           </div>
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_ANIMATE_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Animate
@@ -925,7 +967,7 @@ export default function VideoEditorToolbar(props: any) {
             {animateOptionsDisplay}
           </div>
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_EDIT_MASK_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Edit Image
@@ -935,7 +977,7 @@ export default function VideoEditorToolbar(props: any) {
           </div>
           {editDisplay}
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left pl-2 pr-2`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_UPLOAD_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Upload/Library
@@ -944,7 +986,7 @@ export default function VideoEditorToolbar(props: any) {
           </div>
           {uploadDisplay}
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_ADD_TEXT_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Text
@@ -953,7 +995,7 @@ export default function VideoEditorToolbar(props: any) {
           </div>
           {addTextDisplay}
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left`}>
+        <div className={`pt-2 pb-2 ${buttonBgcolor} mt-4 rounded-sm text-left`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_ADD_SHAPE_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Shape
@@ -962,7 +1004,7 @@ export default function VideoEditorToolbar(props: any) {
           </div>
           {addShapeDisplay}
         </div>
-        <div className={`pt-4 pb-4 ${buttonBgcolor} mt-4 rounded-sm text-left`}>
+        <div className={`pt-2 pb-2 mb-32 ${buttonBgcolor} mt-4 rounded-sm text-left`}>
           <div className='text-lg font-bold m-auto cursor-pointer' onClick={() => toggleCurrentViewDisplay(CURRENT_TOOLBAR_VIEW.SHOW_LAYERS_DISPLAY)}>
             <div className='inline-flex ml-4 pl-4'>
               Layers

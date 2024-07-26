@@ -95,3 +95,8 @@ export const SPEAKER_TYPES = [
   'shimmer'
 ];
 
+
+export const SPEECH_SELECT_TYPES = {
+  SPEECH_LAYER: 'SPEECH_LAYER',
+  SPEECH_PER_SCENE: 'SPEECH_PER_SCENE',
+};

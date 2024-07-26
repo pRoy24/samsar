@@ -71,6 +71,9 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
     const stage = ref.current.getStage();
 
     const positions = activeItemList.map(item => {
+      if (!item.id) {
+        return;
+      }
       const itemId = item.id.toString();
       const node = stage.findOne(`#${itemId}`);
       if (node) {
