@@ -17,11 +17,11 @@ import CanvasControlBar from "../toolbars/CanvasControlBar.js";
 
 
 const SELECTABLE_TYPES = ['SHOW_DEFAULT_DISPLAY',
- 'SHOW_CURSOR_SELECT_DISPLAY',
+  'SHOW_CURSOR_SELECT_DISPLAY',
   'SHOW_ANIMATE_DISPLAY',
-   'SHOW_UPLOAD_DISPLAY',
-   'SHOW_LAYERS_DISPLAY',
-   'SHOW_SELECT_DISPLAY'];
+  'SHOW_UPLOAD_DISPLAY',
+  'SHOW_LAYERS_DISPLAY',
+  'SHOW_SELECT_DISPLAY'];
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 const IMAGE_SERVER_API_URL = process.env.REACT_APP_IMAGE_SERVER_API;
 
@@ -50,7 +50,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   const [isOperationLoading, setIsOperationLoading] = useState(false);
 
-  const [ showAddRemoveMaskedItemButton, setShowAddRemoveMaskedItemButton ] = useState(false);
+  const [showAddRemoveMaskedItemButton, setShowAddRemoveMaskedItemButton] = useState(false);
 
   useEffect(() => {
     if (currentCanvasAction === 'SHOW_SMART_SELECT_DISPLAY' && enableSegmentationMask && selectedBbox) {
@@ -189,7 +189,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
   let imageStackList = <span />;
 
 
-  
+
   if (activeItemList && activeItemList.length > 0) {
 
     imageStackList = activeItemList.map((item, index) => {
@@ -249,15 +249,17 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     const newActiveItemList = [...activeItemList, newItem];
     setActiveItemList(newActiveItemList);
     updateSessionActiveItemList(newActiveItemList);
-  //  setSelectedId(newItem.id); // Ensure the new item is selected
-  //  setSelectedLayerType(newItem.type); // Ensure the new item is set to the correct layer type
+    //  setSelectedId(newItem.id); // Ensure the new item is selected
+    //  setSelectedLayerType(newItem.type); // Ensure the new item is set to the correct layer type
   };
 
   const handleMouseOver = (e) => {
-    const stage = ref.current.getStage();
-    const pointerPosition = stage.getPointerPosition();
-    if (!currentLayer || !maskData) return;
-    setShadedArea(null);
+    if (ref && ref.current) {
+      const stage = ref.current.getStage();
+      const pointerPosition = stage.getPointerPosition();
+      if (!currentLayer || !maskData) return;
+      setShadedArea(null);
+    }
   };
 
   const handleBoundingBoxClick = async (e, bbox, segmentation) => {
@@ -364,9 +366,9 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
       const maskData = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
       createMaskImage(imageData, maskData, selectedBbox.bbox, (newItem) => {
-       // setSelectedId(newItem.id);
-       // setSelectedLayer(newItem);
-       /// setSelectedBbox(null); // Hide the toolbar
+        // setSelectedId(newItem.id);
+        // setSelectedLayer(newItem);
+        /// setSelectedBbox(null); // Hide the toolbar
       });
     }
   };
@@ -505,7 +507,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   const debouncedHandleMouseOver = debounce((e) => {
     handleMouseOver(e);
-  }, 100); 
+  }, 100);
 
   const downloadCurrentFrame = () => {
     const stage = ref.current.getStage();
@@ -533,8 +535,8 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
 
   return (
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
-      <CanvasControlBar 
-      downloadCurrentFrame={downloadCurrentFrame}
+      <CanvasControlBar
+        downloadCurrentFrame={downloadCurrentFrame}
       />
       <Stage width={STAGE_DIMENSIONS.width} height={STAGE_DIMENSIONS.height} ref={ref} id="samsar-konva-stage" onMouseMove={debouncedHandleMouseOver} onClick={handleCanvasClick}>
         <Layer onMouseDown={handleLayerMouseDown} onMouseMove={handleLayerMouseMove} onMouseUp={handleLayerMouseUp}>
@@ -598,7 +600,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         </Layer>
       </Stage>
 
-      
+
       <CanvasToolbar
         buttonPositions={buttonPositions}
         selectedId={selectedId}
