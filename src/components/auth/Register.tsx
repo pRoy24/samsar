@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { FaTwitter } from 'react-icons/fa6';
 
-
 import LoginButton from './LoginButton.tsx';
 import { useColorMode } from '../../contexts/ColorMode.js';
 import axios from 'axios';
+import './styles.css'; // Import the custom styles
+
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
 const config = {
@@ -13,8 +14,6 @@ const config = {
   siweUri: 'https://example.com/login',
 };
 
-
-
 export default function Register(props) {
   const { setCurrentLoginView, registerToTwitter, verifyAndSetUserProfile,
     setUser, closeAlertDialog, getOrCreateUserSession } = props;
@@ -22,10 +21,14 @@ export default function Register(props) {
   const formBgColor = colorMode === 'light' ? 'bg-neutral-50' : 'bg-neutral-900';
   const formTextColor = colorMode === 'light' ? 'text-neutral-900' : 'text-neutral-50';
   const [error, setError] = useState(null);
-
+  const [isTermsChecked, setIsTermsChecked] = useState(true);
 
   const submitUserRegister = (evt) => {
     evt.preventDefault();
+    if (!isTermsChecked) {
+      alert('You must agree to the terms and conditions');
+      return;
+    }
     const email = evt.target.email.value;
     const password = evt.target.password.value;
     const confirmPassword = evt.target.confirmPassword.value;
@@ -49,6 +52,15 @@ export default function Register(props) {
       setError('Unable to register user');
     });
   }
+
+  const handleRegisterToTwitter = () => {
+    if (!isTermsChecked) {
+      alert('You must agree to the terms and conditions');
+      return;
+    }
+    registerToTwitter();
+  }
+
   return (
     <div>
       <div>
@@ -64,9 +76,6 @@ export default function Register(props) {
 
         <div>
           <form onSubmit={submitUserRegister}>
-
-
-
             <div className='form-group'>
               <input type='text' name='email'
                 className={`form-control mb-2 mt-2
@@ -87,6 +96,25 @@ export default function Register(props) {
             ${formBgColor} ${formTextColor}`}
                 placeholder='confirm password' />
             </div>
+            <div className='mt-2 mb-8 text-center'>
+              <div className="flex flex-row w-[250px] m-auto text-sm text-left">
+                <div className='basis-1/12'>
+                  <input 
+                    type='checkbox' 
+                    name='terms' 
+                    className='custom-register-checkbox w-[30px] h-[30px]' 
+                    checked={isTermsChecked} 
+                    onChange={() => setIsTermsChecked(!isTermsChecked)} 
+                  />
+                </div>
+                <div className='basis-11/12'>
+                  <div className='pl-2 mt-[-4px]'>
+                    By registering you agree to our&nbsp;<a href="https://samsar.one/terms" target='_blank' className='underline'>terms</a>
+                    &nbsp;and our&nbsp;<a href="https://samsar.one/privacy" target='_blank' className='underline'>privacy policy</a>.
+                  </div>
+                </div>
+              </div>
+            </div>
             <div>
               <LoginButton type="submit">
                 Register
@@ -102,20 +130,17 @@ export default function Register(props) {
         <div className='flex flex-row text-center mb-4'>
           <div className='basis-full pl-4 pr-4'>
             <div className='bg-neutral-900 text-neutral-100 p-2 rounded-lg cursor-pointer h-[50px]
-            text-center m-auto' onClick={() => registerToTwitter()}>
+            text-center m-auto' onClick={handleRegisterToTwitter}>
               <div className='text-center text-lg font-bold pt-[2px]'>
                 <FaTwitter className='inline-block mr-1' />
                 <div className='inline-block'>
                   Twitter
                 </div>
-
               </div>
-
             </div>
           </div>
         </div>
         <div>
-
           <div>
             <div className='mt-4 mb-4 text-center font-bold'>
               Already have an account?
@@ -127,7 +152,6 @@ export default function Register(props) {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   )

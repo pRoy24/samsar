@@ -1,0 +1,25 @@
+/* Custom checkbox styling */
+.custom-register-checkbox {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 30px;
+  height: 30px;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  position: relative;
+}
+
+.custom-register-checkbox:checked::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 8px;
+  width: 10px;
+  height: 20px;
+  border: solid #0a0a0a;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
