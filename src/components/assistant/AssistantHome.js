@@ -95,11 +95,11 @@ export default function AssistantHome(props) {
   };
 
   return (
-    <div className="fixed bottom-8 md:bottom-4 right-4">
+    <div className="fixed bottom-8 md:bottom-4 right-4 z-30">
       <button 
         onClick={toggleAssistant} 
         style={{ backgroundColor, color: textColor }}
-        className="p-3 rounded-full shadow-lg focus:outline-none border-2 border-gray-400 pl-6 pr-6" 
+        className="p-3 rounded-full shadow-lg focus:outline-none border-2 border-gray-400 pl-6 pr-6 " 
       >
         Assistant
       </button>

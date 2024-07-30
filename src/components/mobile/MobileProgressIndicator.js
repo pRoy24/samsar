@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaChevronLeft } from 'react-icons/fa';
+import { FaChevronLeft, FaTimes } from 'react-icons/fa';
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -20,46 +20,47 @@ export default function MobileProgressIndicator(props) {
   const progressPercentage = expressGenerationStatus ? getProgressPercentage(expressGenerationStatus) : 0;
 
   return (
-    <div className="spinner-container absolute t-0 z-10">
-      <div >
-        <div onClick={() => () => setShowResultDisplay(false)}>
-        <FaChevronLeft className='inline-flex'/> Back
+    <div className="spinner-container absolute t-0 z-10" style={{ backgroundColor: 'rgba(0,0,0,0.5)',
+     width: '100%', 
+     marginTop: '0px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+      <div className='relative mt-0 w-full p-4'>
+        <div>
+          <div onClick={() => setShowResultDisplay(false)} className='float-right mr-2 
+          mb-8 bg-gray-900 hover:bg-gray-950 pl-4 pr-4 pt-1 pb-1'>
+            <FaTimes className='inline-flex' /> Close
+          </div>
         </div>
-       
-      </div>
-      <div>
-
-
-        {isGenerationPending && expressGenerationStatus && (
-          <div>
-            <div className="progress-bar">
-              <div
-                className="progress-bar-fill"
-                style={{ width: `${progressPercentage}%` }}
-              ></div>
+        <div>
+          {isGenerationPending && expressGenerationStatus && (
+            <div>
+              <div className="progress-bar" style={{ width: '100%', backgroundColor: '#333', borderRadius: '5px', overflow: 'hidden', marginBottom: '10px' }}>
+                <div
+                  className="progress-bar-fill"
+                  style={{ width: `${progressPercentage}%`, height: '20px', backgroundColor: '#4caf50' }}
+                ></div>
+              </div>
+              <div className="status" style={{ color: 'white' }}>
+                <p>Image Generation: {expressGenerationStatus.image_generation}</p>
+                <p>Audio Generation: {expressGenerationStatus.audio_generation}</p>
+                <p>Frame Generation: {expressGenerationStatus.frame_generation}</p>
+                <p>Video Generation: {expressGenerationStatus.video_generation}</p>
+              </div>
             </div>
-            <div className="status">
-              <p>Image Generation: {expressGenerationStatus.image_generation}</p>
-              <p>Audio Generation: {expressGenerationStatus.audio_generation}</p>
-              <p>Frame Generation: {expressGenerationStatus.frame_generation}</p>
-              <p>Video Generation: {expressGenerationStatus.video_generation}</p>
+          )}
+          {videoLink && !isGenerationPending && (
+            <div className="video-container" style={{ marginTop: '20px' }}>
+              <video controls style={{ width: '100%' }}>
+                <source src={`${PROCESSOR_API_URL}/${videoLink}`} type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+              <div className="download-button" style={{ marginTop: '10px' }}>
+                <a href={`${PROCESSOR_API_URL}/${videoLink}`} download="generated_video.mp4" style={{ color: 'white' }}>
+                  Download Video
+                </a>
+              </div>
             </div>
-          </div>
-        )}
-
-        {videoLink && !isGenerationPending && (
-          <div className="video-container">
-            <video controls>
-              <source src={`${PROCESSOR_API_URL}/${videoLink}`} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-            <div className="download-button">
-              <a href={`${PROCESSOR_API_URL}/${videoLink}`} download="generated_video.mp4">
-                Download Video
-              </a>
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
