@@ -21,10 +21,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { FaCheck, FaTimes } from 'react-icons/fa';
 
 
-
-const PUBLISHER_URL = process.env.REACT_APP_PUBLISHER_URL;
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
-const IPFS_URL_BASE = process.env.REACT_APP_IPFS_URL_BASE;
+
 
 export default function VideoEditorContainer(props) {
   const { selectedLayerId, currentLayerSeek,
@@ -1072,11 +1070,9 @@ export default function VideoEditorContainer(props) {
       fontFamily: 'Times New Roman',
       backgroundColor: '#030712',
       videoSessionId: id,
-
-
-
-
     }
+
+    
 
 
     const headers = getHeaders();

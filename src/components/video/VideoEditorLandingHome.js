@@ -33,7 +33,9 @@ export default function VideoEditorLandingHome() {
   if (isGuest) {
     axios.get(`${API_SERVER}/video_sessions/fetch_guest_session`).then((res) => {
       const sessionData = res.data;
+      if (sessionData) {
       navigate(`/video/${sessionData._id}`);
+      }
     });
   } else {
     const videoSessionId = localStorage.getItem('videoSessionId');

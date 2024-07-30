@@ -95,7 +95,7 @@ export default function AssistantHome(props) {
   };
 
   return (
-    <div className="fixed bottom-4 right-4">
+    <div className="fixed bottom-8 md:bottom-4 right-4">
       <button 
         onClick={toggleAssistant} 
         style={{ backgroundColor, color: textColor }}
@@ -117,7 +117,7 @@ export default function AssistantHome(props) {
               <MdMinimize />
             </button>
           </div>
-          <div className="mb-4 space-y-2 w-[512px] max-h-[400px] overflow-y-scroll">
+          <div className="mb-4 space-y-2 md:w-[512px] max-h-[400px] overflow-y-scroll">
             {sessionMessages && sessionMessages.length > 0 ? sessionMessages.map((message, index) => (
               <div 
                 key={index} 
