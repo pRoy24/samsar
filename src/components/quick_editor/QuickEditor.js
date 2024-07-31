@@ -6,7 +6,7 @@ import axios from 'axios';
 import SecondaryButton from '../common/SecondaryButton.tsx';
 import SingleSelect from '../common/SingleSelect.js';
 import CommonButton from '../common/CommonButton.tsx';
-import { FaChevronDown } from 'react-icons/fa6';
+import { FaArrowRight, FaChevronDown, FaLine } from 'react-icons/fa6';
 import { useParams } from 'react-router-dom';
 import AssistantHome from '../assistant/AssistantHome.js';
 import { getHeaders } from '../../utils/web.js';
@@ -142,7 +142,7 @@ export default function QuickEditor() {
   };
 
 
-  
+
 
   const startAssistantQueryPoll = () => {
     const headers = getHeaders();
@@ -183,9 +183,6 @@ export default function QuickEditor() {
       setIsAssistantQueryGenerating(false);
     });
   }
-
-
-
 
   return (
     <div className='relative w-full'>
@@ -267,17 +264,24 @@ export default function QuickEditor() {
             </div>
             <div className='mt-2 mb-2 p-2 bg-gray-900'>
               <div className='flex flex-basis text-white'>
-                <div className='inline-flex ml-1 mr-2'>
-                  <input type="checkbox" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
-                  Add Speech
-                </div>
-                <div className='inline-flex'>
-                  <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
-                  Add Music
-                </div>
-                <div className='inline-flex ml-auto mr-2 pr-2 cursor-pointer' onClick={toggleDetails}>
+                <div className='basis-1/3 ml-auto mr-2 pr-2 cursor-pointer align-left' 
+                style={{'textAlign': 'left'}}
+                onClick={toggleDetails}>
                   Details <FaChevronDown className='inline-flex mt-1' />
                 </div>
+
+                <div className='basis-2/3 align-right' style={{'textAlign': 'right'}}>
+
+                  <div className='inline-flex ml-1 mr-2'>
+                    <input type="checkbox" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
+                    Add Speech
+                  </div>
+                  <div className='inline-flex'>
+                    <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
+                    Add Music
+                  </div>
+                </div>
+
               </div>
               {showDetails && (
                 <div className='p-2 bg-gray-950 rounded mt-2'>
@@ -294,7 +298,8 @@ export default function QuickEditor() {
                 </div>
               )}
             </div>
-            <div className='mt-2 mb-2 p-2 bg-gray-900 text-white h-[40px] cursor-pointer' onClick={toggleTheme}>
+            <div className='mt-2 mb-2 p-2 bg-gray-900 
+            text-left text-white h-[40px] cursor-pointer' onClick={toggleTheme}>
               Theme <FaChevronDown className='inline-flex ml-2' />
             </div>
             {showTheme && (
@@ -311,12 +316,17 @@ export default function QuickEditor() {
                 />
               </div>
             )}
+            <div className='mt-2 mb-2 p-2 bg-gray-900 text-white
+             h-[40px] cursor-pointer text-left' onClick={toggleTheme}>
+              Dialog text lines <FaArrowRight className='inline-flex ml-2' />
+            </div>
             <div className='mt-2 p-2 bg-gray-900'>
               <TextareaAutosize
                 minRows={5}
                 maxRows={20}
                 className="w-11/12 bg-gray-950 text-white p-4 rounded mx-auto"
-                placeholder="Type your text here..."
+                placeholder="Type your dialogs here.
+                One line per dialog. Do not enter prompts, just the dialog text."
                 name="promptList"
               />
               <div className='mt-2 mb-2'>
@@ -328,10 +338,10 @@ export default function QuickEditor() {
           </div>
         </form>
         <AssistantHome
-            submitAssistantQuery={submitAssistantQuery}
-            sessionMessages={sessionMessages}
-            isAssistantQueryGenerating={isAssistantQueryGenerating}
-          
+          submitAssistantQuery={submitAssistantQuery}
+          sessionMessages={sessionMessages}
+          isAssistantQueryGenerating={isAssistantQueryGenerating}
+
         />
       </div>
     </div>
