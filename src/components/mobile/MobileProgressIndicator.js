@@ -21,7 +21,7 @@ export default function MobileProgressIndicator(props) {
   const progressPercentage = expressGenerationStatus ? getProgressPercentage(expressGenerationStatus) : 0;
 
   return (
-    <div className="spinner-container absolute t-0 z-10 md:w-auto w-[100%] m-auto" style={{
+    <div className="spinner-container absolute t-0 z-10  w-[100%] m-auto" style={{
       backgroundColor: 'rgba(0,0,0,0.5)',
       marginTop: '0px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'
     }}
