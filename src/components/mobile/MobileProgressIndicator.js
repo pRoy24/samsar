@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaChevronLeft, FaTimes } from 'react-icons/fa';
+import './mobileStyles.css';
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -20,9 +21,11 @@ export default function MobileProgressIndicator(props) {
   const progressPercentage = expressGenerationStatus ? getProgressPercentage(expressGenerationStatus) : 0;
 
   return (
-    <div className="spinner-container absolute t-0 z-10" style={{ backgroundColor: 'rgba(0,0,0,0.5)',
-     width: '100%', 
-     marginTop: '0px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+    <div className="spinner-container absolute t-0 z-10 md:w-auto w-[100%] m-auto" style={{
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      marginTop: '0px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'
+    }}
+    >
       <div className='relative mt-0 w-full p-4'>
         <div>
           <div onClick={() => setShowResultDisplay(false)} className='float-right mr-2 
@@ -49,7 +52,7 @@ export default function MobileProgressIndicator(props) {
           )}
           {videoLink && !isGenerationPending && (
             <div className="video-container" style={{ marginTop: '20px' }}>
-              <video controls style={{ width: '100%' }}>
+              <video controls className='md:w-[512px] w-full m-auto'>
                 <source src={`${PROCESSOR_API_URL}/${videoLink}`} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>

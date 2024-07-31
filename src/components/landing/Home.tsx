@@ -17,6 +17,7 @@ import { getHeaders } from '../../utils/web.js';
 import { useUser } from "../../contexts/UserContext";
 import VideoEditorLandingHome from "../video/VideoEditorLandingHome.js";
 import ListVideoSessions from "../video/sessions/ListVideoSessions.js";
+import QuickEditorContainer from "../quick_editor/QuickEditorContainer.js";
 
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
@@ -54,6 +55,7 @@ export default function Home() {
         <Route path="/session/:id" element={<EditorHome />} />
         <Route path="/video" element={isMobile ? <MobileVideoHome /> : <VideoEditorLandingHome />} />
         <Route path="/video/:id" element={isMobile ? <MobileVideoHome /> : <VideoHome />} />
+        <Route path="/quick_video/:id" element={isMobile ? <MobileVideoHome /> : <QuickEditorContainer />} />
         <Route path="/my_sessions" element={<ListVideoSessions />} />
         <Route path="/account" element={<UserAccount />} />
         <Route path="/publication/:id" element={<PublicationHome />} />
