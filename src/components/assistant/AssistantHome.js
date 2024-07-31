@@ -15,6 +15,7 @@ export default function AssistantHome(props) {
   const textAreaRef = useRef(null);
   const messagesEndRef = useRef(null);
 
+  
   const toggleAssistant = () => {
     setIsOpen(!isOpen);
   };

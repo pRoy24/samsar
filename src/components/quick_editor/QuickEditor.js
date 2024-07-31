@@ -34,6 +34,11 @@ export default function QuickEditor() {
   let { id } = useParams();
 
 
+  const [sessionMessages, setSessionMessages] = useState([]);
+  const [isCanvasDirty, setIsCanvasDirty] = useState(false);
+  const [isAssistantQueryGenerating, setIsAssistantQueryGenerating] = useState(false);
+  const [polling, setPolling] = useState(false); // New state variable to track polling status
+
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
   ];
@@ -135,6 +140,52 @@ export default function QuickEditor() {
   const toggleTheme = () => {
     setShowTheme(!showTheme);
   };
+
+
+  
+
+  const startAssistantQueryPoll = () => {
+    const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
+
+    const timer = setInterval(() => {
+      axios.get(`${PROCESSOR_API_URL}/assistants/assistant_query_status?id=${id}`, headers).then((dataRes) => {
+        const assistantQueryData = dataRes.data;
+        const assistantQueryStatus = assistantQueryData.status;
+        if (assistantQueryStatus === 'COMPLETED') {
+          const sessionData = assistantQueryData.sessionDetails;
+          clearInterval(timer);
+          const assistantQueryResponse = assistantQueryData.response;
+          setSessionMessages(sessionData.sessionMessages);
+          setIsAssistantQueryGenerating(false);
+        }
+      });
+    }, 1000);
+
+  }
+
+
+  const submitAssistantQuery = (query) => {
+
+    const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
+    setIsAssistantQueryGenerating(true);
+    axios.post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers).then((response) => {
+      const assistantResponse = response.data;
+      startAssistantQueryPoll();
+    }).catch(function (err) {
+      setIsAssistantQueryGenerating(false);
+    });
+  }
+
+
+
 
   return (
     <div className='relative w-full'>
@@ -277,9 +328,10 @@ export default function QuickEditor() {
           </div>
         </form>
         <AssistantHome
-          submitAssistantQuery={() => { }}
-          sessionMessages={[]}
-          isAssistantQueryGenerating={false}
+            submitAssistantQuery={submitAssistantQuery}
+            sessionMessages={sessionMessages}
+            isAssistantQueryGenerating={isAssistantQueryGenerating}
+          
         />
       </div>
     </div>

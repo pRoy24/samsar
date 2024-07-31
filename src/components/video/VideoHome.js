@@ -735,8 +735,13 @@ export default function VideoHome(props) {
   }
 
   const submitAssistantQuery = (query) => {
-    setIsAssistantQueryGenerating(true);
+
     const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
+    setIsAssistantQueryGenerating(true);
     axios.post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers).then((response) => {
       const assistantResponse = response.data;
       startAssistantQueryPoll();
@@ -880,7 +885,8 @@ export default function VideoHome(props) {
           <AssistantHome
             submitAssistantQuery={submitAssistantQuery}
             sessionMessages={sessionMessages}
-            isAssistantQueryGenerating={isAssistantQueryGenerating} />
+            isAssistantQueryGenerating={isAssistantQueryGenerating}
+          />
         </div>
       </div>
     </CommonContainer>
