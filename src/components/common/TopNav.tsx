@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import { useUser } from '../../contexts/UserContext';
 import CommonButton from './CommonButton.tsx';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import QRCode from 'react-qr-code';
 import { useAlertDialog } from '../../contexts/AlertDialogContext';
 import { IoMdLogIn } from 'react-icons/io';
@@ -25,6 +25,7 @@ export default function TopNav(props) {
   const { resetCurrentSession, addCustodyAddress } = props;
   const farcasterSignInButtonRef = useRef(null);
   const { colorMode } = useColorMode();
+  const location = useLocation(); 
   const { openAlertDialog, closeAlertDialog } = useAlertDialog();
 
   let bgColor = 'from-cyber-black via-blue-900 to-neutral-900 text-neutral-50';
@@ -94,9 +95,16 @@ export default function TopNav(props) {
       const session = response.data;
       const sessionId = session._id.toString();
       localStorage.setItem('videoSessionId', sessionId);
-      navigate(`/video/${session._id}`);
+  
+      if (location.pathname.includes('/quick_video/')) {
+        navigate(`/quick_video/${session._id}`);
+      } else {
+        navigate(`/video/${session._id}`);
+      }
+
     });
   };
+  
 
   const gotoViewSessionsPage = () => {
     navigate('/my_sessions');

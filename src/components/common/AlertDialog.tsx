@@ -29,7 +29,7 @@ export function AlertDialog(props) {
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal"
     style={{zIndex: 100}}>
       
-      <div className={`relative top-20 mx-auto pt-1 pb-5 p-5 border w-[512px] shadow-lg rounded-md ${bgColor}`}>
+      <div className={`relative top-20 mx-auto pt-1 pb-5 p-5 border md:w-[512px] shadow-lg rounded-md ${bgColor}`}>
 
         <button 
           className="absolute top-2 right-2 text-gray-400 hover:text-gray-500 focus:outline-none"

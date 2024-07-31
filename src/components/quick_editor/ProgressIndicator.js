@@ -1,6 +1,6 @@
 import React from 'react';
-import { FaChevronLeft, FaTimes } from 'react-icons/fa';
-
+import { FaChevronLeft, FaTimes, FaSpinner } from 'react-icons/fa';
+import './mobileStyles.css';
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -10,7 +10,7 @@ const getProgressPercentage = (status) => {
   return (completedTasks / totalTasks) * 100;
 };
 
-export default function MobileProgressIndicator(props) {
+export default function ProgressIndicator(props) {
   const {
     isGenerationPending,
     expressGenerationStatus,
@@ -18,48 +18,49 @@ export default function MobileProgressIndicator(props) {
     setShowResultDisplay
   } = props;
 
-  console.log(props);
-
   const progressPercentage = expressGenerationStatus ? getProgressPercentage(expressGenerationStatus) : 0;
 
   return (
-    <div className="spinner-container absolute t-0 z-10  w-[100%] m-auto" style={{
-      backgroundColor: 'rgba(0,0,0,0.5)',
-      marginTop: '0px', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start'
-    }}
-    >
-      <div className='relative mt-0 w-full p-4'>
+    <div className="absolute top-0 z-10 w-full flex flex-col justify-start bg-black bg-opacity-50">
+      <div className="relative w-full p-4">
         <div>
-          <div onClick={() => setShowResultDisplay(false)} className='float-right mr-2 
-          mb-8 bg-gray-900 hover:bg-gray-950 pl-4 pr-4 pt-1 pb-1'>
-            <FaTimes className='inline-flex' /> Close
+          <div 
+            onClick={() => setShowResultDisplay(false)} 
+            className="float-right mr-2 mb-8 bg-gray-900 hover:bg-gray-950 px-4 py-1 rounded cursor-pointer
+            text-white"
+          >
+            <FaTimes className="inline-flex" /> Close
           </div>
         </div>
-        <div>
-          {isGenerationPending && expressGenerationStatus && (
+        <div  className='m-auto'>
+          {isGenerationPending && expressGenerationStatus ? (
             <div>
-              <div className="progress-bar" style={{ width: '100%', backgroundColor: '#333', borderRadius: '5px', overflow: 'hidden', marginBottom: '10px' }}>
+              <div className="w-full bg-gray-800 rounded overflow-hidden mb-2">
                 <div
-                  className="progress-bar-fill"
-                  style={{ width: `${progressPercentage}%`, height: '20px', backgroundColor: '#4caf50' }}
+                  className="h-5 bg-green-500"
+                  style={{ width: `${progressPercentage}%` }}
                 ></div>
               </div>
-              <div className="status" style={{ color: 'white' }}>
+              <div className="text-white">
                 <p>Image Generation: {expressGenerationStatus.image_generation}</p>
                 <p>Audio Generation: {expressGenerationStatus.audio_generation}</p>
                 <p>Frame Generation: {expressGenerationStatus.frame_generation}</p>
                 <p>Video Generation: {expressGenerationStatus.video_generation}</p>
               </div>
             </div>
-          )}
+          ) : expressGenerationStatus === null ? (
+            <div className="flex justify-center items-center h-48">
+              <FaSpinner className="animate-spin text-4xl text-white" />
+            </div>
+          ) : null}
           {videoLink && !isGenerationPending && (
-            <div className="video-container" style={{ marginTop: '20px' }}>
-              <video controls className='md:w-[512px] w-full m-auto'>
+            <div className="mt-5">
+              <video controls className="md:w-[512px] w-full mx-auto">
                 <source src={`${PROCESSOR_API_URL}/${videoLink}`} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
-              <div className="download-button" style={{ marginTop: '10px' }}>
-                <a href={`${PROCESSOR_API_URL}/${videoLink}`} download="generated_video.mp4" style={{ color: 'white' }}>
+              <div className="text-center mt-3">
+                <a href={`${PROCESSOR_API_URL}/${videoLink}`} download="generated_video.mp4" className="text-white">
                   Download Video
                 </a>
               </div>
