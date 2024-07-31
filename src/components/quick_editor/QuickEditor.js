@@ -13,14 +13,15 @@ import { getHeaders } from '../../utils/web.js';
 import ProgressIndicator from './ProgressIndicator.js';
 import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
 import AuthContainer from '../auth/AuthContainer.js';
+import { SPEAKER_TYPES } from '../../constants/Types.ts';
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
 export default function QuickEditor() {
   const [videoType, setVideoType] = useState({ value: 'Slideshow', label: 'Slideshow' });
   const [animation, setAnimation] = useState(null);
-  const [duration, setDuration] = useState({ value: 'auto', label: 'Auto' }); // Updated to use an object similar to Select options
-  const [customDuration, setCustomDuration] = useState(''); // Add this line
+  const [duration, setDuration] = useState({ value: 'auto', label: 'Auto' });
+  const [customDuration, setCustomDuration] = useState('');
   const [sessionDetails, setSessionDetails] = useState(null);
   const [isGenerationPending, setIsGenerationPending] = useState(false);
   const [showResultDisplay, setShowResultDisplay] = useState(false);
@@ -30,37 +31,34 @@ export default function QuickEditor() {
   const [showTheme, setShowTheme] = useState(false);
   const [musicPrompt, setMusicPrompt] = useState('');
   const [theme, setTheme] = useState('');
-  const { openAlertDialog, closeAlertDialog } = useAlertDialog();
+  const { openAlertDialog } = useAlertDialog(); // Updated here to use only openAlertDialog
   let { id } = useParams();
-
 
   const [sessionMessages, setSessionMessages] = useState([]);
   const [isCanvasDirty, setIsCanvasDirty] = useState(false);
   const [isAssistantQueryGenerating, setIsAssistantQueryGenerating] = useState(false);
-  const [polling, setPolling] = useState(false); // New state variable to track polling status
+  const [polling, setPolling] = useState(false);
+  const [speakerType, setSpeakerType] = useState(null);
 
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
   ];
 
-  const showLoginDialog = () => {
-    const loginComponent = (
-      <AuthContainer />
-    );
-    openAlertDialog(loginComponent);
-  };
-
-
   const animationOptions = [
     { value: 'pan_left_to_right', label: 'Pan Left to Right' },
     { value: 'pan_right_to_left', label: 'Pan Right to Left' },
     { value: 'pan_top_to_bottom', label: 'Pan Top to Bottom' },
-    { value: 'pan_bottom_top_top', label: 'Pan Bottom to Top' },
-    { value: 'Zoom in', label: 'Zoom in' },
-    { value: 'Zoom Out', label: 'Zoom Out' },
+    { value: 'pan_bottom_to_top', label: 'Pan Bottom to Top' },
+    { value: 'zoom_in', label: 'Zoom in' },
+    { value: 'zoom_out', label: 'Zoom Out' },
     { value: '', label: 'None' },
     { value: 'random', label: 'Random' },
   ];
+
+  const speakerOptions = SPEAKER_TYPES.map((speaker_type) => ({
+    value: speaker_type,
+    label: speaker_type,
+  }));
 
   const handleVideoTypeChange = (selectedOption) => {
     setVideoType(selectedOption);
@@ -76,6 +74,16 @@ export default function QuickEditor() {
     if (selectedOption.value !== 'custom') {
       setCustomDuration('');
     }
+  };
+
+  const handleSpeakerChange = (selectedOption) => {
+    setSpeakerType(selectedOption);
+  };
+
+  // Define showLoginDialog function
+  const showLoginDialog = () => {
+    const loginComponent = <AuthContainer />;
+    openAlertDialog(loginComponent);
   };
 
   const startQuickGenerationPoll = () => {
@@ -99,11 +107,9 @@ export default function QuickEditor() {
 
     const headers = getHeaders();
     if (!headers) {
-      showLoginDialog();
+      showLoginDialog(); // Use showLoginDialog here
       return;
     }
-
-
 
     setIsGenerationPending(true);
     setShowResultDisplay(true);
@@ -119,14 +125,14 @@ export default function QuickEditor() {
       sessionId: id,
       animation: animation ? animation.value : null,
       musicPrompt: musicPrompt.trim() || undefined,
-      theme: theme.split(',').map((item) => item.trim()).filter(Boolean).join(',')
+      theme: theme.split(',').map((item) => item.trim()).filter(Boolean).join(','),
+      speakerType: speakerType ? speakerType.value : null,
     };
 
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
       payload.duration = 20;
     }
-
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
       startQuickGenerationPoll();
@@ -140,9 +146,6 @@ export default function QuickEditor() {
   const toggleTheme = () => {
     setShowTheme(!showTheme);
   };
-
-
-
 
   const startAssistantQueryPoll = () => {
     const headers = getHeaders();
@@ -165,14 +168,12 @@ export default function QuickEditor() {
       });
     }, 1000);
 
-  }
-
+  };
 
   const submitAssistantQuery = (query) => {
-
     const headers = getHeaders();
     if (!headers) {
-      showLoginDialog();
+      showLoginDialog(); // Use showLoginDialog here
       return;
     }
     setIsAssistantQueryGenerating(true);
@@ -182,7 +183,7 @@ export default function QuickEditor() {
     }).catch(function (err) {
       setIsAssistantQueryGenerating(false);
     });
-  }
+  };
 
   return (
     <div className='relative w-full'>
@@ -264,17 +265,31 @@ export default function QuickEditor() {
             </div>
             <div className='mt-2 mb-2 p-2 bg-gray-900'>
               <div className='flex flex-basis text-white'>
-                <div className='basis-1/3 ml-auto mr-2 pr-2 cursor-pointer align-left' 
-                style={{'textAlign': 'left'}}
-                onClick={toggleDetails}>
+                <div className='basis-1/3 ml-auto mr-2 pr-2 cursor-pointer align-left'
+                  style={{ 'textAlign': 'left' }}
+                  onClick={toggleDetails}>
                   Details <FaChevronDown className='inline-flex mt-1' />
                 </div>
 
-                <div className='basis-2/3 align-right' style={{'textAlign': 'right'}}>
+                <div className='basis-2/3 align-right flex justify-end items-center' style={{ 'textAlign': 'right' }}>
 
-                  <div className='inline-flex ml-1 mr-2'>
-                    <input type="checkbox" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
-                    Add Speech
+                  <div className='inline-flex mr-8'>
+
+                    <div className='inline-flex ml-1 mr-2 mt-1'>
+                      <input type="checkbox" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
+                      Add Speech
+                    </div>
+                    <div className='inline-flex ml-2 mr-2'>
+                      <span className='mr-2 mt-1'>
+                      Speaker
+                      </span>
+                      <SingleSelect
+                        value={speakerType}
+                        onChange={handleSpeakerChange}
+                        options={speakerOptions}
+                        className="w-40 ml-2" // Adjust width and margin as needed
+                      />
+                    </div>
                   </div>
                   <div className='inline-flex'>
                     <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
@@ -341,7 +356,6 @@ export default function QuickEditor() {
           submitAssistantQuery={submitAssistantQuery}
           sessionMessages={sessionMessages}
           isAssistantQueryGenerating={isAssistantQueryGenerating}
-
         />
       </div>
     </div>
