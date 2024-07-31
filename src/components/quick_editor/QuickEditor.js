@@ -11,6 +11,8 @@ import { useParams } from 'react-router-dom';
 import AssistantHome from '../assistant/AssistantHome.js';
 import { getHeaders } from '../../utils/web.js';
 import ProgressIndicator from './ProgressIndicator.js';
+import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
+import AuthContainer from '../auth/AuthContainer.js';
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -28,12 +30,21 @@ export default function QuickEditor() {
   const [showTheme, setShowTheme] = useState(false);
   const [musicPrompt, setMusicPrompt] = useState('');
   const [theme, setTheme] = useState('');
-
+  const { openAlertDialog, closeAlertDialog } = useAlertDialog();
   let { id } = useParams();
+
 
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
   ];
+
+  const showLoginDialog = () => {
+    const loginComponent = (
+      <AuthContainer />
+    );
+    openAlertDialog(loginComponent);
+  };
+
 
   const animationOptions = [
     { value: 'pan_left_to_right', label: 'Pan Left to Right' },
@@ -81,6 +92,14 @@ export default function QuickEditor() {
   const submitQuickRender = (evt) => {
     evt.preventDefault();
 
+    const headers = getHeaders();
+    if (!headers) {
+      showLoginDialog();
+      return;
+    }
+
+
+
     setIsGenerationPending(true);
     setShowResultDisplay(true);
 
@@ -103,7 +122,7 @@ export default function QuickEditor() {
       payload.duration = 20;
     }
 
-    const headers = getHeaders();
+
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
       startQuickGenerationPoll();
     });

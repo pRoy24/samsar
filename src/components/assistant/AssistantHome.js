@@ -5,6 +5,7 @@ import { FaCopy } from 'react-icons/fa';
 import { MdMinimize } from 'react-icons/md';
 import dayjs from 'dayjs';
 
+
 export default function AssistantHome(props) {
   const { submitAssistantQuery, sessionMessages, isAssistantQueryGenerating } = props;
 
