@@ -139,8 +139,15 @@ export default function QuickEditor() {
     const formData = new FormData(evt.target);
     const promptList = formData.get('promptList');
     const lineItems = promptList.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
+    console.log(duration.value);
+    if (duration.value !== 'auto') {
     const durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
-
+    }
+    if (duration.value === 'auto') {
+      payload.setAutoDurationPerScene = true;
+      const numItems = lineItems.length;
+      durationPerScene = Math.floor(120/numItems);
+    }
     const payload = {
       lineItems: lineItems,
       duration: durationPerScene,
@@ -151,11 +158,7 @@ export default function QuickEditor() {
       speakerType: speakerType ? speakerType.value : null,
     };
 
-    if (duration.value === 'auto') {
-      payload.setAutoDurationPerScene = true;
-      const numItems = lineItems.length;
-      payload.duration = Math.floor(120/numItems);
-    }
+
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
       startQuickGenerationPoll();
