@@ -144,11 +144,10 @@ export default function QuickEditor() {
     if (duration.value !== 'auto') {
      durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
     } else {
-      payload.setAutoDurationPerScene = true;
       const numItems = lineItems.length;
       durationPerScene = Math.floor(120/numItems);
     }
-    const payload = {
+    let payload = {
       lineItems: lineItems,
       duration: durationPerScene,
       sessionId: id,
@@ -158,6 +157,9 @@ export default function QuickEditor() {
       speakerType: speakerType ? speakerType.value : null,
     };
 
+    if (duration.value === 'auto') {
+      payload.setAutoDurationPerScene = true;
+    } 
 
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
