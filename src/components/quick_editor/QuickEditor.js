@@ -140,10 +140,10 @@ export default function QuickEditor() {
     const promptList = formData.get('promptList');
     const lineItems = promptList.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
     console.log(duration.value);
+    let durationPerScene = 5;
     if (duration.value !== 'auto') {
-    const durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
-    }
-    if (duration.value === 'auto') {
+     durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
+    } else {
       payload.setAutoDurationPerScene = true;
       const numItems = lineItems.length;
       durationPerScene = Math.floor(120/numItems);
