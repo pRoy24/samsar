@@ -146,6 +146,9 @@ export default function QuickEditor() {
     } else {
       const numItems = lineItems.length;
       durationPerScene = Math.floor(120/numItems);
+      if (durationPerScene > 20) {
+        durationPerScene = 20;
+      }
     }
     let payload = {
       lineItems: lineItems,

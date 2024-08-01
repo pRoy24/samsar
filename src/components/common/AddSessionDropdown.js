@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import { useColorMode } from '../../contexts/ColorMode.js';
+import { FaFastForward } from "react-icons/fa";
+import { MdExplore } from "react-icons/md";
+import { MdCreateNewFolder } from "react-icons/md";
+
 
 function AddSessionDropdown(props) {
   const {
     createNewSession,
     gotoViewSessionsPage,
+    addNewExpressSession,
   } = props;
 
   const { colorMode } = useColorMode();
@@ -32,6 +37,10 @@ function AddSessionDropdown(props) {
     setIsOpen(false);
   };
 
+  const showAddNewExpressSession = () => {
+    addNewExpressSession();
+    setIsOpen(false);
+  }
 
   return (
     <div className="relative inline-block text-left">
@@ -46,7 +55,7 @@ function AddSessionDropdown(props) {
       </button>
 
       {isOpen && (
-        <div className={`absolute right-0  mt-2 w-32 origin-top-right rounded-md
+        <div className={`absolute left-0 mt-2 w-36 origin-top-right rounded-md
          shadow-lg ring-1 ring-black ring-opacity-5 ${borderColor} `} style={{zIndex: 100}}>
           <div  role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
             <button
@@ -54,16 +63,22 @@ function AddSessionDropdown(props) {
               className={`block px-2 py-2 text-sm text-gray-700 hover:bg-gray-600 w-full text-left ${textColor} ${bgColor}}`}
               role="menuitem"
             >
-               Create New
+              <MdCreateNewFolder className='inline-flex'/> Create New
             </button>
             <button
               onClick={viewSessions}
               className={`block px-2 py-2 text-sm text-gray-700 hover:bg-gray-600 w-full text-left ${textColor} ${bgColor}}`}
               role="menuitem"
             >
-              View Projects 
+             <MdExplore className='inline-flex' /> View Projects 
             </button>
-
+            <button
+              onClick={showAddNewExpressSession}
+              className={`block px-2 py-2 text-sm text-gray-700 hover:bg-gray-600 w-full text-left ${textColor} ${bgColor}}`}
+              role="menuitem"
+            >
+             <FaFastForward className='inline-flex '/> Express Create 
+            </button>
           </div>
         </div>
       )}

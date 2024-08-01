@@ -114,6 +114,21 @@ export default function TopNav(props) {
     openAlertDialog(alertDialogComponent);
   };
 
+  const addNewExpressSession = () => {
+    const headers = getHeaders();
+    const payload = {
+      prompts: [],
+    };
+    axios.post(`${PROCESSOR_SERVER}/video_sessions/create_video_session`, payload, headers).then(function (response) {
+      const session = response.data;
+      const sessionId = session._id.toString();
+      localStorage.setItem('videoSessionId', sessionId);
+  
+      navigate(`/quick_video/${session._id}`);
+
+    });
+  }
+
   let userTierDisplay = <span />;
 
   let bottomToggleDisplay = <span />;
@@ -193,7 +208,8 @@ export default function TopNav(props) {
     addSessionButton = (
       <div className="inline-flex float-right">
         <div className="inline-flex ml-2 mr-2">
-          <AddSessionDropdown createNewSession={createNewSessionDialog} gotoViewSessionsPage={gotoViewSessionsPage} />
+          <AddSessionDropdown createNewSession={createNewSessionDialog} gotoViewSessionsPage={gotoViewSessionsPage}
+          addNewExpressSession={addNewExpressSession} />
         </div>
       </div>
     );
