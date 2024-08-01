@@ -18,6 +18,10 @@ import { SPEAKER_TYPES } from '../../constants/Types.ts';
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
 export default function QuickEditor() {
+  const { id } = useParams(); // Destructure id from useParams
+  const { openAlertDialog } = useAlertDialog();
+  
+  // State variables
   const [videoType, setVideoType] = useState({ value: 'Slideshow', label: 'Slideshow' });
   const [animation, setAnimation] = useState(null);
   const [duration, setDuration] = useState({ value: 'auto', label: 'Auto' });
@@ -31,14 +35,33 @@ export default function QuickEditor() {
   const [showTheme, setShowTheme] = useState(false);
   const [musicPrompt, setMusicPrompt] = useState('');
   const [theme, setTheme] = useState('');
-  const { openAlertDialog } = useAlertDialog(); // Updated here to use only openAlertDialog
-  let { id } = useParams();
-
   const [sessionMessages, setSessionMessages] = useState([]);
   const [isCanvasDirty, setIsCanvasDirty] = useState(false);
   const [isAssistantQueryGenerating, setIsAssistantQueryGenerating] = useState(false);
   const [polling, setPolling] = useState(false);
   const [speakerType, setSpeakerType] = useState(null);
+
+  // Effect to reset state when id changes
+  useEffect(() => {
+    setVideoType({ value: 'Slideshow', label: 'Slideshow' });
+    setAnimation(null);
+    setDuration({ value: 'auto', label: 'Auto' });
+    setCustomDuration('');
+    setSessionDetails(null);
+    setIsGenerationPending(false);
+    setShowResultDisplay(false);
+    setExpressGenerationStatus(null);
+    setVideoLink(null);
+    setShowDetails(false);
+    setShowTheme(false);
+    setMusicPrompt('');
+    setTheme('');
+    setSessionMessages([]);
+    setIsCanvasDirty(false);
+    setIsAssistantQueryGenerating(false);
+    setPolling(false);
+    setSpeakerType(null);
+  }, [id]); // This effect runs every time the id changes
 
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
@@ -80,7 +103,6 @@ export default function QuickEditor() {
     setSpeakerType(selectedOption);
   };
 
-  // Define showLoginDialog function
   const showLoginDialog = () => {
     const loginComponent = <AuthContainer />;
     openAlertDialog(loginComponent);
@@ -107,7 +129,7 @@ export default function QuickEditor() {
 
     const headers = getHeaders();
     if (!headers) {
-      showLoginDialog(); // Use showLoginDialog here
+      showLoginDialog();
       return;
     }
 
@@ -173,7 +195,7 @@ export default function QuickEditor() {
   const submitAssistantQuery = (query) => {
     const headers = getHeaders();
     if (!headers) {
-      showLoginDialog(); // Use showLoginDialog here
+      showLoginDialog();
       return;
     }
     setIsAssistantQueryGenerating(true);

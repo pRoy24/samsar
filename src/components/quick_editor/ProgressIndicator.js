@@ -21,7 +21,7 @@ export default function ProgressIndicator(props) {
   const progressPercentage = expressGenerationStatus ? getProgressPercentage(expressGenerationStatus) : 0;
 
   return (
-    <div className="absolute top-0 z-10 w-full flex flex-col justify-start bg-black bg-opacity-50">
+    <div className="absolute top-0 z-10 w-full flex flex-col justify-start bg-black bg-opacity-90 rounded-lg">
       <div className="relative w-full p-4">
         <div>
           <div 
