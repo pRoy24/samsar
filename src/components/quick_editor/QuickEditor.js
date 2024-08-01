@@ -153,7 +153,8 @@ export default function QuickEditor() {
 
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
-      payload.duration = 20;
+      const numItems = lineItems.length;
+      payload.duration = Math.floor(120/numItems);
     }
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
