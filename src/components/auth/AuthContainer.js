@@ -18,6 +18,12 @@ export default function AuthContainer() {
   const { setUser } = useUser();
 
   const siginToTwitter = () => {
+    let currentMediaFlowPath = 'video';
+    if (location.pathname.includes('/quick_video/')) {
+      currentMediaFlowPath = 'quick_video';
+    }
+    localStorage.setItem('currentMediaFlowPath', currentMediaFlowPath);
+    
     axios.get(`${PROCESSOR_SERVER}/users/twitter_login`).then(function (dataRes) {
       const authPayload = dataRes.data;
       const twitterAuthUrl = authPayload.loginUrl;

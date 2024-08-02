@@ -47,7 +47,12 @@ export default function Home() {
     axios.get(`${PROCESSOR_SERVER}/video_sessions/get_or_create_session`, { headers }).then((res) => {
       const sessionData = res.data;
       localStorage.setItem('videoSessionId', sessionData._id);
-      navigate(`/video/${sessionData._id}`);
+      let currentMediaFlowPath = localStorage.getItem('currentMediaFlowPath');
+      if (currentMediaFlowPath && currentMediaFlowPath === 'quick_video') {
+        navigate(`/quick_video/${sessionData._id}`);
+      } else {
+        navigate(`/video/${sessionData._id}`);
+      }
     });
   };
 
