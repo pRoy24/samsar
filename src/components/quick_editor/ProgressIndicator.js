@@ -18,21 +18,24 @@ export default function ProgressIndicator(props) {
     setShowResultDisplay
   } = props;
 
+  console.log(expressGenerationStatus);
+  
+
   const progressPercentage = expressGenerationStatus ? getProgressPercentage(expressGenerationStatus) : 0;
 
   return (
     <div className="absolute top-0 z-10 w-full h-full flex flex-col justify-start bg-black bg-opacity-90 rounded-lg">
       <div className="relative w-full p-4">
         <div>
-          <div 
-            onClick={() => setShowResultDisplay(false)} 
+          <div
+            onClick={() => setShowResultDisplay(false)}
             className="float-right mr-2 mb-8 bg-gray-900 hover:bg-gray-950 px-4 py-1 rounded cursor-pointer
             text-white"
           >
             <FaTimes className="inline-flex" /> Close
           </div>
         </div>
-        <div  className='m-auto'>
+        <div className='m-auto'>
           {isGenerationPending && expressGenerationStatus ? (
             <div>
               <div className="w-full bg-gray-800 rounded overflow-hidden mb-2">
@@ -42,6 +45,7 @@ export default function ProgressIndicator(props) {
                 ></div>
               </div>
               <div className="text-white">
+                <p>Prompt Generation: {expressGenerationStatus.prompt_generation}</p>
                 <p>Image Generation: {expressGenerationStatus.image_generation}</p>
                 <p>Audio Generation: {expressGenerationStatus.audio_generation}</p>
                 <p>Frame Generation: {expressGenerationStatus.frame_generation}</p>

@@ -115,15 +115,17 @@ export default function QuickEditor() {
     const timer = setInterval(() => {
       axios.get(`${PROCESSOR_API_URL}/quick_session/status?sessionId=${id}`, headers).then(function (dataRes) {
         const quickSessionStatus = dataRes.data;
+        console.log(quickSessionStatus);
+
         if (quickSessionStatus.status === 'PENDING') {
           setExpressGenerationStatus(quickSessionStatus.expressGenerationStatus);
-        } else if (quickSessionStatus.status === 'COMPLETED') {
+        } else if (quickSessionStatus.status === 'COMPLETED' && quickSessionStatus.videoLink) {
           clearInterval(timer);
           setIsGenerationPending(false);
           setVideoLink(quickSessionStatus.videoLink);
         }
       });
-    }, 1000);
+    }, 3000);
   };
 
   const submitQuickRender = (evt) => {
@@ -141,7 +143,6 @@ export default function QuickEditor() {
     const formData = new FormData(evt.target);
     const promptListValue = formData.get('promptList');
     const lineItems = promptListValue.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
-    console.log(duration.value);
     let durationPerScene = 5;
     if (duration.value !== 'auto') {
      durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
@@ -190,7 +191,7 @@ export default function QuickEditor() {
       axios.get(`${PROCESSOR_API_URL}/assistants/assistant_query_status?id=${id}`, headers).then((dataRes) => {
         const assistantQueryData = dataRes.data;
         const assistantQueryStatus = assistantQueryData.status;
-        if (assistantQueryStatus === 'COMPLETED') {
+        if (assistantQueryStatus === 'COMPLETED' ) {
           const sessionData = assistantQueryData.sessionDetails;
           clearInterval(timer);
           const assistantQueryResponse = assistantQueryData.response;
@@ -210,7 +211,6 @@ export default function QuickEditor() {
     }
     setIsAssistantQueryGenerating(true);
     axios.post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers).then((response) => {
-      const assistantResponse = response.data;
       startAssistantQueryPoll();
     }).catch(function (err) {
       setIsAssistantQueryGenerating(false);
