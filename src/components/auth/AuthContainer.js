@@ -4,7 +4,7 @@ import Register from './Register.tsx';
 import axios from 'axios';
 import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
 import { useUser } from '../../contexts/UserContext.js';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { getHeaders } from '../../utils/web.js';
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
@@ -13,6 +13,7 @@ export default function AuthContainer() {
 
   const API_SERVER = process.env.REACT_APP_PROCESSOR_API;
   const navigate = useNavigate();
+  const location = useLocation();  // Get the current location
   const { openAlertDialog, closeAlertDialog } = useAlertDialog();
   const { setUser } = useUser();
 
@@ -47,13 +48,18 @@ export default function AuthContainer() {
   }
 
   const getOrCreateUserSession = () => {
-
     const headers = getHeaders();
 
     axios.get(`${API_SERVER}/video_sessions/get_or_create_session`, headers).then((res) => {
       const sessionData = res.data;
       localStorage.setItem('videoSessionId', sessionData._id);
-      navigate(`/video/${sessionData._id}`);
+
+      // Check the current path and navigate accordingly
+      if (location.pathname.includes('/video/')) {
+        navigate(`/video/${sessionData._id}`);
+      } else {
+        navigate(`/quick_video/${sessionData._id}`);
+      }
     });
 
   }
@@ -77,6 +83,5 @@ export default function AuthContainer() {
     getOrCreateUserSession={getOrCreateUserSession}
     closeAlertDialog={closeAlertDialog}
     />
-
   )
 }
