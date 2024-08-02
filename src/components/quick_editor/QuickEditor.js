@@ -23,7 +23,7 @@ export default function QuickEditor() {
   
   // State variables
   const [videoType, setVideoType] = useState({ value: 'Slideshow', label: 'Slideshow' });
-  const [animation, setAnimation] = useState(null);
+  const [animation, setAnimation] = useState({ value: 'zoom_in', label: 'Zoom in' });
   const [duration, setDuration] = useState({ value: 'auto', label: 'Auto' });
   const [customDuration, setCustomDuration] = useState('');
   const [sessionDetails, setSessionDetails] = useState(null);
@@ -39,12 +39,13 @@ export default function QuickEditor() {
   const [isCanvasDirty, setIsCanvasDirty] = useState(false);
   const [isAssistantQueryGenerating, setIsAssistantQueryGenerating] = useState(false);
   const [polling, setPolling] = useState(false);
-  const [speakerType, setSpeakerType] = useState(null);
+  const [speakerType, setSpeakerType] = useState({ value: 'alloy', label: 'Alloy' });
+  const [promptList, setPromptList] = useState(''); // State for prompt list
 
   // Effect to reset state when id changes
   useEffect(() => {
     setVideoType({ value: 'Slideshow', label: 'Slideshow' });
-    setAnimation(null);
+    setAnimation({ value: 'zoom_in', label: 'Zoom in' });
     setDuration({ value: 'auto', label: 'Auto' });
     setCustomDuration('');
     setSessionDetails(null);
@@ -54,13 +55,14 @@ export default function QuickEditor() {
     setVideoLink(null);
     setShowDetails(false);
     setShowTheme(false);
-    setMusicPrompt('');
-    setTheme('');
+    setMusicPrompt(''); // Reset music prompt
+    setTheme(''); // Reset theme
     setSessionMessages([]);
     setIsCanvasDirty(false);
     setIsAssistantQueryGenerating(false);
     setPolling(false);
-    setSpeakerType(null);
+    setSpeakerType({ value: 'alloy', label: 'Alloy' });
+    setPromptList(''); // Reset prompt list
   }, [id]); // This effect runs every time the id changes
 
   const videoTypeOptions = [
@@ -137,8 +139,8 @@ export default function QuickEditor() {
     setShowResultDisplay(true);
 
     const formData = new FormData(evt.target);
-    const promptList = formData.get('promptList');
-    const lineItems = promptList.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
+    const promptListValue = formData.get('promptList');
+    const lineItems = promptListValue.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
     console.log(duration.value);
     let durationPerScene = 5;
     if (duration.value !== 'auto') {
@@ -163,7 +165,6 @@ export default function QuickEditor() {
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
     } 
-
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
       startQuickGenerationPoll();
@@ -374,6 +375,8 @@ export default function QuickEditor() {
                 placeholder="Type your dialogs here.
                 One line per dialog. Do not enter prompts, just the dialog text."
                 name="promptList"
+                value={promptList} // Bind state to the textarea
+                onChange={(e) => setPromptList(e.target.value)} // Update state on change
               />
               <div className='mt-2 mb-2'>
                 <CommonButton type="submit">
