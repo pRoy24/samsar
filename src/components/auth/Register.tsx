@@ -26,19 +26,25 @@ export default function Register(props) {
   const submitUserRegister = (evt) => {
     evt.preventDefault();
     if (!isTermsChecked) {
-      alert('You must agree to the terms and conditions');
+      setError('You must agree to the terms and conditions');
       return;
     }
     const email = evt.target.email.value;
     const password = evt.target.password.value;
     const confirmPassword = evt.target.confirmPassword.value;
+    const username = evt.target.username.value;
     if (password !== confirmPassword) {
-      alert('passwords do not match');
+      setError('passwords do not match');
+      return;
+    }
+    if (!email || !password || !username) {
+      setError('All fields are required');
       return;
     }
     const payload = {
       email,
-      password
+      password,
+      username
     }
     axios.post(`${PROCESSOR_SERVER}/users/register`, payload).then(function (dataRes) {
       const userData = dataRes.data;
@@ -64,8 +70,8 @@ export default function Register(props) {
   return (
     <div>
       <div>
-        <div className='mt-4 mb-4 text-center font-bold'>
-          Add your email and password
+        <div className='mt-2 mb-4 text-center font-bold  '>
+          Register with Email and password
         </div>
 
         <div>
@@ -75,36 +81,52 @@ export default function Register(props) {
         </div>
 
         <div>
-          <form onSubmit={submitUserRegister}>
-            <div className='form-group'>
-              <input type='text' name='email'
+          <form onSubmit={submitUserRegister} className='w-[250px] m-auto'>
+            <div className='form-group  '>
+              <div className="text-xs text-left font-bold pl-1">
+                User Name
+              </div>
+              <input type='text' name='username'
                 className={`form-control mb-2 mt-2
-            rounded-lg p-1 pl-4 h-[45px] w-[250px]
+            rounded-lg p-1 pl-4 h-[45px] w-full
+            ${formBgColor} ${formTextColor}`}
+                placeholder='User Name' />
+            </div>
+            <div className='form-group'>
+              <div className="text-xs text-left font-bold pl-1">
+                Email
+              </div>
+              <input type='email' name='email'
+                className={`form-control mb-2 mt-2
+            rounded-lg p-1 pl-4 h-[45px] w-full
             ${formBgColor} ${formTextColor}`}
                 placeholder='email' />
             </div>
             <div>
+              <div className="text-xs text-left font-bold pl-1">
+                Password
+              </div>
               <input type='password' name='password'
                 className={`form-control mb-2 mt-2
-            rounded-lg p-1 pl-4 h-[45px] w-[250px]
+            rounded-lg p-1 pl-4 h-[45px] w-full
             ${formBgColor} ${formTextColor}`} placeholder='password' />
             </div>
             <div>
               <input type='password' name='confirmPassword'
                 className={`form-control mb-2 mt-2
-            rounded-lg p-1 pl-4 h-[45px] w-[250px]
+            rounded-lg p-1 pl-4 h-[45px] w-full
             ${formBgColor} ${formTextColor}`}
                 placeholder='confirm password' />
             </div>
             <div className='mt-2 mb-8 text-center'>
-              <div className="flex flex-row w-[250px] m-auto text-sm text-left">
+              <div className="flex flex-row  m-auto text-sm text-left">
                 <div className='basis-1/12'>
-                  <input 
-                    type='checkbox' 
-                    name='terms' 
-                    className='custom-register-checkbox w-[30px] h-[30px]' 
-                    checked={isTermsChecked} 
-                    onChange={() => setIsTermsChecked(!isTermsChecked)} 
+                  <input
+                    type='checkbox'
+                    name='terms'
+                    className='custom-register-checkbox w-[30px] h-[30px]'
+                    checked={isTermsChecked}
+                    onChange={() => setIsTermsChecked(!isTermsChecked)}
                   />
                 </div>
                 <div className='basis-11/12'>

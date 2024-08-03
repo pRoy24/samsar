@@ -22,6 +22,9 @@ import QuickEditorContainer from "../quick_editor/QuickEditorContainer.js";
 import QuickEditorLandingHome from "../quick_editor/QuickEditorLandingHome.js";
 import MobileVideoLandingHome from "../mobile/MobileVideoLandingHome.js";
 
+import PaymentsSuccess from "../payments/PaymentsSuccess.js";
+import PaymentsFailure from "../payments/PaymentsFailure.js";
+
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
 export default function Home() {
@@ -69,6 +72,9 @@ export default function Home() {
         <Route path="/account" element={<UserAccount />} />
         <Route path="/publication/:id" element={<PublicationHome />} />
         <Route path="/verify" element={<VerificationHome />} />
+        <Route path="/payment_success" element={<PaymentsSuccess />} />
+        <Route path="/payment_cancel" element={<PaymentsFailure />} />
+
         {/* Add more routes as needed */}
       </Routes>
     </>
