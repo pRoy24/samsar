@@ -218,6 +218,7 @@ export default function VideoEditorContainer(props) {
 
 
   const submitGenerateRequest = async () => {
+
     const payload = {
       prompt: promptText,
       videoSessionId: id,

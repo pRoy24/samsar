@@ -31,7 +31,7 @@ export default function FrameToolbar(props) {
     updateChangesToActiveLayers, addLayerToComposition,
     copyCurrentLayerBelow, removeSessionLayer,
     addLayersViaPromptList, defaultSceneDuration,
-    isCanvasDirty
+    isCanvasDirty, downloadLink
   } = props;
 
   const { colorMode } = useColorMode();
@@ -265,14 +265,35 @@ export default function FrameToolbar(props) {
     );
   }
 
+  let prevDownloadLink = <span />;
+
+  if (downloadLink) {
+    prevDownloadLink = (
+      <a href={downloadLink} download={`${sessionId}.mp4`} className='text-xs underline mt-2 mb-1 ml-2'>
+       Download Previous
+      </a>
+    );
+  }
+
   let submitRenderDisplay = (
-    <CommonButton onClick={submitRenderVideo} isPending={isVideoGenerating}>Render</CommonButton>
+    <div>
+
+
+      <CommonButton onClick={submitRenderVideo} isPending={isVideoGenerating}>Render</CommonButton>
+      <div>
+        {prevDownloadLink}
+      </div>
+    </div>
   );
   if (downloadVideoDisplay && renderedVideoPath && !isCanvasDirty) {
+
+
     submitRenderDisplay = (
-      <a href={renderedVideoPath} download={`${sessionId}.mp4`}>
-        <CommonButton>Download</CommonButton>
-      </a>
+      <div>
+        <a href={renderedVideoPath} download={`${sessionId}.mp4`}>
+          <CommonButton>Download</CommonButton>
+        </a>
+      </div>
     );
   }
 

@@ -41,6 +41,11 @@ export default function QuickEditor() {
   const [polling, setPolling] = useState(false);
   const [speakerType, setSpeakerType] = useState({ value: 'alloy', label: 'Alloy' });
   const [promptList, setPromptList] = useState(''); // State for prompt list
+  const [errorState, setErrorState] = useState(false);
+
+
+
+
 
   // Effect to reset state when id changes
   useEffect(() => {
@@ -48,7 +53,7 @@ export default function QuickEditor() {
     setAnimation({ value: 'zoom_in', label: 'Zoom in' });
     setDuration({ value: 'auto', label: 'Auto' });
     setCustomDuration('');
-    setSessionDetails(null);
+
     setIsGenerationPending(false);
     setShowResultDisplay(false);
     setExpressGenerationStatus(null);
@@ -63,7 +68,16 @@ export default function QuickEditor() {
     setPolling(false);
     setSpeakerType({ value: 'alloy', label: 'Alloy' });
     setPromptList(''); // Reset prompt list
+
+    const headers = getHeaders();
+
+    axios.get(`${PROCESSOR_API_URL}/quick_session/details?sessionId=${id}`, headers).then(function (dataRes) {
+      const sessionData = dataRes.data;
+      setSessionDetails(sessionData);
+    });
   }, [id]); // This effect runs every time the id changes
+
+
 
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
@@ -217,6 +231,14 @@ export default function QuickEditor() {
     });
   };
 
+  let downloadPreviousRenderLink = null;
+  if (sessionDetails && sessionDetails.videoLink) {
+    downloadPreviousRenderLink = (
+      <div className='flex justify-center text-xs underline hover:text-neutral-600'>
+        <a href={sessionDetails.videoLink} download className='text-white underline'>Download previous render</a>
+      </div>
+    );
+  }
   return (
     <div className='relative w-full'>
       {showResultDisplay && (
@@ -228,6 +250,9 @@ export default function QuickEditor() {
         />
       )}
       <div className='mt-[60px]'>
+        <div>
+          {downloadPreviousRenderLink}
+        </div>  
         <form onSubmit={submitQuickRender}>
           <div className='bg-neutral-950'>
             <div className="toolbar flex items-center gap-2 p-2 bg-gray-900 text-white ">
@@ -297,15 +322,15 @@ export default function QuickEditor() {
             </div>
             <div className='mt-2 mb-2 p-2 bg-gray-900'>
               <div className='flex flex-basis text-white'>
-                <div className='basis-1/3 ml-auto mr-2 pr-2 cursor-pointer align-left'
+                <div className='md:basis-1/3 basis-1/4 ml-auto mr-2 pr-2 cursor-pointer align-left'
                   style={{ 'textAlign': 'left' }}
                   onClick={toggleDetails}>
                   Details <FaChevronDown className='inline-flex mt-1' />
                 </div>
 
-                <div className='basis-2/3 align-right flex justify-end items-center' style={{ 'textAlign': 'right' }}>
+                <div className='md:basis-2/3 basis-3/4 align-right flex justify-end items-center' style={{ 'textAlign': 'right' }}>
 
-                  <div className='inline-flex mr-8'>
+                  <div className='md:inline-flex mr-8'>
 
                     <div className='inline-flex ml-1 mr-2 mt-1'>
                       <input type="checkbox" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
@@ -323,7 +348,7 @@ export default function QuickEditor() {
                       />
                     </div>
                   </div>
-                  <div className='inline-flex'>
+                  <div className='md:inline-flex'>
                     <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
                     Add Music
                   </div>

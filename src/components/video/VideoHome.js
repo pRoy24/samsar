@@ -809,6 +809,8 @@ export default function VideoHome(props) {
     });
   };
 
+  const downloadLink = videoSessionDetails.videoLink ? `${PROCESSOR_API_URL}/${videoSessionDetails.videoLink}` : null;
+
   return (
     <CommonContainer>
       <div className='m-auto'>
@@ -850,6 +852,7 @@ export default function VideoHome(props) {
               addLayersViaPromptList={addLayersViaPromptList}
               defaultSceneDuration={videoSessionDetails.defaultSceneDuration}
               isCanvasDirty={isCanvasDirty}
+              downloadLink={downloadLink}
             />
           </div>
           <div className='w-[86%] bg-cyber-black inline-block'>
