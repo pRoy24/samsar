@@ -3,7 +3,7 @@ import { useColorMode } from '../../../contexts/ColorMode.js';
 import CommonButton from '../../common/CommonButton.tsx';
 import './toolbar.css';
 import ReactSlider from 'react-slider';
-import { FaChevronRight, FaTimes, FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { FaChevronRight, FaTimes, FaChevronUp, FaChevronDown, FaRedo } from 'react-icons/fa';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
 import VerticalWaveform from '../util/VerticalWaveform.js';
 import DualThumbSlider from '../util/DualThumbSlider.js';
@@ -17,6 +17,7 @@ import Slider from "react-slick";
 import BatchPrompt from '../util/BatchPrompt.js';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { FaDownload } from 'react-icons/fa6';
 
 export default function FrameToolbar(props) {
   const {
@@ -31,7 +32,8 @@ export default function FrameToolbar(props) {
     updateChangesToActiveLayers, addLayerToComposition,
     copyCurrentLayerBelow, removeSessionLayer,
     addLayersViaPromptList, defaultSceneDuration,
-    isCanvasDirty, downloadLink
+    isCanvasDirty, downloadLink,
+    submitRegenerateFrames,
   } = props;
 
   const { colorMode } = useColorMode();
@@ -163,6 +165,7 @@ export default function FrameToolbar(props) {
     updateSessionLayer(layer);
   };
 
+
   const removeLayer = (index) => {
     if (!layers || layers.length === 0) return;
     let newLayers = layers.slice();
@@ -270,7 +273,7 @@ export default function FrameToolbar(props) {
   if (downloadLink) {
     prevDownloadLink = (
       <a href={downloadLink} download={`${sessionId}.mp4`} className='text-xs underline mt-2 mb-1 ml-2'>
-       Download Previous
+       <FaDownload className='inline-flex'/> Previous
       </a>
     );
   }
@@ -280,8 +283,15 @@ export default function FrameToolbar(props) {
 
 
       <CommonButton onClick={submitRenderVideo} isPending={isVideoGenerating}>Render</CommonButton>
-      <div>
+      <div className='flex w-full'>
+        <div className='inline-flex'>
         {prevDownloadLink}
+        </div>
+        <div className='inline-flex'>
+          <div onClick={submitRegenerateFrames} className='text-xs underline mt-2 mb-1 ml-2'>
+            <FaRedo className='inline-flex'/> frames</div>
+        </div>
+       
       </div>
     </div>
   );

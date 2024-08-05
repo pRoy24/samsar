@@ -809,6 +809,17 @@ export default function VideoHome(props) {
     });
   };
 
+  const submitRegenerateFrames = () => {
+
+    const headers = getHeaders();
+    axios.post(`${PROCESSOR_API_URL}/video_sessions/regenerate_frames`, { sessionId: id }, headers).then((response) => {
+      const videoSessionData = response.data;
+
+    });
+
+
+  }
+
   const downloadLink = videoSessionDetails.videoLink ? `${PROCESSOR_API_URL}/${videoSessionDetails.videoLink}` : null;
 
   return (
@@ -853,6 +864,7 @@ export default function VideoHome(props) {
               defaultSceneDuration={videoSessionDetails.defaultSceneDuration}
               isCanvasDirty={isCanvasDirty}
               downloadLink={downloadLink}
+              submitRegenerateFrames={submitRegenerateFrames}
             />
           </div>
           <div className='w-[86%] bg-cyber-black inline-block'>
