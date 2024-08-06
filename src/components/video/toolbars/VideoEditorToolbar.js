@@ -667,13 +667,13 @@ export default function VideoEditorToolbar(props: any) {
             Select Shape
           </div>
         </div>
-        <div className={`text-center m-auto align-center p-1 h-[50px] rounded-sm `}
+        {/* <div className={`text-center m-auto align-center p-1 h-[50px] rounded-sm `}
           onClick={() => setCurrentCanvasAction(TOOLBAR_ACTION_VIEW.SHOW_SMART_SELECT_DISPLAY)} >
           <GrObjectUngroup className="text-2xl m-auto cursor-pointer" />
           <div className="text-[10px] tracking-tight m-auto text-center">
             Smart Select
           </div>
-        </div>
+        </div> */}
       </div>
     );
   }

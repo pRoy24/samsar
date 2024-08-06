@@ -353,42 +353,58 @@ export default function VideoEditorContainer(props) {
     }
   };
 
-  const exportMaskGroupAsTransparent = async () => {
-    const baseStage = canvasRef.current;
-    const baseLayer = baseStage.getLayers()[0];
-    const maskGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'maskGroup');
+const exportMaskGroupAsTransparent = async () => {
+  const baseStage = canvasRef.current;
+  const baseLayer = baseStage.getLayers()[0];
 
-    if (maskGroup) {
-      const offscreenCanvas = document.createElement('canvas');
-      offscreenCanvas.width = baseStage.width();
-      offscreenCanvas.height = baseStage.height();
-      const ctx = offscreenCanvas.getContext('2d');
+  const maskGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'maskGroup');
+  const baseGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'baseGroup');
 
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+  if (maskGroup && baseGroup) {
+    // Create an offscreen canvas
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = baseStage.width();
+    offscreenCanvas.height = baseStage.height();
+    const ctx = offscreenCanvas.getContext('2d');
 
-      ctx.globalCompositeOperation = 'destination-out';
+    // Draw the base group (background) onto the offscreen canvas
+    const baseImageData = baseGroup.toDataURL();
+    const baseImage = new Image();
+    baseImage.src = baseImageData;
+    await new Promise((resolve) => {
+      baseImage.onload = () => {
+        ctx.drawImage(baseImage, 0, 0);
+        resolve();
+      };
+    });
 
-      maskGroup.children.forEach(line => {
-        ctx.beginPath();
-        ctx.moveTo(line.points()[0], line.points()[1]);
-        for (let i = 2; i < line.points().length; i += 2) {
-          ctx.lineTo(line.points()[i], line.points()[i + 1]);
-        }
-        ctx.strokeStyle = 'rgba(0,0,0,1)';
-        ctx.lineWidth = line.strokeWidth();
-        ctx.stroke();
-      });
+    // Set the global composite operation to destination-out to apply the mask group
+    ctx.globalCompositeOperation = 'destination-out';
 
-      ctx.globalCompositeOperation = 'source-over';
+    // Draw the mask group on the canvas
+    maskGroup.children.forEach(line => {
+      ctx.beginPath();
+      ctx.moveTo(line.points()[0], line.points()[1]);
+      for (let i = 2; i < line.points().length; i += 2) {
+        ctx.lineTo(line.points()[i], line.points()[i + 1]);
+      }
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+      ctx.lineWidth = line.strokeWidth();
+      ctx.stroke();
+    });
 
-      const dataUrl = offscreenCanvas.toDataURL();
-      return dataUrl;
-    } else {
-      console.error('Mask group not found');
-      return null;
-    }
-  };
+    // Reset the global composite operation to source-over
+    ctx.globalCompositeOperation = 'source-over';
+
+    // Convert the canvas to a data URL
+    const dataUrl = offscreenCanvas.toDataURL();
+    return dataUrl;
+  } else {
+    console.error('Mask group or base group not found');
+    return null;
+  }
+};
+
 
   async function startGenerationPoll() {
     setIsGenerationPending(true);

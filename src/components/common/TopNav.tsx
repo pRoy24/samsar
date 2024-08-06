@@ -96,11 +96,9 @@ export default function TopNav(props) {
       const sessionId = session._id.toString();
       localStorage.setItem('videoSessionId', sessionId);
   
-      if (location.pathname.includes('/quick_video/')) {
-        navigate(`/quick_video/${session._id}`);
-      } else {
-        navigate(`/video/${session._id}`);
-      }
+      navigate(`/video/${session._id}`);
+
+
 
     });
   };

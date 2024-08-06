@@ -12,8 +12,49 @@ import AssistantHome from '../assistant/AssistantHome.js';
 import { getHeaders } from '../../utils/web.js';
 import ProgressIndicator from './ProgressIndicator.js';
 import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
-import AuthContainer from '../auth/AuthContainer.js';
 import { SPEAKER_TYPES } from '../../constants/Types.ts';
+import { franc } from 'franc';
+
+import AuthContainer from '../auth/AuthContainer.js';
+
+
+// Top 10 most popular languages supported by Franc
+const popularLanguages = [
+  { value: 'eng', label: 'English' },
+  { value: 'spa', label: 'Spanish' },
+  { value: 'fre', label: 'French' },
+  { value: 'deu', label: 'German' },
+  { value: 'rus', label: 'Russian' },
+  { value: 'ita', label: 'Italian' },
+  { value: 'por', label: 'Portuguese' },
+  { value: 'zho', label: 'Chinese' },
+  { value: 'jpn', label: 'Japanese' },
+  { value: 'kor', label: 'Korean' },
+];
+
+
+const getFontFamilyForLanguage = (language) => {
+  switch (language) {
+    case 'eng': // English
+      return 'Times New Roman';
+    case 'spa': // Spanish
+    case 'fre': // French
+    case 'deu': // German
+    case 'ita': // Italian
+    case 'por': // Portuguese
+      return 'Arial'; // Arial is widely supported and good for Latin-based scripts
+    case 'rus': // Russian
+      return 'Arial'; // Arial supports Cyrillic script natively
+    case 'zho': // Chinese
+      return 'SimHei'; // A common sans-serif font for Simplified Chinese
+    case 'jpn': // Japanese
+      return 'MS Gothic'; // A common monospaced font for Japanese
+    case 'kor': // Korean
+      return 'Malgun Gothic'; // A widely used sans-serif font for Korean
+    default:
+      return 'Arial'; // Default to Arial for unsupported or unexpected languages
+  }
+};
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -41,11 +82,9 @@ export default function QuickEditor() {
   const [polling, setPolling] = useState(false);
   const [speakerType, setSpeakerType] = useState({ value: 'alloy', label: 'Alloy' });
   const [promptList, setPromptList] = useState(''); // State for prompt list
+  const [speechLanguage, setSpeechLanguage] = useState({ value: 'eng', label: 'English' });
+  const [subtitlesLanguage, setSubtitlesLanguage] = useState({ value: 'eng', label: 'English' });
   const [errorState, setErrorState] = useState(false);
-
-
-
-
 
   // Effect to reset state when id changes
   useEffect(() => {
@@ -68,6 +107,8 @@ export default function QuickEditor() {
     setPolling(false);
     setSpeakerType({ value: 'alloy', label: 'Alloy' });
     setPromptList(''); // Reset prompt list
+    setSpeechLanguage({ value: 'eng', label: 'English' }); // Reset speech language
+    setSubtitlesLanguage({ value: 'eng', label: 'English' }); // Reset subtitles language
 
     const headers = getHeaders();
 
@@ -76,8 +117,6 @@ export default function QuickEditor() {
       setSessionDetails(sessionData);
     });
   }, [id]); // This effect runs every time the id changes
-
-
 
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
@@ -119,6 +158,24 @@ export default function QuickEditor() {
     setSpeakerType(selectedOption);
   };
 
+  const handleSpeechLanguageChange = (selectedOption) => {
+    setSpeechLanguage(selectedOption);
+  };
+
+  const handleSubtitlesLanguageChange = (selectedOption) => {
+    setSubtitlesLanguage(selectedOption);
+  };
+
+  const handlePromptListBlur = () => {
+    const detectedLanguage = franc(promptList);
+    const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage);
+
+    if (matchedLanguage) {
+      setSpeechLanguage(matchedLanguage);
+      setSubtitlesLanguage(matchedLanguage);
+    }
+  };
+
   const showLoginDialog = () => {
     const loginComponent = <AuthContainer />;
     openAlertDialog(loginComponent);
@@ -144,29 +201,44 @@ export default function QuickEditor() {
 
   const submitQuickRender = (evt) => {
     evt.preventDefault();
-
+  
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
       return;
     }
-
+  
     setIsGenerationPending(true);
     setShowResultDisplay(true);
-
+  
     const formData = new FormData(evt.target);
     const promptListValue = formData.get('promptList');
     const lineItems = promptListValue.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
+  
+    // Detect language of the prompt text
+    const detectedLanguage = franc(promptListValue) || 'und'; // 'und' stands for undetermined
+    const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage) || { value: 'eng' };
+  
+    // Determine if translation is required
+    const subtitlesTranslationRequired = subtitlesLanguage.value !== matchedLanguage.value;
+    const speechTranslationRequired = speechLanguage.value !== matchedLanguage.value;
+  
     let durationPerScene = 5;
     if (duration.value !== 'auto') {
-     durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
+      durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
     } else {
       const numItems = lineItems.length;
-      durationPerScene = Math.floor(120/numItems);
+      durationPerScene = Math.floor(120 / numItems);
       if (durationPerScene > 20) {
         durationPerScene = 20;
       }
     }
+  
+    let fontFamily = 'Times New Roman';
+    if (subtitlesLanguage.value) {
+      fontFamily = getFontFamilyForLanguage(subtitlesLanguage.value);
+    }
+  
     let payload = {
       lineItems: lineItems,
       duration: durationPerScene,
@@ -175,16 +247,22 @@ export default function QuickEditor() {
       musicPrompt: musicPrompt.trim() || undefined,
       theme: theme.split(',').map((item) => item.trim()).filter(Boolean).join(','),
       speakerType: speakerType ? speakerType.value : null,
+      speechLanguage: speechLanguage.value,
+      subtitlesLanguage: subtitlesLanguage.value,
+      fontFamily: fontFamily,
+      subtitlesTranslationRequired: subtitlesTranslationRequired,
+      speechTranslationRequired: speechTranslationRequired,
     };
-
+  
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
-    } 
-
+    }
+  
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
       startQuickGenerationPoll();
     });
   };
+  
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -205,7 +283,7 @@ export default function QuickEditor() {
       axios.get(`${PROCESSOR_API_URL}/assistants/assistant_query_status?id=${id}`, headers).then((dataRes) => {
         const assistantQueryData = dataRes.data;
         const assistantQueryStatus = assistantQueryData.status;
-        if (assistantQueryStatus === 'COMPLETED' ) {
+        if (assistantQueryStatus === 'COMPLETED') {
           const sessionData = assistantQueryData.sessionDetails;
           clearInterval(timer);
           const assistantQueryResponse = assistantQueryData.response;
@@ -330,8 +408,28 @@ export default function QuickEditor() {
 
                 <div className='md:basis-2/3 basis-3/4 align-right flex justify-end items-center' style={{ 'textAlign': 'right' }}>
 
+                <div className='flex'>
+                <div className='w-1/2'>
+                  <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Speech Language:</label>
+                  <SingleSelect
+                    value={speechLanguage}
+                    onChange={handleSpeechLanguageChange}
+                    options={popularLanguages}
+                    className="w-full"
+                  />
+                </div>
+                <div className='w-1/2 ml-4'>
+                  <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Subtitles Language:</label>
+                  <SingleSelect
+                    value={subtitlesLanguage}
+                    onChange={handleSubtitlesLanguageChange}
+                    options={popularLanguages}
+                    className="w-full"
+                  />
+                </div>
+              </div>
+              
                   <div className='md:inline-flex mr-8'>
-
                     <div className='inline-flex ml-1 mr-2 mt-1'>
                       <input type="checkbox" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
                       Add Speech
@@ -348,12 +446,12 @@ export default function QuickEditor() {
                       />
                     </div>
                   </div>
+
                   <div className='md:inline-flex'>
                     <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
                     Add Music
                   </div>
                 </div>
-
               </div>
               {showDetails && (
                 <div className='p-2 bg-gray-950 rounded mt-2'>
@@ -402,8 +500,10 @@ export default function QuickEditor() {
                 name="promptList"
                 value={promptList} // Bind state to the textarea
                 onChange={(e) => setPromptList(e.target.value)} // Update state on change
+                onBlur={handlePromptListBlur} // Language detection on blur
               />
-              <div className='mt-2 mb-2'>
+
+              <div className='mt-4'>
                 <CommonButton type="submit">
                   Submit
                 </CommonButton>
