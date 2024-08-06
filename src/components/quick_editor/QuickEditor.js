@@ -61,7 +61,7 @@ const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 export default function QuickEditor() {
   const { id } = useParams(); // Destructure id from useParams
   const { openAlertDialog } = useAlertDialog();
-  
+
   // State variables
   const [videoType, setVideoType] = useState({ value: 'Slideshow', label: 'Slideshow' });
   const [animation, setAnimation] = useState({ value: 'zoom_in', label: 'Zoom in' });
@@ -85,6 +85,10 @@ export default function QuickEditor() {
   const [speechLanguage, setSpeechLanguage] = useState({ value: 'eng', label: 'English' });
   const [subtitlesLanguage, setSubtitlesLanguage] = useState({ value: 'eng', label: 'English' });
   const [errorState, setErrorState] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [creditsPreview, setCreditsPreview] = useState(0);
+  const [showCreditsBreakdown, setShowCreditsBreakdown] = useState(false);
+
 
   // Effect to reset state when id changes
   useEffect(() => {
@@ -107,6 +111,7 @@ export default function QuickEditor() {
     setPolling(false);
     setSpeakerType({ value: 'alloy', label: 'Alloy' });
     setPromptList(''); // Reset prompt list
+    setCreditsPreview(0);
     setSpeechLanguage({ value: 'eng', label: 'English' }); // Reset speech language
     setSubtitlesLanguage({ value: 'eng', label: 'English' }); // Reset subtitles language
 
@@ -166,6 +171,13 @@ export default function QuickEditor() {
     setSubtitlesLanguage(selectedOption);
   };
 
+  useEffect(() => {
+    if (promptList.length > 0) {
+      calculateCredits();
+    }
+  }, [promptList, speakerType, musicPrompt, theme, speechLanguage, subtitlesLanguage]);
+
+
   const handlePromptListBlur = () => {
     const detectedLanguage = franc(promptList);
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage);
@@ -201,28 +213,49 @@ export default function QuickEditor() {
 
   const submitQuickRender = (evt) => {
     evt.preventDefault();
-  
+
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
       return;
     }
-  
-    setIsGenerationPending(true);
-    setShowResultDisplay(true);
-  
+
     const formData = new FormData(evt.target);
     const promptListValue = formData.get('promptList');
     const lineItems = promptListValue.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
-  
-    // Detect language of the prompt text
+
+    // Validation: Number of prompts must be less than 15
+    if (lineItems.length > 15) {
+      setErrorState(true);
+      setErrorMessage('Number of prompts must be less than 15.');
+      return;
+    }
+
+    // Validation: Number of letters in each sentence cannot be more than 300
+    for (const line of lineItems) {
+      if (line.length > 300) {
+        setErrorState(true);
+        setErrorMessage('Each sentence cannot have more than 300 characters.');
+        return;
+      }
+    }
+
+    // Validation: Trimmed prompt list cannot be empty
+    if (lineItems.length === 0) {
+      setErrorState(true);
+      setErrorMessage('Prompt list cannot be empty.');
+      return;
+    }
+
+    setIsGenerationPending(true);
+    setShowResultDisplay(true);
+
+    // Existing logic for language detection and payload preparation
     const detectedLanguage = franc(promptListValue) || 'und'; // 'und' stands for undetermined
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage) || { value: 'eng' };
-  
-    // Determine if translation is required
     const subtitlesTranslationRequired = subtitlesLanguage.value !== matchedLanguage.value;
     const speechTranslationRequired = speechLanguage.value !== matchedLanguage.value;
-  
+
     let durationPerScene = 5;
     if (duration.value !== 'auto') {
       durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
@@ -233,12 +266,12 @@ export default function QuickEditor() {
         durationPerScene = 20;
       }
     }
-  
+
     let fontFamily = 'Times New Roman';
     if (subtitlesLanguage.value) {
       fontFamily = getFontFamilyForLanguage(subtitlesLanguage.value);
     }
-  
+
     let payload = {
       lineItems: lineItems,
       duration: durationPerScene,
@@ -253,16 +286,58 @@ export default function QuickEditor() {
       subtitlesTranslationRequired: subtitlesTranslationRequired,
       speechTranslationRequired: speechTranslationRequired,
     };
-  
+
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
     }
-  
+
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
       startQuickGenerationPoll();
     });
   };
-  
+
+
+  const calculateCredits = () => {
+    const lineItems = promptList.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
+    const numPrompts = lineItems.length;
+    let credits = 0;
+
+    credits += numPrompts; // 1 credit per prompt for generation
+
+    if (speakerType) {
+      credits += numPrompts; // 1 credit per prompt for speech
+    }
+
+    if (musicPrompt.trim() === '' && speakerType) {
+      credits += 1; // 1 credit if music theme is empty and generate music is selected
+    }
+
+    if (musicPrompt.trim() !== '' && speakerType) {
+      credits += 2; // 2 credits for background music if generate music is selected
+    }
+
+    if (theme.trim() === '') {
+      credits += 1; // 1 credit if theme is empty
+    }
+
+    const detectedLanguage = franc(promptList) || 'und';
+    const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage) || { value: 'eng' };
+
+    const subtitlesTranslationRequired = subtitlesLanguage.value !== matchedLanguage.value;
+    const speechTranslationRequired = speechLanguage.value !== matchedLanguage.value;
+
+    if (subtitlesTranslationRequired && speakerType) {
+      credits += Math.ceil(numPrompts / 5); // additional credits for subtitles translation
+    }
+
+    if (speechTranslationRequired && speakerType) {
+      credits += Math.ceil(numPrompts / 5); // additional credits for speech translation
+    }
+
+    setCreditsPreview(credits);
+  };
+
+
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -317,6 +392,41 @@ export default function QuickEditor() {
       </div>
     );
   }
+  let errorMessageDisplay = <span />;
+  if (errorState) {
+    errorMessageDisplay = (
+      <div className='text-red-500 text-sm text-center'>
+        {errorMessage}
+      </div>
+    );
+  }
+
+  const toggleCreditsBreakdown = () => {
+    setShowCreditsBreakdown(!showCreditsBreakdown);
+  };
+
+  let creditsProcessedPreviewDisplay = (
+    <div className="text-white mt-4 p-2 bg-gray-900 rounded text-center">
+      <div className="text-center items-center cursor-pointer" onClick={toggleCreditsBreakdown}>
+        <span className='font-bold text-sm text-neutral-100'>This operation will consume {creditsPreview} credits</span>
+        <FaChevronDown className={`transform ${showCreditsBreakdown ? 'rotate-180' : ''} inline-flex text-xs ml-1`} />
+      </div>
+      {showCreditsBreakdown && (
+        <div className="mt-2 text-sm">
+          <p>1 credit per prompt for generation</p>
+          {speakerType && <p>1 credit per prompt for speech</p>}
+          {musicPrompt.trim() === '' && speakerType && <p>1 credit for autogenerated music theme</p>}
+          {musicPrompt.trim() !== '' && speakerType && <p>2 credits for custom background music</p>}
+          {theme.trim() === '' && <p>1 credit for autogenerated theme</p>}
+          {(subtitlesLanguage.value !== 'eng' || speechLanguage.value !== 'eng') && speakerType && (
+            <p>{Math.ceil(promptList.split('\n').filter(Boolean).length / 5)} credits for translation</p>
+          )}
+        </div>
+      )}
+    </div>
+  );
+
+
   return (
     <div className='relative w-full'>
       {showResultDisplay && (
@@ -330,7 +440,10 @@ export default function QuickEditor() {
       <div className='mt-[60px]'>
         <div>
           {downloadPreviousRenderLink}
-        </div>  
+        </div>
+        <div>
+          {errorMessageDisplay}
+        </div>
         <form onSubmit={submitQuickRender}>
           <div className='bg-neutral-950'>
             <div className="toolbar flex items-center gap-2 p-2 bg-gray-900 text-white ">
@@ -408,27 +521,27 @@ export default function QuickEditor() {
 
                 <div className='md:basis-2/3 basis-3/4 align-right flex justify-end items-center' style={{ 'textAlign': 'right' }}>
 
-                <div className='flex'>
-                <div className='w-1/2'>
-                  <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Speech Language:</label>
-                  <SingleSelect
-                    value={speechLanguage}
-                    onChange={handleSpeechLanguageChange}
-                    options={popularLanguages}
-                    className="w-full"
-                  />
-                </div>
-                <div className='w-1/2 ml-4'>
-                  <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Subtitles Language:</label>
-                  <SingleSelect
-                    value={subtitlesLanguage}
-                    onChange={handleSubtitlesLanguageChange}
-                    options={popularLanguages}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-              
+                  <div className='flex'>
+                    <div className='w-1/2'>
+                      <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Speech Language:</label>
+                      <SingleSelect
+                        value={speechLanguage}
+                        onChange={handleSpeechLanguageChange}
+                        options={popularLanguages}
+                        className="w-full"
+                      />
+                    </div>
+                    <div className='w-1/2 ml-4'>
+                      <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Subtitles Language:</label>
+                      <SingleSelect
+                        value={subtitlesLanguage}
+                        onChange={handleSubtitlesLanguageChange}
+                        options={popularLanguages}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+
                   <div className='md:inline-flex mr-8'>
                     <div className='inline-flex ml-1 mr-2 mt-1'>
                       <input type="checkbox" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
@@ -436,7 +549,7 @@ export default function QuickEditor() {
                     </div>
                     <div className='inline-flex ml-2 mr-2'>
                       <span className='mr-2 mt-1'>
-                      Speaker
+                        Speaker
                       </span>
                       <SingleSelect
                         value={speakerType}
@@ -502,15 +615,18 @@ export default function QuickEditor() {
                 onChange={(e) => setPromptList(e.target.value)} // Update state on change
                 onBlur={handlePromptListBlur} // Language detection on blur
               />
-
+              <div>
+                {creditsProcessedPreviewDisplay}
+              </div>
               <div className='mt-4'>
-                <CommonButton type="submit">
+                <CommonButton type="submit" >
                   Submit
                 </CommonButton>
               </div>
             </div>
           </div>
         </form>
+
         <AssistantHome
           submitAssistantQuery={submitAssistantQuery}
           sessionMessages={sessionMessages}
