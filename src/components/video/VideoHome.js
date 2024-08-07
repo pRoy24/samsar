@@ -112,7 +112,9 @@ export default function VideoHome(props) {
       setIsLayerGenerationPending(isLayerPending);
       setGenerationImages(sessionDetails.generations);
       setSessionMessages(sessionDetails.sessionMessages);
-    });
+    }).catch(function(err) {
+      console.log("Error fetching session details:", err);
+    })
   }, [id]);
 
   useEffect(() => {

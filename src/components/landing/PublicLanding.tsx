@@ -22,13 +22,6 @@ export default function PublicLanding() {
 
 
 
-  useEffect(() => {
-    if (user && user.fid) {
-    //  navigate('/')
-      // checkFarcasterSignupStatus();
-    }
-  }, [user]);
-
 
   const setUserProfile = (profile) => {
     if (!isProcessing) {

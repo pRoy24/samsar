@@ -40,7 +40,21 @@ export default function VideoEditorLandingHome() {
   } else {
     const videoSessionId = localStorage.getItem('videoSessionId');
     if (videoSessionId) {
-      navigate(`/video/${videoSessionId}`);
+
+      const headers = getHeaders();
+      axios.get(`${API_SERVER}/video_sessions/validate_session?sessionId=${videoSessionId}`, headers).then((res) => {
+        const sessionData = res.data;
+        if (sessionData) {
+          navigate(`/video/${videoSessionId}`);
+        } else {
+          localStorage.removeItem('videoSessionId');
+          createNewSession();
+        }
+      }).catch(() => {
+        localStorage.removeItem('videoSessionId');
+        createNewSession();
+      });    
+    
     } else {
       const headers = getHeaders();
 
@@ -50,6 +64,16 @@ export default function VideoEditorLandingHome() {
         navigate(`/video/${sessionData._id}`);
       });
     }
+  }
+
+  const createNewSession = () => {
+    const headers = getHeaders();
+
+    axios.get(`${API_SERVER}/video_sessions/get_or_create_session`, headers).then((res) => {
+      const sessionData = res.data;
+      localStorage.setItem('videoSessionId', sessionData._id);
+      navigate(`/video/${sessionData._id}`);
+    });
   }
 
   return (
