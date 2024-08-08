@@ -225,17 +225,17 @@ export default function QuickEditor() {
     const lineItems = promptListValue.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
 
     // Validation: Number of prompts must be less than 15
-    if (lineItems.length > 15) {
+    if (lineItems.length > 16) {
       setErrorState(true);
-      setErrorMessage('Number of prompts must be less than 15.');
+      setErrorMessage('Number of prompts must be less than 16.');
       return;
     }
 
     // Validation: Number of letters in each sentence cannot be more than 300
     for (const line of lineItems) {
-      if (line.length > 300) {
+      if (line.length > 500) {
         setErrorState(true);
-        setErrorMessage('Each sentence cannot have more than 300 characters.');
+        setErrorMessage('Each sentence cannot have more than 500 characters.');
         return;
       }
     }
