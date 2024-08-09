@@ -691,9 +691,6 @@ export default function QuickEditor() {
                 onChange={(e) => setPromptList(e.target.value)} // Update state on change
                 onBlur={handlePromptListBlur} // Language detection on blur
               />
-              <div>
-                {creditsProcessedPreviewDisplay}
-              </div>
               <div className='mt-4'>
                 <CommonButton type="submit" >
                   Submit
