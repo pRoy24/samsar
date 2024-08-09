@@ -17,7 +17,6 @@ import { franc } from 'franc';
 
 import AuthContainer from '../auth/AuthContainer.js';
 
-
 // Top 10 most popular languages supported by Franc
 const popularLanguages = [
   { value: 'eng', label: 'English' },
@@ -31,7 +30,6 @@ const popularLanguages = [
   { value: 'jpn', label: 'Japanese' },
   { value: 'kor', label: 'Korean' },
 ];
-
 
 const getFontFamilyForLanguage = (language) => {
   switch (language) {
@@ -90,6 +88,9 @@ export default function QuickEditor() {
   const [showCreditsBreakdown, setShowCreditsBreakdown] = useState(false);
   const [sceneCutoffType, setSceneCutoffType] = useState({ value: 'auto', label: 'Auto' });
 
+  // New state variables
+  const [wordCount, setWordCount] = useState(0);
+  const [characterCount, setCharacterCount] = useState(0);
 
   // Effect to reset state when id changes
   useEffect(() => {
@@ -115,6 +116,8 @@ export default function QuickEditor() {
     setCreditsPreview(0);
     setSpeechLanguage({ value: 'eng', label: 'English' }); // Reset speech language
     setSubtitlesLanguage({ value: 'eng', label: 'English' }); // Reset subtitles language
+    setWordCount(0); // Reset word count
+    setCharacterCount(0); // Reset character count
 
     const headers = getHeaders();
 
@@ -130,7 +133,7 @@ export default function QuickEditor() {
 
   const handleSceneCutoffTypeChange = (selectedOption) => {
     setSceneCutoffType(selectedOption);
-  }
+  };
 
   const animationOptions = [
     { value: 'pan_left_to_right', label: 'Pan Left to Right' },
@@ -176,21 +179,23 @@ export default function QuickEditor() {
     setSubtitlesLanguage(selectedOption);
   };
 
-  useEffect(() => {
-    if (promptList.length > 0) {
-      calculateCredits();
-    }
-  }, [promptList, speakerType, musicPrompt, theme, speechLanguage, subtitlesLanguage]);
-
-
   const handlePromptListBlur = () => {
     const detectedLanguage = franc(promptList);
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage);
 
+    // Update language based on detected language
     if (matchedLanguage) {
       setSpeechLanguage(matchedLanguage);
       setSubtitlesLanguage(matchedLanguage);
     }
+
+    // Update word count and character count
+    const words = promptList.split(/\s+/).filter(Boolean).length;
+    const characters = promptList.length;
+    setWordCount(words);
+    setCharacterCount(characters);
+
+    calculateCredits();
   };
 
   const showLoginDialog = () => {
@@ -311,49 +316,63 @@ export default function QuickEditor() {
     });
   };
 
-
-
   const calculateCredits = () => {
-    const lineItems = promptList.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
-    const numPrompts = lineItems.length;
     let credits = 0;
 
-    credits += numPrompts; // 1 credit per prompt for generation
-
-    if (speakerType) {
-      credits += numPrompts; // 1 credit per prompt for speech
-    }
-
-    if (musicPrompt.trim() === '' && speakerType) {
-      credits += 1; // 1 credit if music theme is empty and generate music is selected
-    }
-
-    if (musicPrompt.trim() !== '' && speakerType) {
-      credits += 2; // 2 credits for background music if generate music is selected
-    }
-
-    if (theme.trim() === '') {
-      credits += 1; // 1 credit if theme is empty
-    }
-
-    const detectedLanguage = franc(promptList) || 'und';
-    const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage) || { value: 'eng' };
-
-    const subtitlesTranslationRequired = subtitlesLanguage.value !== matchedLanguage.value;
-    const speechTranslationRequired = speechLanguage.value !== matchedLanguage.value;
-
-    if (subtitlesTranslationRequired && speakerType) {
-      credits += Math.ceil(numPrompts / 5); // additional credits for subtitles translation
-    }
-
-    if (speechTranslationRequired && speakerType) {
-      credits += Math.ceil(numPrompts / 5); // additional credits for speech translation
+    // Logic for JP/Chinese languages based on character count
+    if (speechLanguage.value === 'jpn' || speechLanguage.value === 'zho') {
+      if (characterCount <= 2500) {
+        credits += 5; // 5 credits for image
+        if (speakerType) {
+          credits += 5; // 5 credits for speech
+        }
+        if (speechLanguage.value !== subtitlesLanguage.value) {
+          credits += 5; // 5 credits for translation
+        }
+        if (musicPrompt.trim() !== '') {
+          credits += 5; // 5 credits for music
+        }
+      } else if (characterCount <= 5000) {
+        credits += 10; // 10 credits for image
+        if (speakerType) {
+          credits += 10; // 10 credits for speech
+        }
+        if (speechLanguage.value !== subtitlesLanguage.value) {
+          credits += 10; // 10 credits for translation
+        }
+        if (musicPrompt.trim() !== '') {
+          credits += 5; // 5 credits for music
+        }
+      }
+    } else {
+      // Logic for other languages based on word count
+      if (wordCount <= 500) {
+        credits += 5; // 5 credits for image
+        if (speakerType) {
+          credits += 5; // 5 credits for speech
+        }
+        if (speechLanguage.value !== subtitlesLanguage.value) {
+          credits += 5; // 5 credits for translation
+        }
+        if (musicPrompt.trim() !== '') {
+          credits += 5; // 5 credits for music
+        }
+      } else if (wordCount <= 1000) {
+        credits += 10; // 10 credits for image
+        if (speakerType) {
+          credits += 10; // 10 credits for speech
+        }
+        if (speechLanguage.value !== subtitlesLanguage.value) {
+          credits += 10; // 10 credits for translation
+        }
+        if (musicPrompt.trim() !== '') {
+          credits += 5; // 5 credits for music
+        }
+      }
     }
 
     setCreditsPreview(credits);
   };
-
-
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -430,19 +449,47 @@ export default function QuickEditor() {
       </div>
       {showCreditsBreakdown && (
         <div className="mt-2 text-sm">
-          <p>1 credit per prompt for generation</p>
-          {speakerType && <p>1 credit per prompt for speech</p>}
-          {musicPrompt.trim() === '' && speakerType && <p>1 credit for autogenerated music theme</p>}
-          {musicPrompt.trim() !== '' && speakerType && <p>2 credits for custom background music</p>}
-          {theme.trim() === '' && <p>1 credit for autogenerated theme</p>}
-          {(subtitlesLanguage.value !== 'eng' || speechLanguage.value !== 'eng') && speakerType && (
-            <p>{Math.ceil(promptList.split('\n').filter(Boolean).length / 5)} credits for translation</p>
+          {speechLanguage.value === 'jpn' || speechLanguage.value === 'zho' ? (
+            <>
+              {characterCount <= 2500 ? (
+                <>
+                  <p>5 credits for image</p>
+                  {speakerType && <p>5 credits for speech</p>}
+                  {speechLanguage.value !== subtitlesLanguage.value && <p>5 credits for translation</p>}
+                  {musicPrompt.trim() !== '' && <p>5 credits for music</p>}
+                </>
+              ) : (
+                <>
+                  <p>10 credits for image</p>
+                  {speakerType && <p>10 credits for speech</p>}
+                  {speechLanguage.value !== subtitlesLanguage.value && <p>10 credits for translation</p>}
+                  {musicPrompt.trim() !== '' && <p>5 credits for music</p>}
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {wordCount <= 500 ? (
+                <>
+                  <p>5 credits for image</p>
+                  {speakerType && <p>5 credits for speech</p>}
+                  {speechLanguage.value !== subtitlesLanguage.value && <p>5 credits for translation</p>}
+                  {musicPrompt.trim() !== '' && <p>5 credits for music</p>}
+                </>
+              ) : (
+                <>
+                  <p>10 credits for image</p>
+                  {speakerType && <p>10 credits for speech</p>}
+                  {speechLanguage.value !== subtitlesLanguage.value && <p>10 credits for translation</p>}
+                  {musicPrompt.trim() !== '' && <p>5 credits for music</p>}
+                </>
+              )}
+            </>
           )}
         </div>
       )}
     </div>
   );
-
 
   return (
     <div className='relative w-full'>
@@ -547,63 +594,41 @@ export default function QuickEditor() {
               </div>
             </div>
             <div className='mt-2 mb-2 p-2 bg-gray-900'>
-
               <div className='md:flex hidden w-full  text-white '>
-
                 <div className='basis-full  flex  items-center'>
-
                   <div className='inline-flex mr-2 pr-2 cursor-pointer align-left'
                     style={{ 'textAlign': 'left' }}
                     onClick={toggleDetails}>
                     Speech & music <FaChevronDown className='inline-flex mt-1' />
                   </div>
-
-
                   <div className='inline-flex'>
                     <div className='block'>
-
-
                       <div className='text-xs block'>
                         Add Music
                       </div>
-
                       <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
                         name="backgroundMusicRequired"
                         defaultChecked={true} />
                     </div>
                   </div>
-
-
                   <div className='flex ml-8 w-full'>
-
-
                     <div className=' ml-1 mr-2 mt-1'>
                       <div className='text-xs block'>
                         Add Speech
                       </div>
-
                       <input type="checkbox"
-
                         className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
                         name="speechRequired" defaultChecked={true} />
-
-
                     </div>
-
-
                     <div>
                       <div>
                         <div className='text-xs'>
-
-
                           Normalize text for speech
                         </div>
                         <input type="checkbox"
                           name="speechNormalizationRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
                       </div>
-
                     </div>
-
                     <div className='w-1/3'>
                       <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Speech Language:</label>
                       <SingleSelect
@@ -622,8 +647,6 @@ export default function QuickEditor() {
                         className="w-full"
                       />
                     </div>
-
-
                     <div className='w-1/3 ml-4'>
                       <label className='whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white'>
                         Speaker
@@ -635,11 +658,7 @@ export default function QuickEditor() {
                         className="w-40 ml-2" // Adjust width and margin as needed
                       />
                     </div>
-
-
                   </div>
-
-
                 </div>
               </div>
               {showDetails && (
@@ -691,6 +710,10 @@ export default function QuickEditor() {
                 onChange={(e) => setPromptList(e.target.value)} // Update state on change
                 onBlur={handlePromptListBlur} // Language detection on blur
               />
+
+              <div>
+                {creditsProcessedPreviewDisplay}
+              </div>
               <div className='mt-4'>
                 <CommonButton type="submit" >
                   Submit
