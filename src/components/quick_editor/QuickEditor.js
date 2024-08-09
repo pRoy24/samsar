@@ -88,6 +88,7 @@ export default function QuickEditor() {
   const [errorMessage, setErrorMessage] = useState('');
   const [creditsPreview, setCreditsPreview] = useState(0);
   const [showCreditsBreakdown, setShowCreditsBreakdown] = useState(false);
+  const [sceneCutoffType, setSceneCutoffType] = useState({ value: 'auto', label: 'Auto' });
 
 
   // Effect to reset state when id changes
@@ -126,6 +127,10 @@ export default function QuickEditor() {
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
   ];
+
+  const handleSceneCutoffTypeChange = (selectedOption) => {
+    setSceneCutoffType(selectedOption);
+  }
 
   const animationOptions = [
     { value: 'pan_left_to_right', label: 'Pan Left to Right' },
@@ -232,11 +237,13 @@ export default function QuickEditor() {
     }
 
     // Validation: Number of letters in each sentence cannot be more than 300
-    for (const line of lineItems) {
-      if (line.length > 500) {
-        setErrorState(true);
-        setErrorMessage('Each sentence cannot have more than 500 characters.');
-        return;
+    if (sceneCutoffType === 'scene_per_line') {
+      for (const line of lineItems) {
+        if (line.length > 500) {
+          setErrorState(true);
+          setErrorMessage('Each sentence cannot have more than 500 characters.');
+          return;
+        }
       }
     }
 
@@ -272,11 +279,15 @@ export default function QuickEditor() {
       fontFamily = getFontFamilyForLanguage(subtitlesLanguage.value);
     }
 
+    // Constructing the payload with all form elements
     let payload = {
-      lineItems: lineItems,
-      duration: durationPerScene,
       sessionId: id,
+      lineItems: lineItems,
+      videoType: videoType ? videoType.value : null,
       animation: animation ? animation.value : null,
+      duration: duration.value,
+      customDuration: duration.value === 'custom' ? customDuration : undefined,
+      sceneCutoffType: sceneCutoffType ? sceneCutoffType.value : 'auto',
       musicPrompt: musicPrompt.trim() || undefined,
       theme: theme.split(',').map((item) => item.trim()).filter(Boolean).join(','),
       speakerType: speakerType ? speakerType.value : null,
@@ -285,16 +296,21 @@ export default function QuickEditor() {
       fontFamily: fontFamily,
       subtitlesTranslationRequired: subtitlesTranslationRequired,
       speechTranslationRequired: speechTranslationRequired,
+      backgroundMusicRequired: formData.get('backgroundMusicRequired') === 'on',
+      speechRequired: formData.get('speechRequired') === 'on',
+      speechNormalizationRequired: formData.get('speechNormalizationRequired') === 'on',
     };
 
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
+      payload.duration = 20;
     }
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
       startQuickGenerationPoll();
     });
   };
+
 
 
   const calculateCredits = () => {
@@ -376,6 +392,7 @@ export default function QuickEditor() {
       showLoginDialog();
       return;
     }
+    setSessionMessages([]);
     setIsAssistantQueryGenerating(true);
     axios.post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers).then((response) => {
       startAssistantQueryPoll();
@@ -447,7 +464,7 @@ export default function QuickEditor() {
         <form onSubmit={submitQuickRender}>
           <div className='bg-neutral-950'>
             <div className="toolbar flex items-center gap-2 p-2 bg-gray-900 text-white ">
-              <div className="grid grid-cols-3 items-center gap-2 w-full">
+              <div className="grid grid-cols-4 items-center gap-2 w-full">
                 <div className='block'>
                   <div className='block'>
                     <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Type:</label>
@@ -481,7 +498,7 @@ export default function QuickEditor() {
                 <div>
                   <div className='block'>
                     <div className='block'>
-                      <label className="whitespace-nowrap block  text-xs text-left pl-2 pb-1">Duration:</label>
+                      <label className="whitespace-nowrap block  text-xs text-left pl-2 pb-1">Duration/Scene:</label>
                     </div>
                   </div>
                   <div>
@@ -509,20 +526,85 @@ export default function QuickEditor() {
                     )}
                   </div>
                 </div>
+                <div>
+                  <div className='block'>
+                    <div className='block'>
+                      <label className="whitespace-nowrap block  text-xs text-left pl-2 pb-1">Scene Cutoff:</label>
+                    </div>
+                  </div>
+                  <div>
+                    <SingleSelect
+                      value={sceneCutoffType}
+                      onChange={handleSceneCutoffTypeChange}
+                      options={[
+                        { label: 'Auto', value: 'auto' },
+                        { label: '1 Scene/line', value: 'scene_per_line' },
+                      ]}
+                      className="w-full"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
             <div className='mt-2 mb-2 p-2 bg-gray-900'>
-              <div className='flex flex-basis text-white'>
-                <div className='md:basis-1/3 basis-1/4 ml-auto mr-2 pr-2 cursor-pointer align-left'
-                  style={{ 'textAlign': 'left' }}
-                  onClick={toggleDetails}>
-                  Details <FaChevronDown className='inline-flex mt-1' />
-                </div>
 
-                <div className='md:basis-2/3 basis-3/4 align-right flex justify-end items-center' style={{ 'textAlign': 'right' }}>
+              <div className='md:flex hidden w-full  text-white '>
 
-                  <div className='flex'>
-                    <div className='w-1/2'>
+                <div className='basis-full  flex  items-center'>
+
+                  <div className='inline-flex mr-2 pr-2 cursor-pointer align-left'
+                    style={{ 'textAlign': 'left' }}
+                    onClick={toggleDetails}>
+                    Speech & music <FaChevronDown className='inline-flex mt-1' />
+                  </div>
+
+
+                  <div className='inline-flex'>
+                    <div className='block'>
+
+
+                      <div className='text-xs block'>
+                        Add Music
+                      </div>
+
+                      <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
+                        name="backgroundMusicRequired"
+                        defaultChecked={true} />
+                    </div>
+                  </div>
+
+
+                  <div className='flex ml-8 w-full'>
+
+
+                    <div className=' ml-1 mr-2 mt-1'>
+                      <div className='text-xs block'>
+                        Add Speech
+                      </div>
+
+                      <input type="checkbox"
+
+                        className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
+                        name="speechRequired" defaultChecked={true} />
+
+
+                    </div>
+
+
+                    <div>
+                      <div>
+                        <div className='text-xs'>
+
+
+                          Normalize text for speech
+                        </div>
+                        <input type="checkbox"
+                          name="speechNormalizationRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
+                      </div>
+
+                    </div>
+
+                    <div className='w-1/3'>
                       <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Speech Language:</label>
                       <SingleSelect
                         value={speechLanguage}
@@ -531,7 +613,7 @@ export default function QuickEditor() {
                         className="w-full"
                       />
                     </div>
-                    <div className='w-1/2 ml-4'>
+                    <div className='w-1/3 ml-4'>
                       <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Subtitles Language:</label>
                       <SingleSelect
                         value={subtitlesLanguage}
@@ -540,17 +622,12 @@ export default function QuickEditor() {
                         className="w-full"
                       />
                     </div>
-                  </div>
 
-                  <div className='md:inline-flex mr-8'>
-                    <div className='inline-flex ml-1 mr-2 mt-1'>
-                      <input type="checkbox" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
-                      Add Speech
-                    </div>
-                    <div className='inline-flex ml-2 mr-2'>
-                      <span className='mr-2 mt-1'>
+
+                    <div className='w-1/3 ml-4'>
+                      <label className='whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white'>
                         Speaker
-                      </span>
+                      </label>
                       <SingleSelect
                         value={speakerType}
                         onChange={handleSpeakerChange}
@@ -558,12 +635,11 @@ export default function QuickEditor() {
                         className="w-40 ml-2" // Adjust width and margin as needed
                       />
                     </div>
+
+
                   </div>
 
-                  <div className='md:inline-flex'>
-                    <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
-                    Add Music
-                  </div>
+
                 </div>
               </div>
               {showDetails && (
