@@ -249,9 +249,10 @@ export default function VideoEditorContainer(props) {
       });
   }
 
+
   const submitOutpaintRequest = async (evt) => {
     evt.preventDefault();
-
+  
     const baseImageData = await exportBaseGroup();
     let maskImageData;
     if (selectedEditModel === 'SDXL') {
@@ -259,13 +260,26 @@ export default function VideoEditorContainer(props) {
     } else {
       maskImageData = await exportMaskGroupAsTransparent();
     }
-
+  
+    // // Download the base image
+    // const baseImageLink = document.createElement('a');
+    // baseImageLink.href = baseImageData;
+    // baseImageLink.download = 'base_image.png';
+    // baseImageLink.click();
+  
+    // // Download the mask image
+    // const maskImageLink = document.createElement('a');
+    // maskImageLink.href = maskImageData;
+    // maskImageLink.download = 'mask_image.png';
+    // maskImageLink.click();
+  
+    // Continue with the outpainting request processing
     const formData = new FormData(evt.target);
     const promptText = formData.get('promptText');
     const guidanceScale = formData.get('guidanceScale');
     const numInferenceSteps = formData.get('numInferenceSteps');
     const strength = formData.get('strength');
-
+  
     const payload = {
       image: baseImageData,
       maskImage: maskImageData,
@@ -276,14 +290,15 @@ export default function VideoEditorContainer(props) {
       guidanceScale: guidanceScale,
       numInferenceSteps: numInferenceSteps,
       strength: strength
-    }
+    };
+    
     setOutpaintError(null);
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
       return;
     }
-
+  
     axios.post(`${PROCESSOR_API_URL}/video_sessions/request_outpaint`, payload, headers)
       .then(() => {
         startOutpaintPoll();
@@ -299,25 +314,38 @@ export default function VideoEditorContainer(props) {
           className: "custom-toast",
         });
       });
-  }
+  };
+
+  
 
   const exportBaseGroup = () => {
     const baseStage = canvasRef.current;
     const baseLayer = baseStage.getLayers()[0];
-    const baseGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'baseGroup');
-
-    if (baseGroup) {
-      const dataUrl = baseGroup.toDataURL({
-        width: STAGE_DIMENSIONS.width,
-        height: STAGE_DIMENSIONS.height,
-        pixelRatio: 1
-      });
-      return dataUrl;
-    } else {
-      console.error('Base group not found');
-      return null;
+  
+    // Clone the entire stage to work with
+    const clonedStage = baseStage.clone();
+  
+    // Find the maskGroup in the cloned stage and hide it
+    const clonedLayer = clonedStage.getLayers()[0];
+    const maskGroup = clonedLayer.children.find((child) => child.attrs && child.attrs.id === 'maskGroup');
+  
+    if (maskGroup) {
+      maskGroup.hide();
     }
+  
+    // Draw the cloned stage to apply the visibility changes
+    clonedStage.draw();
+  
+    // Export the cloned stage as an image
+    const dataUrl = clonedStage.toDataURL({
+      width: STAGE_DIMENSIONS.width,
+      height: STAGE_DIMENSIONS.height,
+      pixelRatio: 1
+    });
+  
+    return dataUrl;
   };
+  
 
   const exportMaskGroupAsColored = async () => {
     const baseStage = canvasRef.current;
@@ -353,58 +381,67 @@ export default function VideoEditorContainer(props) {
     }
   };
 
-const exportMaskGroupAsTransparent = async () => {
-  const baseStage = canvasRef.current;
-  const baseLayer = baseStage.getLayers()[0];
 
-  const maskGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'maskGroup');
-  const baseGroup = baseLayer.children.find((child) => child.attrs && child.attrs.id === 'baseGroup');
-
-  if (maskGroup && baseGroup) {
+  const exportMaskGroupAsTransparent = async () => {
+    const baseStage = canvasRef.current;
+  
     // Create an offscreen canvas
     const offscreenCanvas = document.createElement('canvas');
     offscreenCanvas.width = baseStage.width();
     offscreenCanvas.height = baseStage.height();
     const ctx = offscreenCanvas.getContext('2d');
-
-    // Draw the base group (background) onto the offscreen canvas
-    const baseImageData = baseGroup.toDataURL();
-    const baseImage = new Image();
-    baseImage.src = baseImageData;
+  
+    // Clone the stage to work with a copy
+    const clonedStage = baseStage.clone();
+  
+    // Get the cloned layer and find the maskGroup
+    const clonedLayer = clonedStage.getLayers()[0];
+    const maskGroup = clonedLayer.children.find((child) => child.attrs && child.attrs.id === 'maskGroup');
+  
+    if (!maskGroup) {
+      console.error('Mask group not found');
+      return null;
+    }
+  
+    // Hide the maskGroup in the cloned layer
+    maskGroup.hide();
+  
+    // Draw the entire canvas except the maskGroup
+    clonedLayer.draw();
+    const canvasDataUrl = clonedStage.toDataURL();
+    const canvasImage = new Image();
+    canvasImage.src = canvasDataUrl;
+  
     await new Promise((resolve) => {
-      baseImage.onload = () => {
-        ctx.drawImage(baseImage, 0, 0);
+      canvasImage.onload = () => {
+        ctx.drawImage(canvasImage, 0, 0);
         resolve();
       };
     });
-
-    // Set the global composite operation to destination-out to apply the mask group
+  
+    // Draw the maskGroup as transparent on the new canvas
     ctx.globalCompositeOperation = 'destination-out';
-
-    // Draw the mask group on the canvas
+    maskGroup.show();
     maskGroup.children.forEach(line => {
       ctx.beginPath();
       ctx.moveTo(line.points()[0], line.points()[1]);
       for (let i = 2; i < line.points().length; i += 2) {
         ctx.lineTo(line.points()[i], line.points()[i + 1]);
       }
-      ctx.strokeStyle = 'rgba(0,0,0,1)';
+      ctx.strokeStyle = 'rgba(0, 0, 0, 1)'; // The color used for masking (this won't be visible)
       ctx.lineWidth = line.strokeWidth();
       ctx.stroke();
     });
-
-    // Reset the global composite operation to source-over
+  
+    // Reset the global composite operation
     ctx.globalCompositeOperation = 'source-over';
-
-    // Convert the canvas to a data URL
+  
+    // Convert the offscreen canvas to a data URL
     const dataUrl = offscreenCanvas.toDataURL();
     return dataUrl;
-  } else {
-    console.error('Mask group or base group not found');
-    return null;
-  }
-};
-
+  };
+  
+  
 
   async function startGenerationPoll() {
     setIsGenerationPending(true);
