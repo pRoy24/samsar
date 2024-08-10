@@ -887,6 +887,7 @@ export default function VideoHome(props) {
               isLayerSeeking={isLayerSeeking}
               showAddAudioToProjectDialog={showAddAudioToProjectDialog}
               generationImages={generationImages}
+              setGenerationImages={setGenerationImages}
               updateCurrentActiveLayer={updateCurrentActiveLayer}
               videoSessionDetails={videoSessionDetails}
               setVideoSessionDetails={setVideoSessionDetails}

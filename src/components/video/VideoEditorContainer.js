@@ -38,6 +38,7 @@ export default function VideoEditorContainer(props) {
     setIsCanvasDirty,
     updateCurrentLayer,
     applyAnimationToAllLayers,
+    setGenerationImages,
   } = props;
 
   const [segmentationData, setSegmentationData] = useState([]);
@@ -260,19 +261,7 @@ export default function VideoEditorContainer(props) {
     } else {
       maskImageData = await exportMaskGroupAsTransparent();
     }
-  
-    // // Download the base image
-    // const baseImageLink = document.createElement('a');
-    // baseImageLink.href = baseImageData;
-    // baseImageLink.download = 'base_image.png';
-    // baseImageLink.click();
-  
-    // // Download the mask image
-    // const maskImageLink = document.createElement('a');
-    // maskImageLink.href = maskImageData;
-    // maskImageLink.download = 'mask_image.png';
-    // maskImageLink.click();
-  
+    
     // Continue with the outpainting request processing
     const formData = new FormData(evt.target);
     const promptText = formData.get('promptText');
@@ -456,9 +445,15 @@ export default function VideoEditorContainer(props) {
     const pollStatus = pollStatusData.data;
 
     if (pollStatus.status === 'COMPLETED') {
+
+      
       const layerData = pollStatus.layer;
       const imageSession = layerData.imageSession;
 
+      const generationImages = pollStatus.generationImages;
+      if (generationImages && generationImages.length > 0) {
+      setGenerationImages(generationImages);
+      }
       const generatedImageUrlName = imageSession.activeGeneratedImage;
       const generatedURL = `/generations/${generatedImageUrlName}`;
       const item_id = `item_${activeItemList.length}`;
@@ -504,12 +499,21 @@ export default function VideoEditorContainer(props) {
 
     const pollStatus = pollStatusData.data;
 
-    if (pollStatus.outpaintStatus === 'COMPLETED') {
-      const newActiveItemList = pollStatus.activeItemList;
-      const generatedImageUrlName = pollStatus.activeOutpaintedImage;
+    if (pollStatus.status === 'COMPLETED') {
+
+      const layerData = pollStatus.layer;
+      const imageSession = layerData.imageSession;
+
+      const newActiveItemList = imageSession.activeItemList;
+      const generatedImageUrlName = imageSession.activeOutpaintedImage;
       const generatedURL = `${generatedImageUrlName}`;
       const item_id = `item_${activeItemList.length}`;
       const nImageList = [...activeItemList, { src: generatedURL, id: item_id, type: 'image' }];
+
+      const generationImages = pollStatus.generationImages;
+      if (generationImages && generationImages.length > 0) {
+      setGenerationImages(generationImages);
+      }
 
       setCurrentView(CURRENT_TOOLBAR_VIEW.SHOW_DEFAULT_DISPLAY);
       setActiveItemList(nImageList);
@@ -519,9 +523,9 @@ export default function VideoEditorContainer(props) {
         className: "custom-toast",
       });
       return;
-    } else if (pollStatus.outpaintStatus === 'FAILED') {
+    } else if (pollStatus.status === 'FAILED') {
       setIsOutpaintPending(false);
-      setOutpaintError(pollStatus.outpaintError);
+      setOutpaintError("Failed to generate outpaint");
       toast.error(<div><FaTimes /> Outpaint failed.</div>, {
         position: "bottom-center",
         className: "custom-toast",
