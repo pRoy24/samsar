@@ -564,7 +564,7 @@ export default function VideoHome(props) {
 
     const payload = {
       sessionId: id,
-      duration: 2,
+      duration: videoSessionDetails.defaultSceneDuration ? videoSessionDetails.defaultSceneDuration : 2,
     };
     axios.post(`${PROCESSOR_API_URL}/video_sessions/add_layer`, payload, headers).then((dataRes) => {
       const resData = dataRes.data;
