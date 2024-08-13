@@ -10,6 +10,7 @@ const PROCESSOR_API = process.env.REACT_APP_PROCESSOR_API;
 export default function ListVideoSessions() {
   const [sessionList, setSessionList] = useState([]);
   const navigate = useNavigate();
+  const [showIntroDisplay, setShowIntroDisplay] = useState(false);
 
   useEffect(() => {
     const headers = getHeaders();
@@ -17,6 +18,9 @@ export default function ListVideoSessions() {
     axios.get(`${PROCESSOR_API}/video_sessions/list`, headers).then(function (dataRes) {
       const sessionList = dataRes.data;
       setSessionList(sessionList);
+      if (sessionList.length === 0) {
+        setShowIntroDisplay(true);
+      }
     })
   }, []);
 
@@ -27,9 +31,20 @@ export default function ListVideoSessions() {
   }
   if (!sessionList) return null;
 
+  let introDisplay = null;
+  if (showIntroDisplay) {
+    introDisplay = (
+      <div className='text-neutral-100 text-center'>
+        <h1 className='text-2xl'>No sessions found</h1>
+        <p className='text-lg'>Please create a session to get started</p>
+      </div>
+    )
+  }
+  
   return (
     <OverflowContainer>
       <div className='p-4 pt-8 pb-8 bg-gray-900 h-full w-full min-h-[100vh] mt-[50px]'>
+        {introDisplay}
         <div className='grid grid-cols-4 gap-2'>
           {sessionList.map(function (session, index) {
             if (!session) return null;

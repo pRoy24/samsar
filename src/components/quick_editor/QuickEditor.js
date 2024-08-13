@@ -129,13 +129,17 @@ export default function QuickEditor() {
 
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
+    {
+      value: 'Infinitezoom', label: 'Infinite Zoom',
+    }
   ];
 
   const handleSceneCutoffTypeChange = (selectedOption) => {
     setSceneCutoffType(selectedOption);
   };
 
-  const animationOptions = [
+
+  const [animationOptions, setAnimationOptions] = useState([
     { value: 'pan_left_to_right', label: 'Pan Left to Right' },
     { value: 'pan_right_to_left', label: 'Pan Right to Left' },
     { value: 'pan_top_to_bottom', label: 'Pan Top to Bottom' },
@@ -144,7 +148,8 @@ export default function QuickEditor() {
     { value: 'zoom_out', label: 'Zoom Out' },
     { value: '', label: 'None' },
     { value: 'random', label: 'Random' },
-  ];
+  ]);
+
 
   const speakerOptions = SPEAKER_TYPES.map((speaker_type) => ({
     value: speaker_type,
@@ -153,7 +158,29 @@ export default function QuickEditor() {
 
   const handleVideoTypeChange = (selectedOption) => {
     setVideoType(selectedOption);
+
     setAnimation(null);
+
+
+    // Update animation options based on the selected video type
+    if (selectedOption.value === 'Infinitezoom') {
+      setAnimationOptions([
+        { value: 'zoom_in', label: 'Zoom in' },
+        { value: 'zoom_out', label: 'Zoom Out' },
+      ]);
+    } else if (selectedOption.value === 'Slideshow') {
+      setAnimationOptions([
+        { value: 'pan_left_to_right', label: 'Pan Left to Right' },
+        { value: 'pan_right_to_left', label: 'Pan Right to Left' },
+        { value: 'pan_top_to_bottom', label: 'Pan Top to Bottom' },
+        { value: 'pan_bottom_to_top', label: 'Pan Bottom to Top' },
+        { value: 'zoom_in', label: 'Zoom in' },
+        { value: 'zoom_out', label: 'Zoom Out' },
+        { value: '', label: 'None' },
+        { value: 'random', label: 'Random' },
+      ]);
+    }
+
   };
 
   const handleAnimationChange = (selectedOption) => {
@@ -526,7 +553,7 @@ export default function QuickEditor() {
                   </div>
                 </div>
                 <div>
-                  {videoType.value === 'Slideshow' && (
+                  
                     <div className='block'>
                       <div className='block'>
                         <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Animation:</label>
@@ -540,7 +567,7 @@ export default function QuickEditor() {
                         />
                       </div>
                     </div>
-                  )}
+                  
                 </div>
                 <div>
                   <div className='block'>
