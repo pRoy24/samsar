@@ -47,7 +47,7 @@ export default function Home() {
 
   const getOrCreateUserSession = () => {
     const headers = getHeaders();
-    axios.get(`${PROCESSOR_SERVER}/video_sessions/get_session`, { headers }).then((res) => {
+    axios.get(`${PROCESSOR_SERVER}/video_sessions/get_session`, headers).then((res) => {
       const sessionData = res.data;
       if (sessionData) {
         localStorage.setItem('videoSessionId', sessionData._id);
