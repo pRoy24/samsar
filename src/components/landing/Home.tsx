@@ -47,14 +47,18 @@ export default function Home() {
 
   const getOrCreateUserSession = () => {
     const headers = getHeaders();
-    axios.get(`${PROCESSOR_SERVER}/video_sessions/get_or_create_session`, { headers }).then((res) => {
+    axios.get(`${PROCESSOR_SERVER}/video_sessions/get_session`, { headers }).then((res) => {
       const sessionData = res.data;
-      localStorage.setItem('videoSessionId', sessionData._id);
-      let currentMediaFlowPath = localStorage.getItem('currentMediaFlowPath');
-      if (currentMediaFlowPath && currentMediaFlowPath === 'quick_video') {
-        navigate(`/quick_video/${sessionData._id}`);
+      if (sessionData) {
+        localStorage.setItem('videoSessionId', sessionData._id);
+        let currentMediaFlowPath = localStorage.getItem('currentMediaFlowPath');
+        if (currentMediaFlowPath && currentMediaFlowPath === 'quick_video') {
+          navigate(`/quick_video/${sessionData._id}`);
+        } else {
+          navigate(`/video/${sessionData._id}`);
+        }
       } else {
-        navigate(`/video/${sessionData._id}`);
+        navigate('/my_sessions');
       }
     });
   };

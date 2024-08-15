@@ -249,7 +249,7 @@ export default function EditorHome(props) {
 
   useEffect(() => {
     if (user && id) {
-      axios.post(`${PROCESSOR_API_URL}/sessions/get_or_create_session`, {
+      axios.post(`${PROCESSOR_API_URL}/sessions/get_session`, {
         userId: user._id.toString(),
         sessionId: id
       }).then((response) => {

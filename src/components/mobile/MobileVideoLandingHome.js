@@ -34,7 +34,7 @@ export default function MobileVideoLandingHome() {
     axios.get(`${API_SERVER}/video_sessions/fetch_guest_session`).then((res) => {
       const sessionData = res.data;
       if (sessionData) {
-      navigate(`/video/${sessionData._id}`);
+        navigate(`/video/${sessionData._id}`);
       }
     });
   } else {
@@ -44,17 +44,21 @@ export default function MobileVideoLandingHome() {
     } else {
       const headers = getHeaders();
 
-      axios.get(`${API_SERVER}/video_sessions/get_or_create_session`, headers).then((res) => {
+      axios.get(`${API_SERVER}/video_sessions/get_session`, headers).then((res) => {
         const sessionData = res.data;
-        localStorage.setItem('videoSessionId', sessionData._id);
-        navigate(`/video/${sessionData._id}`);
+        if (sessionData) {
+          localStorage.setItem('videoSessionId', sessionData._id);
+          navigate(`/video/${sessionData._id}`);
+        } else {
+          navigate('/my_sessions');
+        }
       });
     }
   }
 
   return (
     <div>
-     
+
     </div>
   );
 }

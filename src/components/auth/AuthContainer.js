@@ -9,7 +9,7 @@ import { getHeaders } from '../../utils/web.js';
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
 export default function AuthContainer() {
-  const [ currentLoginView, setCurrentLoginView ] = useState('login');
+  const [currentLoginView, setCurrentLoginView] = useState('login');
 
   const API_SERVER = process.env.REACT_APP_PROCESSOR_API;
   const navigate = useNavigate();
@@ -23,7 +23,7 @@ export default function AuthContainer() {
       currentMediaFlowPath = 'quick_video';
     }
     localStorage.setItem('currentMediaFlowPath', currentMediaFlowPath);
-    
+
     axios.get(`${PROCESSOR_SERVER}/users/twitter_login`).then(function (dataRes) {
       const authPayload = dataRes.data;
       const twitterAuthUrl = authPayload.loginUrl;
@@ -40,7 +40,7 @@ export default function AuthContainer() {
       window.open(twitterAuthUrl, '_blank');
     })
     closeAlertDialog();
-  
+
   }
 
   const verifyAndSetUserProfile = (profile) => {
@@ -56,15 +56,19 @@ export default function AuthContainer() {
   const getOrCreateUserSession = () => {
     const headers = getHeaders();
 
-    axios.get(`${API_SERVER}/video_sessions/get_or_create_session`, headers).then((res) => {
+    axios.get(`${API_SERVER}/video_sessions/get_session`, headers).then((res) => {
       const sessionData = res.data;
-      localStorage.setItem('videoSessionId', sessionData._id);
+      if (sessionData) {
+        localStorage.setItem('videoSessionId', sessionData._id);
 
-      // Check the current path and navigate accordingly
-      if (location.pathname.includes('/video/')) {
-        navigate(`/video/${sessionData._id}`);
+        // Check the current path and navigate accordingly
+        if (location.pathname.includes('/video/')) {
+          navigate(`/video/${sessionData._id}`);
+        } else {
+          navigate(`/quick_video/${sessionData._id}`);
+        }
       } else {
-        navigate(`/quick_video/${sessionData._id}`);
+        navigate('/my_sessions');
       }
     });
 
@@ -72,22 +76,22 @@ export default function AuthContainer() {
 
   if (currentLoginView === 'login') {
     return (
-      <Login setCurrentLoginView={setCurrentLoginView} 
-      siginToTwitter={siginToTwitter}
-      verifyAndSetUserProfile={verifyAndSetUserProfile}
-      setUser={setUser}
-      closeAlertDialog={closeAlertDialog}
-      getOrCreateUserSession={getOrCreateUserSession}
+      <Login setCurrentLoginView={setCurrentLoginView}
+        siginToTwitter={siginToTwitter}
+        verifyAndSetUserProfile={verifyAndSetUserProfile}
+        setUser={setUser}
+        closeAlertDialog={closeAlertDialog}
+        getOrCreateUserSession={getOrCreateUserSession}
       />
     )
   }
   return (
-    <Register setCurrentLoginView={setCurrentLoginView} 
-    registerToTwitter={registerToTwitter}
-    verifyAndSetUserProfile={verifyAndSetUserProfile} 
-    setUser={setUser}
-    getOrCreateUserSession={getOrCreateUserSession}
-    closeAlertDialog={closeAlertDialog}
+    <Register setCurrentLoginView={setCurrentLoginView}
+      registerToTwitter={registerToTwitter}
+      verifyAndSetUserProfile={verifyAndSetUserProfile}
+      setUser={setUser}
+      getOrCreateUserSession={getOrCreateUserSession}
+      closeAlertDialog={closeAlertDialog}
     />
   )
 }

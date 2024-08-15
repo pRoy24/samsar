@@ -12,7 +12,7 @@ export default function CreatorLanding(props) {
   const { user } = useUser();
 
   const createNewSession = () => {
-    axios.post(`${PROCESSOR_SERVER}/sessions/create`, {
+    axios.post(`${PROCESSOR_SERVER}/sessions/create_video_session`, {
       fid: user.fid,
     }).then((res) => {
       console.log(res);

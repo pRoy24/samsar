@@ -34,7 +34,7 @@ export default function VideoEditorLandingHome() {
     axios.get(`${API_SERVER}/video_sessions/fetch_guest_session`).then((res) => {
       const sessionData = res.data;
       if (sessionData) {
-      navigate(`/video/${sessionData._id}`);
+        navigate(`/video/${sessionData._id}`);
       }
     });
   } else {
@@ -53,15 +53,21 @@ export default function VideoEditorLandingHome() {
       }).catch(() => {
         localStorage.removeItem('videoSessionId');
         createNewSession();
-      });    
-    
+      });
+
     } else {
       const headers = getHeaders();
 
-      axios.get(`${API_SERVER}/video_sessions/get_or_create_session`, headers).then((res) => {
+      axios.get(`${API_SERVER}/video_sessions/get_session`, headers).then((res) => {
         const sessionData = res.data;
-        localStorage.setItem('videoSessionId', sessionData._id);
-        navigate(`/video/${sessionData._id}`);
+        if (sessionData) {
+          localStorage.setItem('videoSessionId', sessionData._id);
+          navigate(`/video/${sessionData._id}`);
+        } else {
+
+          navigate('/my_sessions');
+        }
+
       });
     }
   }
@@ -69,7 +75,7 @@ export default function VideoEditorLandingHome() {
   const createNewSession = () => {
     const headers = getHeaders();
 
-    axios.get(`${API_SERVER}/video_sessions/get_or_create_session`, headers).then((res) => {
+    axios.get(`${API_SERVER}/video_sessions/create_video_session`, headers).then((res) => {
       const sessionData = res.data;
       localStorage.setItem('videoSessionId', sessionData._id);
       navigate(`/video/${sessionData._id}`);
@@ -78,7 +84,7 @@ export default function VideoEditorLandingHome() {
 
   return (
     <div>
-     
+
     </div>
   );
 }

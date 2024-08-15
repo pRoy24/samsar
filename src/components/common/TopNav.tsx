@@ -82,6 +82,7 @@ export default function TopNav(props) {
   };
 
   const upgradeToPremiumTier = () => {
+
     const alertDialogComponent = <UpgradePlan />;
     openAlertDialog(alertDialogComponent);
   };
@@ -109,7 +110,9 @@ export default function TopNav(props) {
   };
 
   const createNewSessionDialog = () => {
+
     openAlertDialog(alertDialogComponent);
+  
   };
 
   const addNewExpressSession = () => {
@@ -197,7 +200,9 @@ export default function TopNav(props) {
   }
 
   const gotoHome = () => {
+
     openAlertDialog(alertDialogComponent);
+  
   };
 
   let addSessionButton = <span />;
@@ -206,7 +211,7 @@ export default function TopNav(props) {
     addSessionButton = (
       <div className="inline-flex float-right">
         <div className="inline-flex ml-2 mr-2">
-          <AddSessionDropdown createNewSession={createNewSessionDialog} gotoViewSessionsPage={gotoViewSessionsPage}
+          <AddSessionDropdown createNewSession={createNewSession} gotoViewSessionsPage={gotoViewSessionsPage}
           addNewExpressSession={addNewExpressSession} />
         </div>
       </div>
