@@ -206,25 +206,31 @@ export default function QuickEditor() {
     setSubtitlesLanguage(selectedOption);
   };
 
-  const handlePromptListBlur = () => {
-    const detectedLanguage = franc(promptList);
+  const handlePromptListChange = (event) => {
+    const newPromptList = event.target.value;
+    setPromptList(newPromptList);
+  
+    // Detect the language of the new prompt list
+    const detectedLanguage = franc(newPromptList);
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage);
-
+  
     // Update language based on detected language
     if (matchedLanguage) {
       setSpeechLanguage(matchedLanguage);
       setSubtitlesLanguage(matchedLanguage);
     }
-
+  
     // Update word count and character count
-    const words = promptList.split(/\s+/).filter(Boolean).length;
-    const characters = promptList.length;
+    const words = newPromptList.split(/\s+/).filter(Boolean).length;
+    const characters = newPromptList.length;
     setWordCount(words);
     setCharacterCount(characters);
-
+  
+    // Recalculate credits based on the new prompt list
     calculateCredits();
   };
 
+  
   const showLoginDialog = () => {
     const loginComponent = <AuthContainer />;
     openAlertDialog(loginComponent);
@@ -343,63 +349,30 @@ export default function QuickEditor() {
     });
   };
 
+
   const calculateCredits = () => {
     let credits = 0;
-
-    // Logic for JP/Chinese languages based on character count
-    if (speechLanguage.value === 'jpn' || speechLanguage.value === 'zho') {
-      if (characterCount <= 2500) {
-        credits += 5; // 5 credits for image
-        if (speakerType) {
-          credits += 5; // 5 credits for speech
-        }
-        if (speechLanguage.value !== subtitlesLanguage.value) {
-          credits += 5; // 5 credits for translation
-        }
-        if (musicPrompt.trim() !== '') {
-          credits += 5; // 5 credits for music
-        }
-      } else if (characterCount <= 5000) {
-        credits += 10; // 10 credits for image
-        if (speakerType) {
-          credits += 10; // 10 credits for speech
-        }
-        if (speechLanguage.value !== subtitlesLanguage.value) {
-          credits += 10; // 10 credits for translation
-        }
-        if (musicPrompt.trim() !== '') {
-          credits += 5; // 5 credits for music
-        }
-      }
-    } else {
-      // Logic for other languages based on word count
-      if (wordCount <= 500) {
-        credits += 5; // 5 credits for image
-        if (speakerType) {
-          credits += 5; // 5 credits for speech
-        }
-        if (speechLanguage.value !== subtitlesLanguage.value) {
-          credits += 5; // 5 credits for translation
-        }
-        if (musicPrompt.trim() !== '') {
-          credits += 5; // 5 credits for music
-        }
-      } else if (wordCount <= 1000) {
-        credits += 10; // 10 credits for image
-        if (speakerType) {
-          credits += 10; // 10 credits for speech
-        }
-        if (speechLanguage.value !== subtitlesLanguage.value) {
-          credits += 10; // 10 credits for translation
-        }
-        if (musicPrompt.trim() !== '') {
-          credits += 5; // 5 credits for music
-        }
-      }
+  
+    // Calculate credits based on character count (500 characters per unit)
+    const creditUnits = Math.ceil(characterCount / 500);
+    credits += creditUnits * 5; // 5 credits per image unit
+  
+    if (document.querySelector("input[name='speechRequired']").checked) {
+      credits += creditUnits * 5; // 5 credits per speech unit
     }
-
+  
+    if (speechLanguage.value !== subtitlesLanguage.value) {
+      credits += creditUnits * 5; // 5 credits per translation unit
+    }
+  
+    if (document.querySelector("input[name='backgroundMusicRequired']").checked) {
+      credits += 5; // Add 5 credits for music if selected
+    }
+  
     setCreditsPreview(credits);
   };
+
+  
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -468,8 +441,19 @@ export default function QuickEditor() {
     setShowCreditsBreakdown(!showCreditsBreakdown);
   };
 
+
+  const handleSpeechCheckboxChange = () => {
+    calculateCredits();
+  };
+  
+  const handleMusicCheckboxChange = () => {
+    calculateCredits();
+  };
+  
+
+
   let creditsProcessedPreviewDisplay = (
-    <div className="text-white mt-4 p-2 bg-gray-900 rounded text-center">
+    <div className="text-white mt-0 p-2 bg-gray-900 rounded text-center">
       <div className="text-center items-center cursor-pointer" onClick={toggleCreditsBreakdown}>
         <span className='font-bold text-sm text-neutral-100'>This operation will consume {creditsPreview} credits</span>
         <FaChevronDown className={`transform ${showCreditsBreakdown ? 'rotate-180' : ''} inline-flex text-xs ml-1`} />
@@ -478,7 +462,7 @@ export default function QuickEditor() {
         <div className="mt-2 text-sm">
           {speechLanguage.value === 'jpn' || speechLanguage.value === 'zho' ? (
             <>
-              {characterCount <= 2500 ? (
+              {characterCount <= 2000 ? (
                 <>
                   <p>5 credits for image</p>
                   {speakerType && <p>5 credits for speech</p>}
@@ -553,21 +537,21 @@ export default function QuickEditor() {
                   </div>
                 </div>
                 <div>
-                  
+
+                  <div className='block'>
                     <div className='block'>
-                      <div className='block'>
-                        <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Animation:</label>
-                      </div>
-                      <div>
-                        <SingleSelect
-                          value={animation}
-                          onChange={handleAnimationChange}
-                          options={animationOptions}
-                          className="w-28"
-                        />
-                      </div>
+                      <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Animation:</label>
                     </div>
-                  
+                    <div>
+                      <SingleSelect
+                        value={animation}
+                        onChange={handleAnimationChange}
+                        options={animationOptions}
+                        className="w-28"
+                      />
+                    </div>
+                  </div>
+
                 </div>
                 <div>
                   <div className='block'>
@@ -635,7 +619,8 @@ export default function QuickEditor() {
                       </div>
                       <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
                         name="backgroundMusicRequired"
-                        defaultChecked={true} />
+                        defaultChecked={true}
+                        onChange={handleMusicCheckboxChange}  />
                     </div>
                   </div>
                   <div className='flex ml-8 w-full'>
@@ -645,7 +630,9 @@ export default function QuickEditor() {
                       </div>
                       <input type="checkbox"
                         className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
-                        name="speechRequired" defaultChecked={true} />
+                        name="speechRequired" defaultChecked={true}
+                        onChange={handleSpeechCheckboxChange} 
+                         />
                     </div>
                     <div>
                       <div>
@@ -730,21 +717,22 @@ export default function QuickEditor() {
                 minRows={5}
                 maxRows={20}
                 className="w-11/12 bg-gray-950 text-white p-4 rounded mx-auto"
-                placeholder="Type your dialogs here.
-                One line per dialog. Do not enter prompts, just the dialog text."
+                placeholder="Type your dialogs here. One line per dialog. Do not enter prompts, just the dialog text."
                 name="promptList"
-                value={promptList} // Bind state to the textarea
-                onChange={(e) => setPromptList(e.target.value)} // Update state on change
-                onBlur={handlePromptListBlur} // Language detection on blur
+                value={promptList}
+                onChange={handlePromptListChange} // Update state and calculations on change
               />
 
-              <div>
-                {creditsProcessedPreviewDisplay}
-              </div>
-              <div className='mt-4'>
+
+              <div className='relative mt-4'>
                 <CommonButton type="submit" >
                   Submit
                 </CommonButton>
+
+                <div className='absolute right-4 top-0'>
+                {creditsProcessedPreviewDisplay}
+              </div>
+
               </div>
             </div>
           </div>
