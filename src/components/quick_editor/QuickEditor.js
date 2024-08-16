@@ -207,6 +207,8 @@ export default function QuickEditor() {
   };
 
   const handlePromptListChange = (event) => {
+
+
     const newPromptList = event.target.value;
     setPromptList(newPromptList);
   
@@ -225,9 +227,32 @@ export default function QuickEditor() {
     const characters = newPromptList.length;
     setWordCount(words);
     setCharacterCount(characters);
-  
+
+
     // Recalculate credits based on the new prompt list
-    calculateCredits();
+    calculateCredits(characters);
+  };
+
+  const calculateCredits = (characterCount) => {
+    let credits = 0;
+  
+    // Calculate credits based on character count (500 characters per unit)
+    const creditUnits = Math.ceil(characterCount / 500);
+    credits += creditUnits * 5; // 5 credits per image unit
+  
+    if (document.querySelector("input[name='speechRequired']").checked) {
+      credits += creditUnits * 5; // 5 credits per speech unit
+    }
+  
+    if (speechLanguage.value !== subtitlesLanguage.value) {
+      credits += creditUnits * 5; // 5 credits per translation unit
+    }
+  
+    if (document.querySelector("input[name='backgroundMusicRequired']").checked) {
+      credits += 5; // Add 5 credits for music if selected
+    }
+  
+    setCreditsPreview(credits);
   };
 
   
@@ -349,27 +374,7 @@ export default function QuickEditor() {
   };
 
 
-  const calculateCredits = () => {
-    let credits = 0;
-  
-    // Calculate credits based on character count (500 characters per unit)
-    const creditUnits = Math.ceil(characterCount / 500);
-    credits += creditUnits * 5; // 5 credits per image unit
-  
-    if (document.querySelector("input[name='speechRequired']").checked) {
-      credits += creditUnits * 5; // 5 credits per speech unit
-    }
-  
-    if (speechLanguage.value !== subtitlesLanguage.value) {
-      credits += creditUnits * 5; // 5 credits per translation unit
-    }
-  
-    if (document.querySelector("input[name='backgroundMusicRequired']").checked) {
-      credits += 5; // Add 5 credits for music if selected
-    }
-  
-    setCreditsPreview(credits);
-  };
+
 
   
 
