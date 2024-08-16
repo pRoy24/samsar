@@ -241,7 +241,6 @@ export default function QuickEditor() {
     const timer = setInterval(() => {
       axios.get(`${PROCESSOR_API_URL}/quick_session/status?sessionId=${id}`, headers).then(function (dataRes) {
         const quickSessionStatus = dataRes.data;
-        console.log(quickSessionStatus);
 
         if (quickSessionStatus.status === 'PENDING') {
           setExpressGenerationStatus(quickSessionStatus.expressGenerationStatus);
@@ -449,7 +448,7 @@ export default function QuickEditor() {
   const handleMusicCheckboxChange = () => {
     calculateCredits();
   };
-  
+
 
 
   let creditsProcessedPreviewDisplay = (

@@ -18,8 +18,6 @@ export default function ProgressIndicator(props) {
     setShowResultDisplay
   } = props;
 
-  console.log(expressGenerationStatus);
-  
 
   const progressPercentage = expressGenerationStatus ? getProgressPercentage(expressGenerationStatus) : 0;
 
