@@ -428,7 +428,7 @@ export default function QuickEditor() {
   if (sessionDetails && sessionDetails.videoLink) {
     downloadPreviousRenderLink = (
       <div className='flex justify-center text-xs underline hover:text-neutral-600'>
-        <a href={sessionDetails.videoLink} download className='text-white underline'>Download previous render</a>
+        <a href={`${PROCESSOR_API_URL}/${sessionDetails.videoLink}`} download className='text-white underline'>Download previous render</a>
       </div>
     );
   }
