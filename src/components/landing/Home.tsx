@@ -18,6 +18,7 @@ import { useUser } from "../../contexts/UserContext";
 import VideoEditorLandingHome from "../video/VideoEditorLandingHome.js";
 import ListVideoSessions from "../video/sessions/ListVideoSessions.js";
 import QuickEditorContainer from "../quick_editor/QuickEditorContainer.js";
+import EmailVerificationHome from "../verification/EmailVerificationHome.js";
 
 import QuickEditorLandingHome from "../quick_editor/QuickEditorLandingHome.js";
 import MobileVideoLandingHome from "../mobile/MobileVideoLandingHome.js";
@@ -76,6 +77,7 @@ export default function Home() {
         <Route path="/account" element={<UserAccount />} />
         <Route path="/publication/:id" element={<PublicationHome />} />
         <Route path="/verify" element={<VerificationHome />} />
+        <Route path="/verify_email" element={<EmailVerificationHome />} />
         <Route path="/payment_success" element={<PaymentsSuccess />} />
         <Route path="/payment_cancel" element={<PaymentsFailure />} />
 
