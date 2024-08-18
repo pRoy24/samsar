@@ -1,5 +1,7 @@
 import React, { useEffect } from 'react';
 import axios from 'axios';
+import OverflowContainer from '../common/OverflowContainer.tsx';
+import { FaSpinner } from 'react-icons/fa6';
 
 const PROCESSOR_API = process.env.REACT_APP_PROCESSOR_API;
 
@@ -28,9 +30,14 @@ export default function EmailVerificationHome() {
   }, []);
   
   return (
-    <div>
-      <h1>Email Verification</h1>
+    <OverflowContainer>
+      <div className='bg-gray-800 h-[100vh] w-full align-center pt-[60px]'>
+      <div className='text-neutral-100 text-lg'>
+        <FaSpinner className='animate-spin inline-flex mr-2' />
+        Verifying email</div>
+      </div>
+     
 
-    </div>  
+    </OverflowContainer>  
   )
 }
