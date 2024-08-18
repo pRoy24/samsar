@@ -324,7 +324,7 @@ export default function QuickEditor() {
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage) || { value: 'eng' };
     const subtitlesTranslationRequired = subtitlesLanguage.value !== matchedLanguage.value;
     const speechTranslationRequired = speechLanguage.value !== matchedLanguage.value;
-
+    
     let durationPerScene = 5;
     if (duration.value !== 'auto') {
       durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
@@ -341,6 +341,8 @@ export default function QuickEditor() {
       fontFamily = getFontFamilyForLanguage(subtitlesLanguage.value);
     }
 
+
+
     // Constructing the payload with all form elements
     let payload = {
       sessionId: id,
@@ -355,6 +357,7 @@ export default function QuickEditor() {
       speakerType: speakerType ? speakerType.value : null,
       speechLanguage: speechLanguage.value,
       subtitlesLanguage: subtitlesLanguage.value,
+      textLanguage: matchedLanguage.value, 
       fontFamily: fontFamily,
       subtitlesTranslationRequired: subtitlesTranslationRequired,
       speechTranslationRequired: speechTranslationRequired,
@@ -373,10 +376,6 @@ export default function QuickEditor() {
     });
   };
 
-
-
-
-  
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
