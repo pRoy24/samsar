@@ -371,7 +371,10 @@ export default function QuickEditor() {
       payload.duration = 10;
     }
 
+    setExpressGenerationStatus(null);
+    
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
+      
       startQuickGenerationPoll();
     });
   };
