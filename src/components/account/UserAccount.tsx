@@ -30,7 +30,7 @@ export default function UserAccount() {
 
   let accountType = "Free";
   let accountActions = <span />;
-  console.log(user);
+
 
   if (user.isPremiumUser) {
     accountType = "Premium";
@@ -48,11 +48,10 @@ export default function UserAccount() {
   }
 
   const purchaseCreditsForUser = (amountToPurchase) => {
-    console.log("purchaseCreditsForUser", amountToPurchase);
 
     const purchaseAmountRequest = parseInt(amountToPurchase);
 
-    console.log(purchaseAmountRequest);
+  
     const headers = getHeaders();
 
     const payload = {
@@ -78,7 +77,7 @@ export default function UserAccount() {
   };
 
   const showPurchaseCreditsAction = () => {
-    console.log("showPurchaseCreditsAction");
+
 
     openAlertDialog(
       <AddCreditsDialog purchaseCreditsForUser={purchaseCreditsForUser} />
@@ -91,7 +90,7 @@ export default function UserAccount() {
   };
 
   const handleCancelMembership = () => {
-    console.log("Cancel Membership clicked");
+
     const headers = getHeaders();
     axios.post(`${PROCESSOR_SERVER}/users/cancel_membership`, {}, headers).then(function (dataRes) {
       getUserAPI();
@@ -100,7 +99,7 @@ export default function UserAccount() {
   };
 
   const handleDeleteAccount = () => {
-    console.log("Delete Account clicked");
+
     // Implement your delete account logic here
   };
 
@@ -114,7 +113,7 @@ export default function UserAccount() {
   };
 
   const logoutUser = () => {
-    console.log("logoutUser");
+
     resetUser();
     navigate("/");
   };

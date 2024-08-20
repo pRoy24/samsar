@@ -91,6 +91,8 @@ export default function QuickEditor() {
   const [showCreditsBreakdown, setShowCreditsBreakdown] = useState(false);
   const [sceneCutoffType, setSceneCutoffType] = useState({ value: 'auto', label: 'Auto' });
 
+  const [errorMessages, setErrorMessages] = useState(null);
+
   // New state variables
   const [wordCount, setWordCount] = useState(0);
   const [characterCount, setCharacterCount] = useState(0);
@@ -224,17 +226,17 @@ export default function QuickEditor() {
 
     const newPromptList = event.target.value;
     setPromptList(newPromptList);
-  
+
     // Detect the language of the new prompt list
     const detectedLanguage = franc(newPromptList);
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage);
-  
+
     // Update language based on detected language
     if (matchedLanguage) {
       setSpeechLanguage(matchedLanguage);
       setSubtitlesLanguage(matchedLanguage);
     }
-  
+
     // Update word count and character count
     const words = newPromptList.split(/\s+/).filter(Boolean).length;
     const characters = newPromptList.length;
@@ -248,27 +250,27 @@ export default function QuickEditor() {
 
   const calculateCredits = (characterCount) => {
     let credits = 0;
-  
+
     // Calculate credits based on character count (500 characters per unit)
     const creditUnits = Math.ceil(characterCount / 500);
     credits += creditUnits * 5; // 5 credits per image unit
-  
+
     if (document.querySelector("input[name='speechRequired']").checked) {
       credits += creditUnits * 5; // 5 credits per speech unit
     }
-  
+
     if (speechLanguage.value !== subtitlesLanguage.value) {
       credits += creditUnits * 5; // 5 credits per translation unit
     }
-  
+
     if (document.querySelector("input[name='backgroundMusicRequired']").checked) {
       credits += 5; // Add 5 credits for music if selected
     }
-  
+
     setCreditsPreview(credits);
   };
 
-  
+
   const showLoginDialog = () => {
     const loginComponent = <AuthContainer />;
     openAlertDialog(loginComponent);
@@ -337,7 +339,7 @@ export default function QuickEditor() {
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage) || { value: 'eng' };
     const subtitlesTranslationRequired = subtitlesLanguage.value !== matchedLanguage.value;
     const speechTranslationRequired = speechLanguage.value !== matchedLanguage.value;
-    
+
     let durationPerScene = 5;
     if (duration.value !== 'auto') {
       durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
@@ -370,7 +372,7 @@ export default function QuickEditor() {
       speakerType: speakerType ? speakerType.value : null,
       speechLanguage: speechLanguage.value,
       subtitlesLanguage: subtitlesLanguage.value,
-      textLanguage: matchedLanguage.value, 
+      textLanguage: matchedLanguage.value,
       fontFamily: fontFamily,
       subtitlesTranslationRequired: subtitlesTranslationRequired,
       speechTranslationRequired: speechTranslationRequired,
@@ -385,11 +387,17 @@ export default function QuickEditor() {
     }
 
     setExpressGenerationStatus(null);
-    
+
     axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
-      
+
       startQuickGenerationPoll();
-    });
+    }).catch(function (err) {
+
+      if (err.response.data) {
+        setErrorMessage(err.response.data);
+      }
+      setIsGenerationPending(false);
+    });;
   };
 
 
@@ -423,6 +431,38 @@ export default function QuickEditor() {
     }, 1000);
 
   };
+
+
+  const purchaseCreditsForUser = (amountToPurchase) => {
+ 
+
+    const purchaseAmountRequest = parseInt(amountToPurchase);
+
+  
+    const headers = getHeaders();
+
+    const payload = {
+      amount: purchaseAmountRequest,
+    };
+
+    axios
+      .post(`${PROCESSOR_API_URL}/users/purchase_credits`, payload, headers)
+      .then(function (dataRes) {
+        console.log(dataRes);
+        const data = dataRes.data;
+
+        if (data.url) {
+          // Open the Stripe payment page in a new tab
+          window.open(data.url, "_blank");
+        } else {
+          console.error("Failed to get Stripe payment URL");
+        }
+      })
+      .catch(function (error) {
+        console.error("Error during payment process", error);
+      });
+  };
+
 
   const submitAssistantQuery = (query) => {
     const headers = getHeaders();
@@ -464,7 +504,7 @@ export default function QuickEditor() {
   const handleSpeechCheckboxChange = () => {
     calculateCredits();
   };
-  
+
   const handleMusicCheckboxChange = () => {
     calculateCredits();
   };
@@ -541,6 +581,8 @@ export default function QuickEditor() {
           isGenerationPending={isGenerationPending}
           expressGenerationStatus={expressGenerationStatus}
           setShowResultDisplay={setShowResultDisplay}
+          errorMessage={errorMessage}
+          purchaseCreditsForUser={purchaseCreditsForUser}
         />
       )}
       <div className='mt-[60px]'>
@@ -652,7 +694,7 @@ export default function QuickEditor() {
                       <input type='checkbox' className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
                         name="backgroundMusicRequired"
                         defaultChecked={true}
-                        onChange={handleMusicCheckboxChange}  />
+                        onChange={handleMusicCheckboxChange} />
                     </div>
                   </div>
                   <div className='flex ml-8 w-full'>
@@ -663,8 +705,8 @@ export default function QuickEditor() {
                       <input type="checkbox"
                         className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
                         name="speechRequired" defaultChecked={true}
-                        onChange={handleSpeechCheckboxChange} 
-                         />
+                        onChange={handleSpeechCheckboxChange}
+                      />
                     </div>
                     <div>
                       <div>
@@ -762,8 +804,8 @@ export default function QuickEditor() {
                 </CommonButton>
 
                 <div className='absolute right-4 top-0'>
-                {creditsProcessedPreviewDisplay}
-              </div>
+                  {creditsProcessedPreviewDisplay}
+                </div>
 
               </div>
             </div>

@@ -1,6 +1,8 @@
 import React from 'react';
 import { FaChevronLeft, FaTimes, FaSpinner } from 'react-icons/fa';
 import './mobileStyles.css';
+import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
+import AddCreditsDialog from "../account/AddCreditsDialog.js";
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -15,16 +17,48 @@ export default function ProgressIndicator(props) {
     isGenerationPending,
     expressGenerationStatus,
     videoLink,
-    setShowResultDisplay
+    setShowResultDisplay,
+    errorMessage,
+    purchaseCreditsForUser
   } = props;
+
+  const { openAlertDialog } = useAlertDialog();
+
+
+
 
 
   const progressPercentage = expressGenerationStatus ? getProgressPercentage(expressGenerationStatus) : 0;
 
+  let errorMessageDisplay = null;
+
+
+  const showBuyCreditsDialog = () => {
+    openAlertDialog(
+      <AddCreditsDialog
+        purchaseCreditsForUser={purchaseCreditsForUser()}
+      />
+    );
+  }
+  if (errorMessage) {
+    errorMessageDisplay = (
+      <div className="text-white p-2 rounded mb-2">
+        <div className='bg-red-800 '>
+
+
+        {errorMessage.error}
+        </div>
+        <div className='cursor-pointer red-600 hover:red-400' onClick={() => (showBuyCreditsDialog())}>
+          Buy more credits now.
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="absolute top-0 z-10 w-full h-full flex flex-col justify-start bg-black bg-opacity-90 rounded-lg">
       <div className="relative w-full p-4">
         <div>
+          {errorMessageDisplay}
           <div
             onClick={() => setShowResultDisplay(false)}
             className="float-right mr-2 mb-8 bg-gray-900 hover:bg-gray-950 px-4 py-1 rounded cursor-pointer
@@ -32,6 +66,7 @@ export default function ProgressIndicator(props) {
           >
             <FaTimes className="inline-flex" /> Close
           </div>
+
         </div>
         <div className='m-auto'>
           {isGenerationPending && expressGenerationStatus ? (
