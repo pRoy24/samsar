@@ -13,6 +13,7 @@ import { getHeaders } from '../../utils/web.js';
 import ProgressIndicator from './ProgressIndicator.js';
 import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
 import { SPEAKER_TYPES } from '../../constants/Types.ts';
+import { useNavigate } from 'react-router-dom';
 import { franc } from 'franc';
 
 import AuthContainer from '../auth/AuthContainer.js';
@@ -59,6 +60,8 @@ const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 export default function QuickEditor() {
   const { id } = useParams(); // Destructure id from useParams
   const { openAlertDialog } = useAlertDialog();
+
+  const navigate = useNavigate();
 
   // State variables
   const [videoType, setVideoType] = useState({ value: 'Slideshow', label: 'Slideshow' });
@@ -155,6 +158,13 @@ export default function QuickEditor() {
     value: speaker_type,
     label: speaker_type,
   }));
+
+  useEffect(() => {
+    if (sessionDetails && sessionDetails.textList) {
+      setPromptList(sessionDetails.textList.join('\n'));
+    }
+  }, [sessionDetails]);
+
 
   const handleVideoTypeChange = (selectedOption) => {
     setVideoType(selectedOption);
@@ -457,7 +467,6 @@ export default function QuickEditor() {
   };
 
 
-
   let creditsProcessedPreviewDisplay = (
     <div className="text-white mt-0 p-2 bg-gray-900 rounded text-center">
       <div className="text-center items-center cursor-pointer" onClick={toggleCreditsBreakdown}>
@@ -508,6 +517,10 @@ export default function QuickEditor() {
     </div>
   );
 
+  const viewInStudio = () => {
+    navigate(`/video/${id}`);
+  }
+
   return (
     <div className='relative w-full'>
       {showResultDisplay && (
@@ -521,6 +534,9 @@ export default function QuickEditor() {
       <div className='mt-[60px]'>
         <div>
           {downloadPreviousRenderLink}
+          <div className='text-white' onClick={viewInStudio}>
+            View in Studio
+          </div>
         </div>
         <div>
           {errorMessageDisplay}
