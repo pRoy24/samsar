@@ -127,6 +127,9 @@ export default function QuickEditor() {
     axios.get(`${PROCESSOR_API_URL}/quick_session/details?sessionId=${id}`, headers).then(function (dataRes) {
       const sessionData = dataRes.data;
       setSessionDetails(sessionData);
+      if (sessionData.videoLink) {
+        setVideoLink(sessionData.videoLink);
+      }
     });
   }, [id]); // This effect runs every time the id changes
 
@@ -521,6 +524,15 @@ export default function QuickEditor() {
     navigate(`/video/${id}`);
   }
 
+  let viewInStudioLink = <span />;
+  if (videoLink) {
+    viewInStudioLink = (
+      <div className='flex justify-center text-xs underline hover:text-neutral-600'>
+        <div onClick={viewInStudio} className='text-white underline cursor-pointer'>View in Studio</div>
+      </div>
+    );
+  }
+
   return (
     <div className='relative w-full'>
       {showResultDisplay && (
@@ -534,9 +546,7 @@ export default function QuickEditor() {
       <div className='mt-[60px]'>
         <div>
           {downloadPreviousRenderLink}
-          <div className='text-white' onClick={viewInStudio}>
-            View in Studio
-          </div>
+          {viewInStudioLink}
         </div>
         <div>
           {errorMessageDisplay}
