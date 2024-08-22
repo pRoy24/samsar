@@ -1147,6 +1147,11 @@ export default function VideoEditorContainer(props) {
     });
   }
 
+  let currentDefaultPrompt = '';
+  if (currentLayer && currentLayer.prompt) {
+    currentDefaultPrompt = currentLayer.prompt;
+  }
+
 
   return (
     <div className='block'>
@@ -1223,6 +1228,7 @@ export default function VideoEditorContainer(props) {
           hideItemInLayer={toggleHideItemInLayer}
           applyAnimationToAllLayers={applyAnimationToAllLayers}
           submitGenerateLayeredSpeechRequest={submitGenerateLayeredSpeechRequest}
+          currentDefaultPrompt={currentDefaultPrompt}
         />
         <ToastContainer 
           position="bottom-center"

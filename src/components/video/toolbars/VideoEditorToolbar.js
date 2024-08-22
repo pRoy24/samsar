@@ -26,6 +26,7 @@ import { LuCombine } from "react-icons/lu";
 import { TbLibraryPhoto } from "react-icons/tb";
 import { GrObjectUngroup } from "react-icons/gr";
 import { SPEAKER_TYPES } from '../../../constants/Types.ts';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export default function VideoEditorToolbar(props: any) {
   const {
@@ -76,6 +77,7 @@ export default function VideoEditorToolbar(props: any) {
     submitGenerateLayeredSpeechRequest
   } = props;
 
+  
   const [selectedAnimationOption, setSelectedAnimationOption] = useState(null);
   const [animationParams, setAnimationParams] = useState({});
   const [addText, setAddText] = useState('');
@@ -858,21 +860,25 @@ export default function VideoEditorToolbar(props: any) {
   let defaultsOptionDisplay = <span />;
   let defaultsSubOptionsDisplay = <span />;
 
+
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_SET_DEFAULTS_DISPLAY) {
     const { defaultSceneDuration, imageGenerationTheme } = sessionDetails;
     defaultsOptionDisplay = (
       <div>
         <form onSubmit={submitUpdateSessionDefaults}>
-          <textarea placeholder="Project theme"
+          <TextareaAutosize
+            placeholder="Project theme"
             name="imageGenerationTheme"
-            rows={5}
-            className={`w-full h-20 mt-2 ${bgColor} ${text2Color} p-2`}
+            minRows={3}
+            className={`w-full mt-2 ${bgColor} ${text2Color} p-2`}
             defaultValue={imageGenerationTheme}
-          ></textarea>
+          />
           <div className={`text-xs ${text2Color} mb-2 ml-2`}>
             Theme keywords
           </div>
-          <input type="text" placeholder="Scene duration"
+          <input
+            type="text"
+            placeholder="Scene duration"
             name="defaultSceneDuration"
             className={`w-full mt-2 ${bgColor} ${text2Color} p-1 h-[30px]`}
             defaultValue={defaultSceneDuration}
@@ -880,13 +886,14 @@ export default function VideoEditorToolbar(props: any) {
           <div className={`text-xs ${text2Color} mb-2 ml-2`}>
             Default scene duration
           </div>
-          <div className='ml-2'>
+          <div className="ml-2">
             <SecondaryButton type="submit">Save</SecondaryButton>
           </div>
         </form>
       </div>
     );
   }
+  
 
   return (
     <div className={`border-l-2 ${bgColor} h-full m-auto fixed top-0 overflow-y-auto pl-2 r-4 w-[16%] pr-2`}>
