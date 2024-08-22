@@ -4,7 +4,7 @@ import CommonButton from '../common/CommonButton.tsx';
 import { FaCopy } from 'react-icons/fa';
 import { MdMinimize } from 'react-icons/md';
 import dayjs from 'dayjs';
-
+import TextareaAutosize from 'react-textarea-autosize';
 
 export default function AssistantHome(props) {
   const { submitAssistantQuery, sessionMessages, isAssistantQueryGenerating } = props;
@@ -12,17 +12,21 @@ export default function AssistantHome(props) {
   const [isOpen, setIsOpen] = useState(false);
   const [userInput, setUserInput] = useState('');
   const { colorMode } = useColorMode();
-  const textAreaRef = useRef(null);
   const messagesEndRef = useRef(null);
 
-  
   const toggleAssistant = () => {
     setIsOpen(!isOpen);
   };
 
   const handleInputChange = (e) => {
     setUserInput(e.target.value);
-    adjustTextAreaHeight();
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit(e);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -30,15 +34,6 @@ export default function AssistantHome(props) {
     console.log('User input:', userInput);
     submitAssistantQuery(userInput);
     setUserInput('');
-    adjustTextAreaHeight(); // Adjust height after clearing input
-  };
-
-  const adjustTextAreaHeight = () => {
-    if (textAreaRef.current) {
-      const textarea = textAreaRef.current;
-      textarea.style.height = 'auto';
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 300)}px`; // 10 rows equivalent height
-    }
   };
 
   const copyToClipboard = (text) => {
@@ -57,7 +52,6 @@ export default function AssistantHome(props) {
 
   useEffect(() => {
     if (isOpen) {
-      adjustTextAreaHeight(); // Adjust height when the assistant is opened
       setTimeout(scrollToBottom, 100); // Scroll to the bottom on open
     }
   }, [isOpen]);
@@ -146,12 +140,13 @@ export default function AssistantHome(props) {
             <div ref={messagesEndRef} />
           </div>
           <form onSubmit={handleSubmit}>
-            <textarea 
+            <TextareaAutosize 
               value={userInput} 
               onChange={handleInputChange}
-              ref={textAreaRef}
+              onKeyDown={handleKeyDown}
               className="w-full p-2 rounded border focus:outline-none mb-2 resize-none"
-              rows="1"
+              minRows={1}
+              maxRows={10}
               style={{ backgroundColor: colorMode === 'dark' ? '#2d3748' : '#e2e8f0', color: textColor }}
               placeholder='type your prompt text here'
             />
