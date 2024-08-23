@@ -634,7 +634,7 @@ export default function QuickEditor() {
   if (showTheme) {
     if (imageGenerationTheme) {
       currentThemeView = (
-        <div className='p-2 bg-gray-950 rounded mt-2'>
+        <div className={`p-2 bg-gray-950 rounded mt-2 text-neutral-100`}>
           <div className='text-xs'>Current Theme: {imageGenerationTheme}</div>
         </div>
       );
