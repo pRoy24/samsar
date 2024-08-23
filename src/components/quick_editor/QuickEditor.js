@@ -100,6 +100,10 @@ export default function QuickEditor() {
 
   const [showCustomCreateThemeTextBox, setShowCustomCreateThemeTextBox] = useState(false);
 
+  const [imageGenerationTheme, setImageGenerationTheme] = useState(null);
+
+  const [jsonTheme, setJsonTheme] = useState(null);
+
   const toolbarRef = useRef(null);
 
 
@@ -592,11 +596,16 @@ export default function QuickEditor() {
     };
 
     console.log(payload);
-    
+
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/set_custom_theme`, payload, headers).then(function (dataRes) {
       const data = dataRes.data;
       console.log(data);
+      if (data.imageGenerationTheme) {
+        setImageGenerationTheme(data.imageGenerationTheme);
+        // setTheme(data.imageGenerationTheme);
+        setShowCustomCreateThemeTextBox(false);
+      }
 
     });
   }
@@ -619,6 +628,65 @@ export default function QuickEditor() {
         </div>
       </div>
     )
+  }
+
+  let currentThemeView = <span />;
+  if (showTheme) {
+    if (imageGenerationTheme) {
+      currentThemeView = (
+        <div className='p-2 bg-gray-950 rounded mt-2'>
+          <div className='text-xs'>Current Theme: {imageGenerationTheme}</div>
+        </div>
+      );
+    } else {
+      if (showCustomCreateThemeTextBox) {
+        currentThemeView = (
+
+          <div className='p-2 bg-gray-950 rounded mt-2'>
+
+
+
+
+            <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Add theme keywords:</label>
+            <TextareaAutosize
+              minRows={2}
+              maxRows={20}
+              className="w-full bg-gray-950 text-white p-2 rounded"
+              placeholder="Add text to generate custom theme json. this will override the theme keywords"
+              name="customTheme"
+              value={customThemeText}
+              onChange={(e) => setCustomThemeText(e.target.value)}
+            />
+            <div>
+              <SecondaryButton onClick={submitCustomTheme}>
+                Create
+              </SecondaryButton>
+
+            </div>
+
+
+          </div>
+        )
+
+      } else {
+        currentThemeView = (
+          <div className='p-2 bg-gray-950 rounded mt-2'>
+            <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Add theme keywords:</label>
+            <TextareaAutosize
+              minRows={2}
+              maxRows={5}
+              className="w-full bg-gray-950 text-white p-2 rounded"
+              placeholder="Add comma separated keywords for theme elements you'd like to apply to your session, leave empty to autogenerate"
+              name="theme"
+              value={theme}
+              onChange={(e) => setTheme(e.target.value)}
+            />
+          </div>
+        )
+
+      }
+
+    }
   }
   return (
     <div className='relative w-full'>
@@ -812,53 +880,16 @@ export default function QuickEditor() {
               )}
             </div>
             <div className='mt-2 mb-2 p-2 bg-gray-900 
-            text-left text-white h-[40px] cursor-pointer' onClick={toggleTheme}>
-              Theme <FaChevronDown className='inline-flex ml-2' />
+            text-left text-white h-[40px] cursor-pointer'>
+              <div className='inline-flex w-[84%]' onClick={toggleTheme}>
+                Theme <FaChevronDown className='inline-flex ml-2' />
+              </div>
               {applyCustomThemeButton}
             </div>
-            {showTheme && (
-              showCustomCreateThemeTextBox ? (
 
 
-                <div className='p-2 bg-gray-950 rounded mt-2'>
+            {currentThemeView}
 
-
-
-
-                  <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Add theme keywords:</label>
-                  <TextareaAutosize
-                    minRows={2}
-                    maxRows={20}
-                    className="w-full bg-gray-950 text-white p-2 rounded"
-                    placeholder="Add text to generate custom theme json. this will override the theme keywords"
-                    name="customTheme"
-                    value={customThemeText}
-                    onChange={(e) => setCustomThemeText(e.target.value)}
-                  />
-                  <div>
-                    <SecondaryButton onClick={submitCustomTheme}>
-                      Create
-                    </SecondaryButton>
-
-                  </div>
-
-
-                </div>
-              ) : (
-                <div className='p-2 bg-gray-950 rounded mt-2'>
-                  <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Add theme keywords:</label>
-                  <TextareaAutosize
-                    minRows={2}
-                    maxRows={5}
-                    className="w-full bg-gray-950 text-white p-2 rounded"
-                    placeholder="Add comma separated keywords for theme elements you'd like to apply to your session, leave empty to autogenerate"
-                    name="theme"
-                    value={theme}
-                    onChange={(e) => setTheme(e.target.value)}
-                  />
-                </div>
-              )
-            )}
             <div className='mt-2 mb-2 p-2 bg-gray-900 text-white
              h-[40px] cursor-pointer text-left' onClick={toggleTheme}>
               Dialog text lines <FaArrowRight className='inline-flex ml-2' />
