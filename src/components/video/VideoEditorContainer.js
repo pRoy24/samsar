@@ -218,14 +218,9 @@ export default function VideoEditorContainer(props) {
   }, [activeItemList.length]);
 
 
-  const submitGenerateRequest = async () => {
+  const submitGenerateRequest = async (payload) => {
 
-    const payload = {
-      prompt: promptText,
-      videoSessionId: id,
-      model: selectedGenerationModel,
-      layerId: currentLayer._id.toString()
-    }
+
     setGenerationError(null);
 
     const headers = getHeaders();
@@ -249,6 +244,32 @@ export default function VideoEditorContainer(props) {
         });
       });
   }
+
+
+  const submitGenerateNewRequest = async () => {
+         const payload = {
+      prompt: promptText,
+      videoSessionId: id,
+      model: selectedGenerationModel,
+      layerId: currentLayer._id.toString()
+    };
+
+    await submitGenerateRequest(payload);
+
+  }
+
+  const submitGenerateRecreateRequest = async () => {
+    const payload = {
+      prompt: currentDefaultPrompt,
+      videoSessionId: id,
+      model: selectedGenerationModel,
+      layerId: currentLayer._id.toString(),
+      skipApplyThemeToPrompt: true
+    };
+
+    await submitGenerateRequest(payload);
+  }
+
 
 
   const submitOutpaintRequest = async (evt) => {
@@ -1229,6 +1250,8 @@ export default function VideoEditorContainer(props) {
           applyAnimationToAllLayers={applyAnimationToAllLayers}
           submitGenerateLayeredSpeechRequest={submitGenerateLayeredSpeechRequest}
           currentDefaultPrompt={currentDefaultPrompt}
+          submitGenerateRecreateRequest={submitGenerateRecreateRequest}
+          submitGenerateNewRequest={submitGenerateNewRequest}
         />
         <ToastContainer 
           position="bottom-center"

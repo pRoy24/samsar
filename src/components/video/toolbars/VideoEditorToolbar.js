@@ -27,6 +27,7 @@ import { TbLibraryPhoto } from "react-icons/tb";
 import { GrObjectUngroup } from "react-icons/gr";
 import { SPEAKER_TYPES } from '../../../constants/Types.ts';
 import TextareaAutosize from 'react-textarea-autosize';
+import PromptViewer from './PromptViewer.js';
 
 export default function VideoEditorToolbar(props: any) {
   const {
@@ -74,7 +75,10 @@ export default function VideoEditorToolbar(props: any) {
     hideItemInLayer,
     updateSessionLayerActiveItemListAnimations,
     applyAnimationToAllLayers,
-    submitGenerateLayeredSpeechRequest
+    submitGenerateLayeredSpeechRequest,
+    currentDefaultPrompt,
+    submitGenerateNewRequest,
+    submitGenerateRecreateRequest,
   } = props;
 
   
@@ -85,6 +89,10 @@ export default function VideoEditorToolbar(props: any) {
   const { colorMode } = useColorMode();
   const [addSubtitles, setAddSubtitles] = useState(true);
   const [currentSpeechSelectDisplay, setCurrentSpeechSelectDisplay] = useState(SPEECH_SELECT_TYPES.SPEECH_LAYER);
+
+  const [ isPromptGenerated, setIsPromptGenerated ] = useState(false);
+
+  const [ showCreateNewPromptDisplay, setShowCreateNewPromptDisplay ] = useState(false);
 
   const submitAddText = () => {
     const payload = {
@@ -325,9 +333,24 @@ export default function VideoEditorToolbar(props: any) {
     }
   };
 
+
+
+  const showCreateNewPrompt = () => {
+    setShowCreateNewPromptDisplay(true);
+
+  }
   let generateDisplay = <span />;
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_GENERATE_DISPLAY) {
-    generateDisplay = <PromptGenerator {...props} />;
+    if (currentDefaultPrompt && !showCreateNewPromptDisplay) {
+      generateDisplay = <PromptViewer {...props} 
+      showCreateNewPrompt={showCreateNewPrompt}
+
+      submitGenerateRecreateRequest={submitGenerateRecreateRequest}
+      
+      />;
+    } else {
+      generateDisplay = <PromptGenerator {...props} />;
+    }
   }
 
   let addTextDisplay = <span />;

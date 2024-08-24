@@ -7,7 +7,7 @@ import TextareaAutosize from 'react-textarea-autosize';
 export default function PromptGenerator(props) {
   const { promptText, setPromptText, submitGenerateRequest, isGenerationPending,
      selectedGenerationModel, setSelectedGenerationModel, generationError,
-     currentDefaultPrompt } = props;
+     currentDefaultPrompt, submitGenerateNewRequest } = props;
 
   const { colorMode } = useColorMode();
 
@@ -46,7 +46,6 @@ export default function PromptGenerator(props) {
       </div>
 
       <TextareaAutosize
-        defaultValue={currentDefaultPrompt}
         onChange={(evt) => setPromptText(evt.target.value)}
         placeholder="Add prompt text here"
         className={`${textBG} w-full m-auto p-4 rounded-lg`}
@@ -54,7 +53,7 @@ export default function PromptGenerator(props) {
       />
 
       <div className="text-center">
-        <CommonButton onClick={submitGenerateRequest} isPending={isGenerationPending}>
+        <CommonButton onClick={submitGenerateNewRequest} isPending={isGenerationPending}>
           Submit
         </CommonButton>
       </div>
