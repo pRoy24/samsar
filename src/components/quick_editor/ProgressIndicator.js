@@ -19,7 +19,8 @@ export default function ProgressIndicator(props) {
     videoLink,
     setShowResultDisplay,
     errorMessage,
-    purchaseCreditsForUser
+    purchaseCreditsForUser,
+    viewInStudio,
   } = props;
 
   const { openAlertDialog } = useAlertDialog();
@@ -92,6 +93,10 @@ export default function ProgressIndicator(props) {
           ) : null}
           {videoLink && !isGenerationPending && (
             <div className="mt-5">
+
+              <div className='text-sm text-neutral-300 hover:text-neutral-400 cursor-pointer mb-4 mt-4' onClick={() => viewInStudio()}>
+                Edit in Studio
+              </div>  
               <video controls className="md:w-[512px] w-full mx-auto">
                 <source src={`${PROCESSOR_API_URL}/${videoLink}`} type="video/mp4" />
                 Your browser does not support the video tag.

@@ -698,6 +698,7 @@ export default function QuickEditor() {
           setShowResultDisplay={setShowResultDisplay}
           errorMessage={errorMessage}
           purchaseCreditsForUser={purchaseCreditsForUser}
+          viewInStudio={viewInStudio}
         />
       )}
       <div className='mt-[60px]'>
