@@ -97,7 +97,7 @@ export default function UpgradePlan() {
                   placeholder="Enter coupon code"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
-                  className="p-2 w-full border rounded bg-gray-850 text-neutral-100"
+                  className="p-2 w-full border rounded bg-gray-950 text-neutral-100"
                 />
                 <div className="text-center mt-4">
                   <SecondaryButton onClick={handleApplyCoupon}>Apply Coupon</SecondaryButton>
