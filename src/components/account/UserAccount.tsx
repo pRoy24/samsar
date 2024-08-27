@@ -72,7 +72,8 @@ export default function UserAccount() {
 
   const showPurchaseCreditsAction = () => {
     openAlertDialog(
-      <AddCreditsDialog purchaseCreditsForUser={purchaseCreditsForUser} />
+      <AddCreditsDialog purchaseCreditsForUser={purchaseCreditsForUser} 
+      requestApplyCreditsCoupon={requestApplyCreditsCoupon}/>
     );
   };
 
@@ -99,6 +100,11 @@ export default function UserAccount() {
   const handleDeleteAllGenerations = () => {
     // Implement delete all generations logic here
   };
+
+
+  const requestApplyCreditsCoupon = (couponCode) => {
+    console.log("APPLY CREDITS COUPON " + couponCode);
+  }
 
   const gotoHome = () => {
     const sessionIDLocal = localStorage.getItem("videoSessionId");
