@@ -174,7 +174,7 @@ export default function TopNav(props) {
           </div>
         </div>
         <img
-          src={user.pfpUrl ? user.pfpUrl : '/46.png'}
+          src={user.pfpUrl ? user.pfpUrl : '/favicon.png'}
           alt={user.username}
           className="w-[50px] rounded-full"
         />
