@@ -24,7 +24,7 @@ export function AlertDialog(props) {
     closeAlertDialog();
   }
 
-  let bgColor = colorMode === 'dark' ? 'bg-gray-800 text-neutral-100' : 'bg-neutral-100 text-neutral-900';
+  let bgColor = colorMode === 'dark' ? 'bg-gray-900 text-neutral-100' : 'bg-neutral-100 text-neutral-900';
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal"
     style={{zIndex: 100}}>
