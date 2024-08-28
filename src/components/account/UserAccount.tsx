@@ -10,6 +10,8 @@ import AddCreditsDialog from "./AddCreditsDialog.js";
 import axios from "axios";
 import UpgradePlan from '../common/UpgradePlan.tsx';
 import { getHeaders } from "../../utils/web.js";
+import MusicPanelContent from "./MusicPanelContent.js";
+import ImagePanelContent from "./ImagePanelContent.js";
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
 export default function UserAccount() {
@@ -150,9 +152,9 @@ export default function UserAccount() {
           </div>
         );
       case "images":
-        return <div>Images Panel Content</div>;
+        return <ImagePanelContent />;
       case "sounds":
-        return <div>Sounds Panel Content</div>;
+        return <MusicPanelContent />;
       case "billing":
         return <div>Billing Panel Content</div>;
       default:
