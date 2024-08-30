@@ -145,6 +145,15 @@ export default function QuickEditor() {
     setWordCount(0); // Reset word count
     setCharacterCount(0); // Reset character count
 
+    setThemeType('basic');
+    setCustomThemeText('');
+    setJsonTheme('');
+    setTheme('');
+    setShowTheme(false);
+    setErrorMessages(null);
+    setImageGenerationTheme(null);
+
+
     const headers = getHeaders();
 
     axios.get(`${PROCESSOR_API_URL}/quick_session/details?sessionId=${id}`, headers).then(function (dataRes) {
@@ -431,9 +440,7 @@ export default function QuickEditor() {
       finalJsonTheme = JSON.stringify(cleanJsonTheme(parsedTheme), null, 2); // Clean and stringify
     } catch (error) {
       // Handle the case where jsonTheme is not a valid JSON string
-      setErrorMessage('Invalid JSON format');
-      setIsGenerationPending(false);
-      return;
+
     }
   
     // Constructing the payload with all form elements
@@ -470,6 +477,7 @@ export default function QuickEditor() {
   
     setExpressGenerationStatus(null);
   
+
     axios
       .post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers)
       .then(function (dataRes) {
@@ -701,8 +709,6 @@ export default function QuickEditor() {
         </div>
       );
     } else {
-
-      console.log(jsonTheme);
 
       currentThemeView = (
         <div className='p-2 bg-gray-950 rounded mt-2'>
