@@ -585,7 +585,24 @@ export default function QuickEditor() {
     navigate(`/video/${id}`);
   };
 
+  const submitCustomTheme = (evt) => {
+    evt.preventDefault();
+    const headers = getHeaders();
 
+    const payload = {
+      sessionId: id,
+      customTheme: customThemeText,
+    };
+
+    axios.post(`${PROCESSOR_API_URL}/quick_session/set_custom_theme`, payload, headers).then(function (dataRes) {
+      const data = dataRes.data;
+     
+      if (data.imageGenerationTheme) {
+        setJsonTheme(data.imageGenerationTheme);
+        setThemeType('json');
+      }
+    });
+  };
 
   let viewInStudioLink = <span />;
   if (videoLink) {
@@ -628,6 +645,8 @@ export default function QuickEditor() {
       );
     } else {
 
+      console.log(jsonTheme);
+
       currentThemeView = (
         <div className='p-2 bg-gray-950 rounded mt-2'>
           {themeType === 'basic' && (
@@ -656,7 +675,9 @@ export default function QuickEditor() {
                 value={customThemeText}
                 onChange={(e) => setCustomThemeText(e.target.value)}
               />
+                <SecondaryButton onClick={submitCustomTheme}>Apply Custom Theme</SecondaryButton>
             </>
+          
           )}
           {themeType === 'json' && (
             <>
