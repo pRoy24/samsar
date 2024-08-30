@@ -1,4 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
+import AceEditor from 'react-ace';
+
+import ace from 'ace-builds';
+
+
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-monokai';
+
+import 'ace-builds/src-noconflict/ext-language_tools';
+import 'ace-builds/src-noconflict/ext-beautify';
+
 import OverflowContainer from '../common/OverflowContainer.tsx';
 import TextareaAutosize from 'react-textarea-autosize';
 import Select from 'react-select';
@@ -15,8 +26,9 @@ import { useAlertDialog } from '../../contexts/AlertDialogContext.js';
 import { SPEAKER_TYPES } from '../../constants/Types.ts';
 import { useNavigate } from 'react-router-dom';
 import { franc } from 'franc';
-
 import AuthContainer from '../auth/AuthContainer.js';
+
+ace.config.set('useWorker', false);
 
 // Top 10 most popular languages supported by Franc
 const popularLanguages = [
@@ -97,15 +109,14 @@ export default function QuickEditor() {
   // New state variables
   const [wordCount, setWordCount] = useState(0);
   const [characterCount, setCharacterCount] = useState(0);
-
   const [showCustomCreateThemeTextBox, setShowCustomCreateThemeTextBox] = useState(false);
-
   const [imageGenerationTheme, setImageGenerationTheme] = useState(null);
+  const [jsonTheme, setJsonTheme] = useState('');
 
-  const [jsonTheme, setJsonTheme] = useState(null);
+  // State for theme type selection
+  const [themeType, setThemeType] = useState('basic'); // 'basic', 'custom', 'json'
 
   const toolbarRef = useRef(null);
-
 
   // Effect to reset state when id changes
   useEffect(() => {
@@ -142,9 +153,12 @@ export default function QuickEditor() {
       if (sessionData.videoLink) {
         setVideoLink(sessionData.videoLink);
       }
+      if (sessionData.imageGenerationTheme) {
+        setThemeType('json');
+        setJsonTheme(sessionData.imageGenerationTheme);
+      }
     });
   }, [id]); // This effect runs every time the id changes
-
 
   useEffect(() => {
     if (sessionDetails && sessionDetails.imageGenerationTheme) {
@@ -152,21 +166,18 @@ export default function QuickEditor() {
     }
   }, [sessionDetails]);
 
+  const toggleThemeTextBox = (type) => {
+    setThemeType(type);
+  };
 
-  const toggleShowCustomCreateTextBox = () => {
-    setShowCustomCreateThemeTextBox(!showCustomCreateThemeTextBox);
-  }
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
-    {
-      value: 'Infinitezoom', label: 'Infinite Zoom',
-    }
+    { value: 'Infinitezoom', label: 'Infinite Zoom' },
   ];
 
   const handleSceneCutoffTypeChange = (selectedOption) => {
     setSceneCutoffType(selectedOption);
   };
-
 
   const [animationOptions, setAnimationOptions] = useState([
     { value: 'pan_left_to_right', label: 'Pan Left to Right' },
@@ -179,7 +190,6 @@ export default function QuickEditor() {
     { value: 'random', label: 'Random' },
   ]);
 
-
   const speakerOptions = SPEAKER_TYPES.map((speaker_type) => ({
     value: speaker_type,
     label: speaker_type,
@@ -191,12 +201,9 @@ export default function QuickEditor() {
     }
   }, [sessionDetails]);
 
-
   const handleVideoTypeChange = (selectedOption) => {
     setVideoType(selectedOption);
-
     setAnimation(null);
-
 
     // Update animation options based on the selected video type
     if (selectedOption.value === 'Infinitezoom') {
@@ -216,7 +223,6 @@ export default function QuickEditor() {
         { value: 'random', label: 'Random' },
       ]);
     }
-
   };
 
   const handleAnimationChange = (selectedOption) => {
@@ -243,8 +249,6 @@ export default function QuickEditor() {
   };
 
   const handlePromptListChange = (event) => {
-
-
     const newPromptList = event.target.value;
     setPromptList(newPromptList);
 
@@ -263,7 +267,6 @@ export default function QuickEditor() {
     const characters = newPromptList.length;
     setWordCount(words);
     setCharacterCount(characters);
-
 
     // Recalculate credits based on the new prompt list
     calculateCredits(characters);
@@ -290,7 +293,6 @@ export default function QuickEditor() {
 
     setCreditsPreview(credits);
   };
-
 
   const showLoginDialog = () => {
     const loginComponent = <AuthContainer />;
@@ -377,8 +379,6 @@ export default function QuickEditor() {
       fontFamily = getFontFamilyForLanguage(subtitlesLanguage.value);
     }
 
-
-
     // Constructing the payload with all form elements
     let payload = {
       sessionId: id,
@@ -400,6 +400,11 @@ export default function QuickEditor() {
       backgroundMusicRequired: formData.get('backgroundMusicRequired') === 'on',
       speechRequired: formData.get('speechRequired') === 'on',
       speechNormalizationRequired: formData.get('speechNormalizationRequired') === 'on',
+      themeType: themeType, // Include the selected theme type in the payload
+
+      basicThemeText:  themeType === 'basic' ? theme.split(',').map((item) => item.trim()).filter(Boolean).join(',') : undefined,
+      customThemeText: themeType === 'custom' ? customThemeText : undefined,
+      jsonThemeText: themeType === 'json' ? jsonTheme : undefined,
     };
 
     if (duration.value === 'auto') {
@@ -409,18 +414,19 @@ export default function QuickEditor() {
 
     setExpressGenerationStatus(null);
 
-    axios.post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers).then(function (dataRes) {
+    axios
+      .post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers)
+      .then(function (dataRes) {
+        startQuickGenerationPoll();
+      })
+      .catch(function (err) {
+        if (err.response.data) {
+          setErrorMessage(err.response.data);
+        }
+        setIsGenerationPending(false);
+      });
 
-      startQuickGenerationPoll();
-    }).catch(function (err) {
-
-      if (err.response.data) {
-        setErrorMessage(err.response.data);
-      }
-      setIsGenerationPending(false);
-    });;
   };
-
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -438,30 +444,25 @@ export default function QuickEditor() {
     }
 
     const timer = setInterval(() => {
-      axios.get(`${PROCESSOR_API_URL}/assistants/assistant_query_status?id=${id}`, headers).then((dataRes) => {
-        const assistantQueryData = dataRes.data;
-        const assistantQueryStatus = assistantQueryData.status;
-        if (assistantQueryStatus === 'COMPLETED') {
-          const sessionData = assistantQueryData.sessionDetails;
-          clearInterval(timer);
-          const assistantQueryResponse = assistantQueryData.response;
-          setSessionMessages(sessionData.sessionMessages);
-          setIsAssistantQueryGenerating(false);
-        }
-      });
+      axios
+        .get(`${PROCESSOR_API_URL}/assistants/assistant_query_status?id=${id}`, headers)
+        .then((dataRes) => {
+          const assistantQueryData = dataRes.data;
+          const assistantQueryStatus = assistantQueryData.status;
+          if (assistantQueryStatus === 'COMPLETED') {
+            const sessionData = assistantQueryData.sessionDetails;
+            clearInterval(timer);
+            const assistantQueryResponse = assistantQueryData.response;
+            setSessionMessages(sessionData.sessionMessages);
+            setIsAssistantQueryGenerating(false);
+          }
+        });
     }, 1000);
-
   };
 
-
   const purchaseCreditsForUser = (amountToPurchase) => {
-
-
     const purchaseAmountRequest = parseInt(amountToPurchase);
-
-
     const headers = getHeaders();
-
     const payload = {
       amount: purchaseAmountRequest,
     };
@@ -469,7 +470,6 @@ export default function QuickEditor() {
     axios
       .post(`${PROCESSOR_API_URL}/users/purchase_credits`, payload, headers)
       .then(function (dataRes) {
-        console.log(dataRes);
         const data = dataRes.data;
 
         if (data.url) {
@@ -484,7 +484,6 @@ export default function QuickEditor() {
       });
   };
 
-
   const submitAssistantQuery = (query) => {
     const headers = getHeaders();
     if (!headers) {
@@ -493,11 +492,14 @@ export default function QuickEditor() {
     }
     setSessionMessages([]);
     setIsAssistantQueryGenerating(true);
-    axios.post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers).then((response) => {
-      startAssistantQueryPoll();
-    }).catch(function (err) {
-      setIsAssistantQueryGenerating(false);
-    });
+    axios
+      .post(`${PROCESSOR_API_URL}/assistants/submit_assistant_query`, { id: id, query: query }, headers)
+      .then((response) => {
+        startAssistantQueryPoll();
+      })
+      .catch(function (err) {
+        setIsAssistantQueryGenerating(false);
+      });
   };
 
   let downloadPreviousRenderLink = null;
@@ -521,7 +523,6 @@ export default function QuickEditor() {
     setShowCreditsBreakdown(!showCreditsBreakdown);
   };
 
-
   const handleSpeechCheckboxChange = () => {
     calculateCredits();
   };
@@ -529,7 +530,6 @@ export default function QuickEditor() {
   const handleMusicCheckboxChange = () => {
     calculateCredits();
   };
-
 
   let creditsProcessedPreviewDisplay = (
     <div className="text-white mt-0 p-2 bg-gray-900 rounded text-center">
@@ -583,32 +583,10 @@ export default function QuickEditor() {
 
   const viewInStudio = () => {
     navigate(`/video/${id}`);
-  }
+  };
 
 
-  const submitCustomTheme = (evt) => {
-    evt.preventDefault();
-    const headers = getHeaders();
 
-    const payload = {
-      sessionId: id,
-      customTheme: customThemeText,
-    };
-
-    console.log(payload);
-
-
-    axios.post(`${PROCESSOR_API_URL}/quick_session/set_custom_theme`, payload, headers).then(function (dataRes) {
-      const data = dataRes.data;
-      console.log(data);
-      if (data.imageGenerationTheme) {
-        setImageGenerationTheme(data.imageGenerationTheme);
-        // setTheme(data.imageGenerationTheme);
-        setShowCustomCreateThemeTextBox(false);
-      }
-
-    });
-  }
   let viewInStudioLink = <span />;
   if (videoLink) {
     viewInStudioLink = (
@@ -618,16 +596,26 @@ export default function QuickEditor() {
     );
   }
 
+  const toggleThemeButton = (evt, type) => {
+    evt.stopPropagation();
+    toggleThemeTextBox(type)
+  }
 
   let applyCustomThemeButton = <span />;
   if (showTheme) {
     applyCustomThemeButton = (
-      <div className='float-right'>
-        <div className='button rounded-lg bg-gray-800' onClick={toggleShowCustomCreateTextBox}>
-          Create Custom Theme
+      <div className=''>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "basic"))}>
+          Basic
+        </div>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'custom' ? 'bg-gray-700' : ''}`}  onClick={(evt) => (toggleThemeButton(evt, "custom"))}>
+          Custom
+        </div>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'json' ? 'bg-gray-700' : ''}`}  onClick={(evt) => (toggleThemeButton(evt, "json"))}>
+          JSON
         </div>
       </div>
-    )
+    );
   }
 
   let currentThemeView = <span />;
@@ -639,55 +627,69 @@ export default function QuickEditor() {
         </div>
       );
     } else {
-      if (showCustomCreateThemeTextBox) {
-        currentThemeView = (
 
-          <div className='p-2 bg-gray-950 rounded mt-2'>
-
-
-
-
-            <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Add theme keywords:</label>
-            <TextareaAutosize
-              minRows={2}
-              maxRows={20}
-              className="w-full bg-gray-950 text-white p-2 rounded"
-              placeholder="Add text to generate custom theme json. this will override the theme keywords"
-              name="customTheme"
-              value={customThemeText}
-              onChange={(e) => setCustomThemeText(e.target.value)}
-            />
-            <div>
-              <SecondaryButton onClick={submitCustomTheme}>
-                Create
-              </SecondaryButton>
-
-            </div>
-
-
-          </div>
-        )
-
-      } else {
-        currentThemeView = (
-          <div className='p-2 bg-gray-950 rounded mt-2'>
-            <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Add theme keywords:</label>
-            <TextareaAutosize
-              minRows={2}
-              maxRows={5}
-              className="w-full bg-gray-950 text-white p-2 rounded"
-              placeholder="Add comma separated keywords for theme elements you'd like to apply to your session, leave empty to autogenerate"
-              name="theme"
-              value={theme}
-              onChange={(e) => setTheme(e.target.value)}
-            />
-          </div>
-        )
-
-      }
-
+      currentThemeView = (
+        <div className='p-2 bg-gray-950 rounded mt-2'>
+          {themeType === 'basic' && (
+            <>
+              <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter keywords:</label>
+              <TextareaAutosize
+                minRows={2}
+                maxRows={5}
+                className="w-full bg-gray-950 text-white p-2 rounded"
+                placeholder="Add comma separated keywords for theme elements you'd like to apply to your session, leave empty to autogenerate"
+                name="theme"
+                value={theme}
+                onChange={(e) => setTheme(e.target.value)}
+              />
+            </>
+          )}
+          {themeType === 'custom' && (
+            <>
+              <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter custom theme which will override theme from the narrative:</label>
+              <TextareaAutosize
+                minRows={6}
+                maxRows={10}
+                className="w-full bg-gray-950 text-white p-2 rounded"
+                placeholder="Enter custom theme text here..."
+                name="customThemeText"
+                value={customThemeText}
+                onChange={(e) => setCustomThemeText(e.target.value)}
+              />
+            </>
+          )}
+          {themeType === 'json' && (
+            <>
+              <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter JSON for custom theme (will override all other theme settings):</label>
+              <AceEditor
+                mode="json"
+                theme="monokai"
+                name="jsonThemeEditor"
+                value={jsonTheme}
+                onChange={(value) => setJsonTheme(value)}
+                fontSize={14}
+                showPrintMargin={true}
+                showGutter={true}
+                highlightActiveLine={true}
+                setOptions={{
+                  enableBasicAutocompletion: true,
+                  enableLiveAutocompletion: true,
+                  enableSnippets: true,
+                  showLineNumbers: true,
+                  tabSize: 2,
+                }}
+                editorProps={{ $blockScrolling: true }}
+                width="100%"
+                height="200px"
+                className="rounded"
+              />
+            </>
+          )}
+        </div>
+      );
     }
   }
+
   return (
     <div className='relative w-full'>
       {showResultDisplay && (
@@ -727,7 +729,6 @@ export default function QuickEditor() {
                   </div>
                 </div>
                 <div>
-
                   <div className='block'>
                     <div className='block'>
                       <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Animation:</label>
@@ -741,7 +742,6 @@ export default function QuickEditor() {
                       />
                     </div>
                   </div>
-
                 </div>
                 <div>
                   <div className='block'>
@@ -884,13 +884,10 @@ export default function QuickEditor() {
             text-left text-white h-[40px] cursor-pointer'>
               <div className='inline-flex w-[84%]' onClick={toggleTheme}>
                 Theme <FaChevronDown className='inline-flex ml-2' />
+                {applyCustomThemeButton}
               </div>
-              {applyCustomThemeButton}
             </div>
-
-
             {currentThemeView}
-
             <div className='mt-2 mb-2 p-2 bg-gray-900 text-white
              h-[40px] cursor-pointer text-left' onClick={toggleTheme}>
               Dialog text lines <FaArrowRight className='inline-flex ml-2' />
@@ -905,22 +902,17 @@ export default function QuickEditor() {
                 value={promptList}
                 onChange={handlePromptListChange} // Update state and calculations on change
               />
-
-
               <div className='relative mt-4'>
                 <CommonButton type="submit" >
                   Submit
                 </CommonButton>
-
                 <div className='absolute right-4 top-0'>
                   {creditsProcessedPreviewDisplay}
                 </div>
-
               </div>
             </div>
           </div>
         </form>
-
         <AssistantHome
           submitAssistantQuery={submitAssistantQuery}
           sessionMessages={sessionMessages}
