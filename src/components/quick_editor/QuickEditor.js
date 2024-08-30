@@ -170,6 +170,35 @@ export default function QuickEditor() {
     setThemeType(type);
   };
 
+  useEffect(() => {
+    if (sessionDetails && sessionDetails.imageGenerationTheme) {
+      try {
+        // If the theme is a valid JSON string, pretty format it
+        const parsedTheme = JSON.parse(sessionDetails.imageGenerationTheme);
+        const prettyTheme = JSON.stringify(parsedTheme, null, 2); // Pretty format with 2 spaces
+        setJsonTheme(prettyTheme);
+      } catch (e) {
+        // If it's not JSON, handle it as a normal string (fallback)
+        setJsonTheme(sessionDetails.imageGenerationTheme);
+      }
+    }
+  }, [sessionDetails]);
+  
+  const handleJsonThemeChange = (value) => {
+    setJsonTheme(value);
+    try {
+      // Attempt to parse the JSON to ensure it's valid
+      const parsedTheme = JSON.parse(value);
+      setErrorMessages(null); // Clear any previous error messages
+    } catch (e) {
+      // If JSON is invalid, set an error message or handle it accordingly
+      setErrorMessages("Invalid JSON format");
+    }
+  };
+
+  
+
+
   const videoTypeOptions = [
     { value: 'Slideshow', label: 'Slideshow' },
     { value: 'Infinitezoom', label: 'Infinite Zoom' },
@@ -318,24 +347,24 @@ export default function QuickEditor() {
 
   const submitQuickRender = (evt) => {
     evt.preventDefault();
-
+  
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
       return;
     }
-
+  
     const formData = new FormData(evt.target);
     const promptListValue = formData.get('promptList');
     const lineItems = promptListValue.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
-
+  
     // Validation: Number of prompts must be less than 15
     if (lineItems.length > 16) {
       setErrorState(true);
       setErrorMessage('Number of prompts must be less than 16.');
       return;
     }
-
+  
     // Validation: Number of letters in each sentence cannot be more than 300
     if (sceneCutoffType === 'scene_per_line') {
       for (const line of lineItems) {
@@ -346,23 +375,23 @@ export default function QuickEditor() {
         }
       }
     }
-
+  
     // Validation: Trimmed prompt list cannot be empty
     if (lineItems.length === 0) {
       setErrorState(true);
       setErrorMessage('Prompt list cannot be empty.');
       return;
     }
-
+  
     setIsGenerationPending(true);
     setShowResultDisplay(true);
-
-    // Existing logic for language detection and payload preparation
+  
+    // Language detection logic
     const detectedLanguage = franc(promptListValue) || 'und'; // 'und' stands for undetermined
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage) || { value: 'eng' };
     const subtitlesTranslationRequired = subtitlesLanguage.value !== matchedLanguage.value;
     const speechTranslationRequired = speechLanguage.value !== matchedLanguage.value;
-
+  
     let durationPerScene = 5;
     if (duration.value !== 'auto') {
       durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
@@ -373,21 +402,40 @@ export default function QuickEditor() {
         durationPerScene = 20;
       }
     }
-
+  
     let fontFamily = 'Times New Roman';
     if (subtitlesLanguage.value) {
       fontFamily = getFontFamilyForLanguage(subtitlesLanguage.value);
     }
-
-
-    try {
-      // if jsonTheme is json object then strinigy else don't do anything
-      if (typeof jsonTheme === 'object') {
-        jsonTheme = JSON.stringify(jsonTheme);
+  
+    // Clean and stringify the JSON theme
+    const cleanJsonTheme = (obj) => {
+      if (typeof obj === 'string') {
+        return obj.trim();
+      } else if (typeof obj === 'object' && obj !== null) {
+        return Array.isArray(obj)
+          ? obj.map(cleanJsonTheme)
+          : Object.keys(obj).reduce((acc, key) => {
+              acc[key] = cleanJsonTheme(obj[key]);
+              return acc;
+            }, {});
+      } else {
+        return obj;
       }
+    };
+  
+    let finalJsonTheme = jsonTheme;
+  
+    try {
+      const parsedTheme = JSON.parse(jsonTheme);
+      finalJsonTheme = JSON.stringify(cleanJsonTheme(parsedTheme), null, 2); // Clean and stringify
     } catch (error) {
-
+      // Handle the case where jsonTheme is not a valid JSON string
+      setErrorMessage('Invalid JSON format');
+      setIsGenerationPending(false);
+      return;
     }
+  
     // Constructing the payload with all form elements
     let payload = {
       sessionId: id,
@@ -410,19 +458,18 @@ export default function QuickEditor() {
       speechRequired: formData.get('speechRequired') === 'on',
       speechNormalizationRequired: formData.get('speechNormalizationRequired') === 'on',
       themeType: themeType, // Include the selected theme type in the payload
-
-      basicThemeText:  themeType === 'basic' ? theme.split(',').map((item) => item.trim()).filter(Boolean).join(',') : undefined,
-      customThemeText: themeType === 'custom' ? customThemeText : undefined,
-      jsonThemeText: themeType === 'json' ? jsonTheme : undefined,
+      basicThemeText: themeType === 'basic' ? theme.split(',').map((item) => item.trim()).filter(Boolean).join(',') : undefined,
+      customThemeText: themeType === 'custom' ? customThemeText.trim() : undefined,
+      jsonThemeText: themeType === 'json' ? finalJsonTheme : undefined, // Use the cleaned and stringified JSON
     };
-
+  
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
       payload.duration = 10;
     }
-
+  
     setExpressGenerationStatus(null);
-
+  
     axios
       .post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers)
       .then(function (dataRes) {
@@ -434,8 +481,9 @@ export default function QuickEditor() {
         }
         setIsGenerationPending(false);
       });
-
   };
+
+  
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -605,7 +653,7 @@ export default function QuickEditor() {
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/set_custom_theme`, payload, headers).then(function (dataRes) {
       const data = dataRes.data;
-     
+
       if (data.imageGenerationTheme) {
         setJsonTheme(data.imageGenerationTheme);
         setThemeType('json');
@@ -634,10 +682,10 @@ export default function QuickEditor() {
         <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "basic"))}>
           Basic
         </div>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'custom' ? 'bg-gray-700' : ''}`}  onClick={(evt) => (toggleThemeButton(evt, "custom"))}>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'custom' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "custom"))}>
           Custom
         </div>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'json' ? 'bg-gray-700' : ''}`}  onClick={(evt) => (toggleThemeButton(evt, "json"))}>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'json' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "json"))}>
           JSON
         </div>
       </div>
@@ -684,9 +732,9 @@ export default function QuickEditor() {
                 value={customThemeText}
                 onChange={(e) => setCustomThemeText(e.target.value)}
               />
-                <SecondaryButton onClick={submitCustomTheme}>Apply Custom Theme</SecondaryButton>
+              <SecondaryButton onClick={submitCustomTheme}>Apply Custom Theme</SecondaryButton>
             </>
-          
+
           )}
           {themeType === 'json' && (
             <>
@@ -696,7 +744,7 @@ export default function QuickEditor() {
                 theme="monokai"
                 name="jsonThemeEditor"
                 value={jsonTheme}
-                onChange={(value) => setJsonTheme(value)}
+                onChange={handleJsonThemeChange} // Updated to handle JSON changes
                 fontSize={14}
                 showPrintMargin={true}
                 showGutter={true}
@@ -713,6 +761,7 @@ export default function QuickEditor() {
                 height="200px"
                 className="rounded"
               />
+
             </>
           )}
         </div>
