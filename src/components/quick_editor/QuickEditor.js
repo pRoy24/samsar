@@ -379,6 +379,15 @@ export default function QuickEditor() {
       fontFamily = getFontFamilyForLanguage(subtitlesLanguage.value);
     }
 
+
+    try {
+      // if jsonTheme is json object then strinigy else don't do anything
+      if (typeof jsonTheme === 'object') {
+        jsonTheme = JSON.stringify(jsonTheme);
+      }
+    } catch (error) {
+
+    }
     // Constructing the payload with all form elements
     let payload = {
       sessionId: id,
