@@ -77,7 +77,7 @@ export default function QuickEditor() {
 
   // State variables
   const [videoType, setVideoType] = useState({ value: 'Slideshow', label: 'Slideshow' });
-  const [animation, setAnimation] = useState({ value: 'zoom_in', label: 'Zoom in' });
+  const [animation, setAnimation] = useState({ value: 'alternate_zoom', label: 'Alternate Zoom' });
   const [duration, setDuration] = useState({ value: 'auto', label: 'Auto' });
   const [customDuration, setCustomDuration] = useState('');
   const [sessionDetails, setSessionDetails] = useState(null);
@@ -121,7 +121,7 @@ export default function QuickEditor() {
   // Effect to reset state when id changes
   useEffect(() => {
     setVideoType({ value: 'Slideshow', label: 'Slideshow' });
-    setAnimation({ value: 'zoom_in', label: 'Zoom in' });
+    setAnimation({ value: 'alternate_zoom', label: 'Alternate Zoom' });
     setDuration({ value: 'auto', label: 'Auto' });
     setCustomDuration('');
 
@@ -224,6 +224,8 @@ export default function QuickEditor() {
     { value: 'pan_bottom_to_top', label: 'Pan Bottom to Top' },
     { value: 'zoom_in', label: 'Zoom in' },
     { value: 'zoom_out', label: 'Zoom Out' },
+    { value: 'alternate_zoom', label: 'Alternate Zoom' },
+    { value: 'alternate_pan', label: 'Alternate Pan' },
     { value: '', label: 'None' },
     { value: 'random', label: 'Random' },
   ]);
@@ -257,6 +259,8 @@ export default function QuickEditor() {
         { value: 'pan_bottom_to_top', label: 'Pan Bottom to Top' },
         { value: 'zoom_in', label: 'Zoom in' },
         { value: 'zoom_out', label: 'Zoom Out' },
+        { value: 'alternate_zoom', label: 'Alternate Zoom' },
+        { value: 'alternate_pan', label: 'Alternate Pan' },
         { value: '', label: 'None' },
         { value: 'random', label: 'Random' },
       ]);
