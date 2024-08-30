@@ -667,8 +667,20 @@ export default function QuickEditor() {
       const data = dataRes.data;
 
       if (data.imageGenerationTheme) {
-        setJsonTheme(data.imageGenerationTheme);
+
+
+        const imGenTheme = data.imageGenerationTheme;
         setThemeType('json');
+        
+        try {
+          // If the theme is a valid JSON string, pretty format it
+          const parsedTheme = JSON.parse(imGenTheme);
+          const prettyTheme = JSON.stringify(parsedTheme, null, 2); // Pretty format with 2 spaces
+          setJsonTheme(prettyTheme);
+        } catch (e) {
+          // If it's not JSON, handle it as a normal string (fallback)
+          setJsonTheme(imGenTheme);
+        }
       }
     });
   };
