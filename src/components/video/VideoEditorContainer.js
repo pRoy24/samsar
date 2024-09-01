@@ -494,6 +494,7 @@ export default function VideoEditorContainer(props) {
     } else if (pollStatus.status === 'FAILED') {
       setIsGenerationPending(false);
       setGenerationError(pollStatus.generationError);
+      setCanvasActionLoading(false);
       toast.error(<div><FaTimes /> Generation failed.</div>, {
         position: "bottom-center",
         className: "custom-toast",
@@ -1040,6 +1041,8 @@ export default function VideoEditorContainer(props) {
   }
 
   let canvasInternalLoading = <span />;
+  console.log(canvasActionLoading);
+
   if (canvasActionLoading) {
     canvasInternalLoading = (
       <div className='absolute t-0 pt-[150px] w-[1024px]  z-10'>

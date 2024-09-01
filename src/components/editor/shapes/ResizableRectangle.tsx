@@ -7,8 +7,7 @@ export default function ResizableRectangle(props) {
   const rectangleTransformerRef = useRef();
   const rectangleRef = useRef();
 
-  console.log("INSIDE RECT");
-  console.log(props);
+
 
   useEffect(() => {
     // Check if the transformer and rectangle references are correctly set
