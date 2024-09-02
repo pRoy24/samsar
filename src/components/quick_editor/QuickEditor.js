@@ -436,6 +436,7 @@ export default function QuickEditor() {
         return obj;
       }
     };
+    
   
     let finalJsonTheme = jsonTheme;
   
