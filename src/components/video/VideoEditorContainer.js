@@ -43,6 +43,8 @@ export default function VideoEditorContainer(props) {
 
   const [segmentationData, setSegmentationData] = useState([]);
 
+  const [ currentLayerDefaultPrompt, setCurrentLayerDefaultPrompt ] = useState('');
+
   let { id } = useParams();
 
   const showLoginDialog = () => {
@@ -65,6 +67,13 @@ export default function VideoEditorContainer(props) {
     if (currentLayer && currentLayer.imageSession && currentLayer.imageSession.generationStatus === 'PENDING') {
       pollForLayersUpdate();
     }
+
+    let currentDefaultPrompt = '';
+    if (currentLayer && currentLayer.prompt) {
+      currentDefaultPrompt = currentLayer.prompt;
+    }
+    setCurrentLayerDefaultPrompt(currentDefaultPrompt);
+
 
     return () => {
       if (generationPollIntervalRef.current) {
@@ -221,6 +230,7 @@ export default function VideoEditorContainer(props) {
   const submitGenerateRequest = async (payload) => {
 
 
+
     setGenerationError(null);
 
     const headers = getHeaders();
@@ -229,7 +239,11 @@ export default function VideoEditorContainer(props) {
       return;
     }
     axios.post(`${PROCESSOR_API_URL}/video_sessions/request_generate`, payload, headers)
-      .then(() => {
+      .then((resData) => {
+        const response = resData.data;
+        const updatedPrompt = response.prompt;
+        setCurrentLayerDefaultPrompt(updatedPrompt);
+
         startGenerationPoll();
         toast.success(<div><FaCheck className='inline-flex mr-2'/> Generation request submitted successfully!</div>, {
           position: "bottom-center",
@@ -258,9 +272,9 @@ export default function VideoEditorContainer(props) {
 
   }
 
-  const submitGenerateRecreateRequest = async () => {
+  const submitGenerateRecreateRequest = async (newPromptData) => {
     const payload = {
-      prompt: currentDefaultPrompt,
+      prompt: newPromptData,
       videoSessionId: id,
       model: selectedGenerationModel,
       layerId: currentLayer._id.toString(),
@@ -1171,10 +1185,8 @@ export default function VideoEditorContainer(props) {
     });
   }
 
-  let currentDefaultPrompt = '';
-  if (currentLayer && currentLayer.prompt) {
-    currentDefaultPrompt = currentLayer.prompt;
-  }
+
+
 
 
   return (
@@ -1252,7 +1264,7 @@ export default function VideoEditorContainer(props) {
           hideItemInLayer={toggleHideItemInLayer}
           applyAnimationToAllLayers={applyAnimationToAllLayers}
           submitGenerateLayeredSpeechRequest={submitGenerateLayeredSpeechRequest}
-          currentDefaultPrompt={currentDefaultPrompt}
+          currentDefaultPrompt={currentLayerDefaultPrompt}
           submitGenerateRecreateRequest={submitGenerateRecreateRequest}
           submitGenerateNewRequest={submitGenerateNewRequest}
         />
