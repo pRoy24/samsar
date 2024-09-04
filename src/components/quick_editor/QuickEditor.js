@@ -455,7 +455,7 @@ export default function QuickEditor() {
       videoType: videoType ? videoType.value : null,
       animation: animation ? animation.value : null,
       duration: duration.value,
-      customDuration: duration.value === 'custom' ? customDuration : undefined,
+      customDuration: duration.value === 'custom' ? parseInt(customDuration) : undefined,
       sceneCutoffType: sceneCutoffType ? sceneCutoffType.value : 'auto',
       musicPrompt: musicPrompt.trim() || undefined,
       theme: theme.split(',').map((item) => item.trim()).filter(Boolean).join(','),
@@ -478,6 +478,10 @@ export default function QuickEditor() {
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
       payload.duration = 10;
+    }
+
+    if (duration.value === 'custom') {
+      payload.duration = parseFloat(customDuration);
     }
   
     setExpressGenerationStatus(null);

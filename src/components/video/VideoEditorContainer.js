@@ -278,7 +278,8 @@ export default function VideoEditorContainer(props) {
       videoSessionId: id,
       model: selectedGenerationModel,
       layerId: currentLayer._id.toString(),
-      skipApplyThemeToPrompt: true
+      skipApplyThemeToPrompt: true,
+      isRecreateRequest: true,
     };
 
     await submitGenerateRequest(payload);
