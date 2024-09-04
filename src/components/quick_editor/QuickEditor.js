@@ -469,6 +469,7 @@ export default function QuickEditor() {
       backgroundMusicRequired: formData.get('backgroundMusicRequired') === 'on',
       speechRequired: formData.get('speechRequired') === 'on',
       speechNormalizationRequired: formData.get('speechNormalizationRequired') === 'on',
+      addSubtitlesRequired: formData.get('addSubtitlesRequired') === 'on',
       themeType: themeType, // Include the selected theme type in the payload
       basicThemeText: themeType === 'basic' ? theme.split(',').map((item) => item.trim()).filter(Boolean).join(',') : undefined,
       customThemeText: themeType === 'custom' ? customThemeText.trim() : undefined,
@@ -936,7 +937,18 @@ export default function QuickEditor() {
                           Normalize text for speech
                         </div>
                         <input type="checkbox"
-                          name="speechNormalizationRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" defaultChecked={true} />
+                          name="speechNormalizationRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" 
+                          defaultChecked={true} />
+                      </div>
+                    </div>
+                    <div>
+                      <div>
+                        <div className='text-xs'>
+                          Add Subtitles
+                        </div>
+                        <input type="checkbox"
+                          name="addSubtitlesRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" 
+                          defaultChecked={true} />
                       </div>
                     </div>
                     <div className='w-1/3'>
