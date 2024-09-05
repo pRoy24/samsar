@@ -105,9 +105,7 @@ export default function ShowNewUserIntroDisplay(props) {
             </div>
           </div>
         </div>
-        <div>
-          {introSessionsListDisplay}
-        </div>
+
 
       </div>
     </div>
