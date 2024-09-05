@@ -447,6 +447,12 @@ export default function QuickEditor() {
       // Handle the case where jsonTheme is not a valid JSON string
 
     }
+
+    let addSubtitlesRequired = formData.get('addSubtitlesRequired') === 'on';
+    const speechRequired = formData.get('speechRequired') === 'on';
+    if (!speechRequired) {
+      addSubtitlesRequired = false;
+    }
   
     // Constructing the payload with all form elements
     let payload = {
@@ -467,9 +473,9 @@ export default function QuickEditor() {
       subtitlesTranslationRequired: subtitlesTranslationRequired,
       speechTranslationRequired: speechTranslationRequired,
       backgroundMusicRequired: formData.get('backgroundMusicRequired') === 'on',
-      speechRequired: formData.get('speechRequired') === 'on',
+      speechRequired: speechRequired,
       speechNormalizationRequired: formData.get('speechNormalizationRequired') === 'on',
-      addSubtitlesRequired: formData.get('addSubtitlesRequired') === 'on',
+      addSubtitlesRequired: addSubtitlesRequired,
       themeType: themeType, // Include the selected theme type in the payload
       basicThemeText: themeType === 'basic' ? theme.split(',').map((item) => item.trim()).filter(Boolean).join(',') : undefined,
       customThemeText: themeType === 'custom' ? customThemeText.trim() : undefined,

@@ -123,13 +123,7 @@ export default function ListVideoSessions() {
               )
             })}
           </div>
-          <div className=' w-full'>
-            <ShowNewUserIntroDisplay
-              createNewStudioSession={createNewStudioSession}
-              createNewQuickSession={createNewQuickSession}
-              handleImportClick={handleImportClick}
-            />
-          </div>
+
         </div>
       </div>
     </OverflowContainer>
