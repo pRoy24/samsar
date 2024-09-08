@@ -898,6 +898,7 @@ export default function VideoHome(props) {
               setIsCanvasDirty={setIsCanvasDirty}
               updateCurrentLayer={updateCurrentLayer}
               applyAnimationToAllLayers={applyAnimationToAllLayers}
+              isExpressGeneration={videoSessionDetails.isExpressGeneration}
             />
           </div>
           <AssistantHome

@@ -12,7 +12,7 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
     setButtonPositions, selectedLayerType, setSelectedLayerType, applyFilter,
     onChange, pencilColor, pencilWidth, eraserWidth, sessionId, selectedFrameId,
     exportAnimationFrames, currentLayer, currentLayerSeek, updateSessionActiveItemList,
-    selectedLayerSelectShape, isLayerSeeking, applyFinalFilter,
+    selectedLayerSelectShape, isLayerSeeking, applyFinalFilter, isExpressGeneration
   } = props;
 
 
@@ -905,6 +905,7 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
         eraserWidthRef={eraserWidthRef}
         eraserToolbarPosition={eraserToolbarPosition}
         eraserToolbarVisible={eraserToolbarVisible}
+        isExpressGeneration={isExpressGeneration}
       />
 
     </div>

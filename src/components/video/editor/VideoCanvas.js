@@ -37,7 +37,8 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     handleLayerMouseDown, handleLayerMouseMove, handleLayerMouseUp, resetEraserImage, showMask, eraserToolbarVisible,
     eraserToolbarPosition, eraserWidthRef, toolbarShapeProps, setToolbarShapeProps, paintToolbarPosition,
     paintToolbarVisible, isDrawing, shapeSet, showPencil, pencilLines, overlayImage, shapeSelectToolbarVisible,
-    shapeSelectToolbarPosition, enableSegmentationMask, segmentationData, setSegmentationData
+    shapeSelectToolbarPosition, enableSegmentationMask, segmentationData, setSegmentationData,
+    isExpressGeneration
   } = props;
 
   const [maskImage, setMaskImage] = useState(null);
@@ -537,6 +538,8 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     <div className={`m-auto relative ${bgColor} ${textColor} pb-8 shadow-lg pt-[60px]`}>
       <CanvasControlBar
         downloadCurrentFrame={downloadCurrentFrame}
+        isExpressGeneration={isExpressGeneration}
+        sessionId={sessionId}
       />
       <Stage width={STAGE_DIMENSIONS.width} height={STAGE_DIMENSIONS.height} ref={ref} id="samsar-konva-stage" onMouseMove={debouncedHandleMouseOver} onClick={handleCanvasClick}>
         <Layer onMouseDown={handleLayerMouseDown} onMouseMove={handleLayerMouseMove} onMouseUp={handleLayerMouseUp}>

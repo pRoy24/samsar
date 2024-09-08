@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import AceEditor from 'react-ace';
 
 import ace from 'ace-builds';
+import { popularLanguages, getFontFamilyForLanguage } from '../../utils/language.js';
+import { ANIMATION_OPTIONS } from '../../utils/animation.js';
 
 
 import 'ace-builds/src-noconflict/mode-json';
@@ -27,45 +29,11 @@ import { SPEAKER_TYPES } from '../../constants/Types.ts';
 import { useNavigate } from 'react-router-dom';
 import { franc } from 'franc';
 import AuthContainer from '../auth/AuthContainer.js';
+import { INFINITE_ZOOM_ANIMATION_OPTIONS } from '../../utils/animation.js';
 
 ace.config.set('useWorker', false);
 
-// Top 10 most popular languages supported by Franc
-const popularLanguages = [
-  { value: 'eng', label: 'English' },
-  { value: 'spa', label: 'Spanish' },
-  { value: 'fre', label: 'French' },
-  { value: 'deu', label: 'German' },
-  { value: 'rus', label: 'Russian' },
-  { value: 'ita', label: 'Italian' },
-  { value: 'por', label: 'Portuguese' },
-  { value: 'zho', label: 'Chinese' },
-  { value: 'jpn', label: 'Japanese' },
-  { value: 'kor', label: 'Korean' },
-];
 
-const getFontFamilyForLanguage = (language) => {
-  switch (language) {
-    case 'eng': // English
-      return 'Times New Roman';
-    case 'spa': // Spanish
-    case 'fre': // French
-    case 'deu': // German
-    case 'ita': // Italian
-    case 'por': // Portuguese
-      return 'Arial'; // Arial is widely supported and good for Latin-based scripts
-    case 'rus': // Russian
-      return 'Arial'; // Arial supports Cyrillic script natively
-    case 'zho': // Chinese
-      return 'SimHei'; // A common sans-serif font for Simplified Chinese
-    case 'jpn': // Japanese
-      return 'MS Gothic'; // A common monospaced font for Japanese
-    case 'kor': // Korean
-      return 'Malgun Gothic'; // A widely used sans-serif font for Korean
-    default:
-      return 'Arial'; // Default to Arial for unsupported or unexpected languages
-  }
-};
 
 const PROCESSOR_API_URL = process.env.REACT_APP_PROCESSOR_API;
 
@@ -104,7 +72,12 @@ export default function QuickEditor() {
   const [sceneCutoffType, setSceneCutoffType] = useState({ value: 'auto', label: 'Auto' });
 
   const [customThemeText, setCustomThemeText] = useState('');
+
+  const [updateCustomThemeText, setUpdateCustomThemeText] = useState('');
+
   const [errorMessages, setErrorMessages] = useState(null);
+
+
 
   // New state variables
   const [wordCount, setWordCount] = useState(0);
@@ -113,8 +86,20 @@ export default function QuickEditor() {
   const [imageGenerationTheme, setImageGenerationTheme] = useState(null);
   const [jsonTheme, setJsonTheme] = useState('');
 
+
+
+
+
+  const [basicTextTheme, setBasicTextTheme] = useState('');
+  const [parentTextTheme, setParentTextTheme] = useState(null);
+  const [derivedTextTheme, setDerivedTextTheme] = useState(null);
+
+  const [parentJsonTheme, setParentJsonTheme] = useState(null);
+  const [derivedJsonTheme, setDerivedJsonTheme] = useState(null);
+
+
   // State for theme type selection
-  const [themeType, setThemeType] = useState('basic'); // 'basic', 'custom', 'json'
+  const [themeType, setThemeType] = useState('basic'); // 'basic', 'parentText', 'parentJson', 'derivedText', 'derivedJson'
 
   const toolbarRef = useRef(null);
 
@@ -162,16 +147,19 @@ export default function QuickEditor() {
       if (sessionData.videoLink) {
         setVideoLink(sessionData.videoLink);
       }
-      if (sessionData.imageGenerationTheme) {
-        setThemeType('json');
-        setJsonTheme(sessionData.imageGenerationTheme);
+      if (sessionData.derivedJsonTheme) {
+        setDerivedJsonTheme(sessionData.derivedJsonTheme);
+        setThemeType('derivedJson');
+      } else if (sessionData.parentJsonTheme) {
+        setParentJsonTheme(sessionData.parentJsonTheme);
+        setThemeType('parentJson');
       }
     });
   }, [id]); // This effect runs every time the id changes
 
   useEffect(() => {
     if (sessionDetails && sessionDetails.imageGenerationTheme) {
-      setTheme(sessionDetails.imageGenerationTheme);
+    //  setTheme(sessionDetails.imageGenerationTheme);
     }
   }, [sessionDetails]);
 
@@ -180,19 +168,29 @@ export default function QuickEditor() {
   };
 
   useEffect(() => {
-    if (sessionDetails && sessionDetails.imageGenerationTheme) {
+    if (sessionDetails && sessionDetails.derivedJsonTheme) {
       try {
         // If the theme is a valid JSON string, pretty format it
         const parsedTheme = JSON.parse(sessionDetails.imageGenerationTheme);
         const prettyTheme = JSON.stringify(parsedTheme, null, 2); // Pretty format with 2 spaces
-        setJsonTheme(prettyTheme);
+        setDerivedJsonTheme(prettyTheme);
       } catch (e) {
         // If it's not JSON, handle it as a normal string (fallback)
-        setJsonTheme(sessionDetails.imageGenerationTheme);
+       // setJsonTheme(sessionDetails.imageGenerationTheme);
+      }
+    } else if (sessionDetails && sessionDetails.parentJsonTheme) {
+      try {
+        // If the theme is a valid JSON string, pretty format it
+        const parsedTheme = JSON.parse(sessionDetails.parentJsonTheme);
+        const prettyTheme = JSON.stringify(parsedTheme, null, 2); // Pretty format with 2 spaces
+        setParentJsonTheme(prettyTheme);
+      } catch (e) {
+        // If it's not JSON, handle it as a normal string (fallback)
+        //setJsonTheme(sessionDetails.imageGenerationTheme);
       }
     }
   }, [sessionDetails]);
-  
+
   const handleJsonThemeChange = (value) => {
     setJsonTheme(value);
     try {
@@ -205,7 +203,7 @@ export default function QuickEditor() {
     }
   };
 
-  
+
 
 
   const videoTypeOptions = [
@@ -217,18 +215,7 @@ export default function QuickEditor() {
     setSceneCutoffType(selectedOption);
   };
 
-  const [animationOptions, setAnimationOptions] = useState([
-    { value: 'pan_left_to_right', label: 'Pan Left to Right' },
-    { value: 'pan_right_to_left', label: 'Pan Right to Left' },
-    { value: 'pan_top_to_bottom', label: 'Pan Top to Bottom' },
-    { value: 'pan_bottom_to_top', label: 'Pan Bottom to Top' },
-    { value: 'zoom_in', label: 'Zoom in' },
-    { value: 'zoom_out', label: 'Zoom Out' },
-    { value: 'alternate_zoom', label: 'Alternate Zoom' },
-    { value: 'alternate_pan', label: 'Alternate Pan' },
-    { value: '', label: 'None' },
-    { value: 'random', label: 'Random' },
-  ]);
+  const [animationOptions, setAnimationOptions] = useState(ANIMATION_OPTIONS);
 
   const speakerOptions = SPEAKER_TYPES.map((speaker_type) => ({
     value: speaker_type,
@@ -247,23 +234,9 @@ export default function QuickEditor() {
 
     // Update animation options based on the selected video type
     if (selectedOption.value === 'Infinitezoom') {
-      setAnimationOptions([
-        { value: 'zoom_in', label: 'Zoom in' },
-        { value: 'zoom_out', label: 'Zoom Out' },
-      ]);
+      setAnimationOptions(INFINITE_ZOOM_ANIMATION_OPTIONS);
     } else if (selectedOption.value === 'Slideshow') {
-      setAnimationOptions([
-        { value: 'pan_left_to_right', label: 'Pan Left to Right' },
-        { value: 'pan_right_to_left', label: 'Pan Right to Left' },
-        { value: 'pan_top_to_bottom', label: 'Pan Top to Bottom' },
-        { value: 'pan_bottom_to_top', label: 'Pan Bottom to Top' },
-        { value: 'zoom_in', label: 'Zoom in' },
-        { value: 'zoom_out', label: 'Zoom Out' },
-        { value: 'alternate_zoom', label: 'Alternate Zoom' },
-        { value: 'alternate_pan', label: 'Alternate Pan' },
-        { value: '', label: 'None' },
-        { value: 'random', label: 'Random' },
-      ]);
+      setAnimationOptions(ANIMATION_OPTIONS);
     }
   };
 
@@ -360,24 +333,24 @@ export default function QuickEditor() {
 
   const submitQuickRender = (evt) => {
     evt.preventDefault();
-  
+
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
       return;
     }
-  
+
     const formData = new FormData(evt.target);
     const promptListValue = formData.get('promptList');
     const lineItems = promptListValue.split('\n').map((prompt) => prompt.trim()).filter(Boolean);
-  
+
     // Validation: Number of prompts must be less than 15
     if (lineItems.length > 16) {
       setErrorState(true);
       setErrorMessage('Number of prompts must be less than 16.');
       return;
     }
-  
+
     // Validation: Number of letters in each sentence cannot be more than 300
     if (sceneCutoffType === 'scene_per_line') {
       for (const line of lineItems) {
@@ -388,23 +361,23 @@ export default function QuickEditor() {
         }
       }
     }
-  
+
     // Validation: Trimmed prompt list cannot be empty
     if (lineItems.length === 0) {
       setErrorState(true);
       setErrorMessage('Prompt list cannot be empty.');
       return;
     }
-  
+
     setIsGenerationPending(true);
     setShowResultDisplay(true);
-  
+
     // Language detection logic
     const detectedLanguage = franc(promptListValue) || 'und'; // 'und' stands for undetermined
     const matchedLanguage = popularLanguages.find((lang) => lang.value === detectedLanguage) || { value: 'eng' };
     const subtitlesTranslationRequired = subtitlesLanguage.value !== matchedLanguage.value;
     const speechTranslationRequired = speechLanguage.value !== matchedLanguage.value;
-  
+
     let durationPerScene = 5;
     if (duration.value !== 'auto') {
       durationPerScene = duration.value === 'custom' ? parseFloat(customDuration) : parseFloat(duration.value);
@@ -415,12 +388,12 @@ export default function QuickEditor() {
         durationPerScene = 20;
       }
     }
-  
+
     let fontFamily = 'Times New Roman';
     if (subtitlesLanguage.value) {
       fontFamily = getFontFamilyForLanguage(subtitlesLanguage.value);
     }
-  
+
     // Clean and stringify the JSON theme
     const cleanJsonTheme = (obj) => {
       if (typeof obj === 'string') {
@@ -429,17 +402,17 @@ export default function QuickEditor() {
         return Array.isArray(obj)
           ? obj.map(cleanJsonTheme)
           : Object.keys(obj).reduce((acc, key) => {
-              acc[key] = cleanJsonTheme(obj[key]);
-              return acc;
-            }, {});
+            acc[key] = cleanJsonTheme(obj[key]);
+            return acc;
+          }, {});
       } else {
         return obj;
       }
     };
-    
-  
+
+
     let finalJsonTheme = jsonTheme;
-  
+
     try {
       const parsedTheme = JSON.parse(jsonTheme);
       finalJsonTheme = JSON.stringify(cleanJsonTheme(parsedTheme), null, 2); // Clean and stringify
@@ -453,7 +426,22 @@ export default function QuickEditor() {
     if (!speechRequired) {
       addSubtitlesRequired = false;
     }
-  
+
+    let themeData;
+    if (themeType === 'basic') {
+      themeData = theme;
+    } else if (themeType === 'parentText') {
+      themeData = basicTextTheme;
+    } else if (themeType === 'parentJson') {
+      themeData = parentJsonTheme;
+    } else if (themeType === 'derivedText') {
+      themeData = derivedTextTheme;
+    } else if (themeType === 'derivedJson') {
+      themeData = derivedJsonTheme;
+    }
+
+
+    
     // Constructing the payload with all form elements
     let payload = {
       sessionId: id,
@@ -477,11 +465,9 @@ export default function QuickEditor() {
       speechNormalizationRequired: formData.get('speechNormalizationRequired') === 'on',
       addSubtitlesRequired: addSubtitlesRequired,
       themeType: themeType, // Include the selected theme type in the payload
-      basicThemeText: themeType === 'basic' ? theme.split(',').map((item) => item.trim()).filter(Boolean).join(',') : undefined,
-      customThemeText: themeType === 'custom' ? customThemeText.trim() : undefined,
-      jsonThemeText: themeType === 'json' ? finalJsonTheme : undefined, // Use the cleaned and stringified JSON
+      themeData: themeData,
     };
-  
+
     if (duration.value === 'auto') {
       payload.setAutoDurationPerScene = true;
       payload.duration = 10;
@@ -490,9 +476,9 @@ export default function QuickEditor() {
     if (duration.value === 'custom') {
       payload.duration = parseFloat(customDuration);
     }
-  
+
     setExpressGenerationStatus(null);
-  
+
 
     axios
       .post(`${PROCESSOR_API_URL}/quick_session/create`, payload, headers)
@@ -507,7 +493,7 @@ export default function QuickEditor() {
       });
   };
 
-  
+
 
   const toggleDetails = () => {
     setShowDetails(!showDetails);
@@ -675,27 +661,64 @@ export default function QuickEditor() {
       customTheme: customThemeText,
     };
 
-    axios.post(`${PROCESSOR_API_URL}/quick_session/set_custom_theme`, payload, headers).then(function (dataRes) {
+    axios.post(`${PROCESSOR_API_URL}/quick_session/set_base_theme`, payload, headers).then(function (dataRes) {
       const data = dataRes.data;
 
-      if (data.imageGenerationTheme) {
+      if (data.parentJsonTheme) {
 
 
-        const imGenTheme = data.imageGenerationTheme;
-        setThemeType('json');
-        
+        const imGenTheme = data.parentJsonTheme;
+        setThemeType('parentJson');
+
         try {
           // If the theme is a valid JSON string, pretty format it
           const parsedTheme = JSON.parse(imGenTheme);
           const prettyTheme = JSON.stringify(parsedTheme, null, 2); // Pretty format with 2 spaces
-          setJsonTheme(prettyTheme);
+          setParentJsonTheme(prettyTheme);
         } catch (e) {
           // If it's not JSON, handle it as a normal string (fallback)
-          setJsonTheme(imGenTheme);
+      //    setJsonTheme(imGenTheme);
         }
       }
     });
   };
+
+  const submitDerivedJsonTheme = (evt) => {
+
+
+    evt.preventDefault();
+    const headers = getHeaders();
+
+    const payload = {
+      sessionId: id,
+      derivedTextTheme: derivedTextTheme,
+      parentJsonTheme: parentJsonTheme,
+    };
+
+    console.log(payload);
+
+
+    axios.post(`${PROCESSOR_API_URL}/quick_session/set_derived_theme`, payload, headers).then(function (dataRes) {
+      const data = dataRes.data;
+
+      if (data.derivedJsonTheme) {
+
+
+        const imGenTheme = data.derivedJsonTheme;
+        setThemeType('derivedJson');
+
+        try {
+          // If the theme is a valid JSON string, pretty format it
+          const parsedTheme = JSON.parse(imGenTheme);
+          const prettyTheme = JSON.stringify(parsedTheme, null, 2); // Pretty format with 2 spaces
+          setDerivedJsonTheme(prettyTheme);
+        } catch (e) {
+
+        }
+      }
+    });
+
+  }
 
   let viewInStudioLink = <span />;
   if (videoLink) {
@@ -712,22 +735,166 @@ export default function QuickEditor() {
   }
 
   let applyCustomThemeButton = <span />;
-  if (showTheme) {
-    applyCustomThemeButton = (
-      <div className=''>
+  let editThemeButtons = <span />;
+
+
+  let customThemeTypeItems = <span />;
+
+
+
+  let isValidParentThemeJson = false;
+  try {
+
+
+    JSON.parse(parentJsonTheme);
+    if (parentJsonTheme && Object.keys(parentJsonTheme).length > 1) {
+      isValidParentThemeJson = true;
+    }
+  } catch (e) {
+
+  }
+
+
+
+  let addThemeButtons = <span />;
+
+  if (derivedJsonTheme && themeType === 'derivedJson') {
+
+  } else if (parentJsonTheme ) {
+    addThemeButtons = (
+      <>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "parentJson"))}>
+          Parent JSON
+        </div>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'custom' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "addDerivedJson"))}>
+          Add Derived theme text
+        </div>
+      </>
+    )
+  } else {
+    addThemeButtons = (
+      <>
         <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "basic"))}>
           Basic
         </div>
         <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'custom' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "custom"))}>
           Custom
         </div>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'json' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "json"))}>
-          JSON
-        </div>
+      </>
+    )
+  }
+
+
+
+
+
+
+
+  if (showTheme) {
+    applyCustomThemeButton = (
+      <div className=''>
+
+        {addThemeButtons}
+        {editThemeButtons}
       </div>
     );
   }
 
+
+  if (isValidParentThemeJson) {
+
+    customThemeTypeItems = (
+      <>
+        {themeType === 'parentJson' && (
+          <>
+            <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter JSON for custom theme (will override all other theme settings):</label>
+            <AceEditor
+              mode="json"
+              theme="monokai"
+              name="jsonThemeEditor"
+              value={parentJsonTheme}
+              onChange={handleJsonThemeChange} // Updated to handle JSON changes
+              fontSize={14}
+              showPrintMargin={true}
+              showGutter={true}
+              highlightActiveLine={true}
+              setOptions={{
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                enableSnippets: true,
+                showLineNumbers: true,
+                tabSize: 2,
+              }}
+              editorProps={{ $blockScrolling: true }}
+              width="100%"
+              height="200px"
+              className="rounded"
+            />
+
+          </>
+        )}
+        {themeType === 'derivedJson' && (
+          <>
+            <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter JSON for custom theme (will override all other theme settings):</label>
+            <AceEditor
+              mode="json"
+              theme="monokai"
+              name="jsonThemeEditor"
+              value={derivedJsonTheme}
+              onChange={handleJsonThemeChange} // Updated to handle JSON changes
+              fontSize={14}
+              showPrintMargin={true}
+              showGutter={true}
+              highlightActiveLine={true}
+              setOptions={{
+                enableBasicAutocompletion: true,
+                enableLiveAutocompletion: true,
+                enableSnippets: true,
+                showLineNumbers: true,
+                tabSize: 2,
+              }}
+              editorProps={{ $blockScrolling: true }}
+              width="100%"
+              height="200px"
+              className="rounded"
+            />
+
+          </>
+        )}
+
+        {themeType === 'addDerivedJson' && (
+          <>
+            <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter JSON for custom theme (will override all other theme settings):</label>
+            <TextareaAutosize
+              minRows={6}
+              maxRows={10}
+              className="w-full bg-gray-950 text-white p-2 rounded"
+              placeholder="Enter derived theme text to update the base theme here..."
+              name="derivedTextTheme"
+              value={derivedTextTheme}
+              onChange={(e) => setDerivedTextTheme(e.target.value)} />
+            <SecondaryButton onClick={submitDerivedJsonTheme}>Apply Derived Theme</SecondaryButton>
+          </>
+        )}
+
+
+        {themeType === 'updateCustom' && (
+          <>
+            <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter theme keywords to update theme from the narrative:</label>
+            <TextareaAutosize
+              minRows={6}
+              maxRows={10}
+              className="w-full bg-gray-950 text-white p-2 rounded"
+              placeholder="Enter custom theme text to update here..."
+              name="customThemeText"
+              value={customThemeText}
+              onChange={(e) => setUpdateCustomThemeText(e.target.value)} />
+          </>
+        )}
+
+      </>
+    )
+  }
   let currentThemeView = <span />;
   if (showTheme) {
     if (imageGenerationTheme) {
@@ -737,6 +904,8 @@ export default function QuickEditor() {
         </div>
       );
     } else {
+
+
 
       currentThemeView = (
         <div className='p-2 bg-gray-950 rounded mt-2'>
@@ -761,7 +930,7 @@ export default function QuickEditor() {
                 minRows={6}
                 maxRows={10}
                 className="w-full bg-gray-950 text-white p-2 rounded"
-                placeholder="Enter custom theme text here..."
+                placeholder="Enter custom theme base theme text here which will be applied to all renditions in this session..."
                 name="customThemeText"
                 value={customThemeText}
                 onChange={(e) => setCustomThemeText(e.target.value)}
@@ -770,34 +939,7 @@ export default function QuickEditor() {
             </>
 
           )}
-          {themeType === 'json' && (
-            <>
-              <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter JSON for custom theme (will override all other theme settings):</label>
-              <AceEditor
-                mode="json"
-                theme="monokai"
-                name="jsonThemeEditor"
-                value={jsonTheme}
-                onChange={handleJsonThemeChange} // Updated to handle JSON changes
-                fontSize={14}
-                showPrintMargin={true}
-                showGutter={true}
-                highlightActiveLine={true}
-                setOptions={{
-                  enableBasicAutocompletion: true,
-                  enableLiveAutocompletion: true,
-                  enableSnippets: true,
-                  showLineNumbers: true,
-                  tabSize: 2,
-                }}
-                editorProps={{ $blockScrolling: true }}
-                width="100%"
-                height="200px"
-                className="rounded"
-              />
-
-            </>
-          )}
+          {customThemeTypeItems}
         </div>
       );
     }
@@ -943,7 +1085,7 @@ export default function QuickEditor() {
                           Normalize text for speech
                         </div>
                         <input type="checkbox"
-                          name="speechNormalizationRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" 
+                          name="speechNormalizationRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
                           defaultChecked={true} />
                       </div>
                     </div>
@@ -953,7 +1095,7 @@ export default function QuickEditor() {
                           Add Subtitles
                         </div>
                         <input type="checkbox"
-                          name="addSubtitlesRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600" 
+                          name="addSubtitlesRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
                           defaultChecked={true} />
                       </div>
                     </div>

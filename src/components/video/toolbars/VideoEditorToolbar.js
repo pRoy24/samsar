@@ -28,6 +28,7 @@ import { GrObjectUngroup } from "react-icons/gr";
 import { SPEAKER_TYPES } from '../../../constants/Types.ts';
 import TextareaAutosize from 'react-textarea-autosize';
 import PromptViewer from './PromptViewer.js';
+import VideoEditorDefaultsViewer from './VideoEditorDefaultsViewer.js';
 
 export default function VideoEditorToolbar(props: any) {
   const {
@@ -887,33 +888,14 @@ export default function VideoEditorToolbar(props: any) {
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_SET_DEFAULTS_DISPLAY) {
     const { defaultSceneDuration, imageGenerationTheme } = sessionDetails;
     defaultsOptionDisplay = (
-      <div>
-        <form onSubmit={submitUpdateSessionDefaults}>
-          <TextareaAutosize
-            placeholder="Project theme"
-            name="imageGenerationTheme"
-            minRows={3}
-            className={`w-full mt-2 ${bgColor} ${text2Color} p-2`}
-            defaultValue={imageGenerationTheme}
-          />
-          <div className={`text-xs ${text2Color} mb-2 ml-2`}>
-            Theme keywords
-          </div>
-          <input
-            type="text"
-            placeholder="Scene duration"
-            name="defaultSceneDuration"
-            className={`w-full mt-2 ${bgColor} ${text2Color} p-1 h-[30px]`}
-            defaultValue={defaultSceneDuration}
-          />
-          <div className={`text-xs ${text2Color} mb-2 ml-2`}>
-            Default scene duration
-          </div>
-          <div className="ml-2">
-            <SecondaryButton type="submit">Save</SecondaryButton>
-          </div>
-        </form>
-      </div>
+        <VideoEditorDefaultsViewer 
+        
+        submitUpdateSessionDefaults={submitUpdateSessionDefaults}
+        defaultSceneDuration={defaultSceneDuration}
+        basicTextTheme={sessionDetails.basicTextTheme}
+        parentJsonTheme={sessionDetails.parentJsonTheme}
+        derivedJsonTheme={sessionDetails.derivedJsonTheme}
+        />
     );
   }
   

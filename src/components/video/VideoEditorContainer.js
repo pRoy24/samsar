@@ -39,6 +39,7 @@ export default function VideoEditorContainer(props) {
     updateCurrentLayer,
     applyAnimationToAllLayers,
     setGenerationImages,
+    isExpressGeneration,
   } = props;
 
   const [segmentationData, setSegmentationData] = useState([]);
@@ -1056,7 +1057,7 @@ export default function VideoEditorContainer(props) {
   }
 
   let canvasInternalLoading = <span />;
-  console.log(canvasActionLoading);
+
 
   if (canvasActionLoading) {
     canvasInternalLoading = (
@@ -1121,6 +1122,7 @@ export default function VideoEditorContainer(props) {
               enableSegmentationMask={enableSegmentationMask}
               segmentationData={segmentationData}
               setSegmentationData={setSegmentationData}
+              isExpressGeneration={isExpressGeneration}
             />
           </div>
         )
@@ -1128,9 +1130,7 @@ export default function VideoEditorContainer(props) {
     }
   }
 
-  const submitUpdateSessionDefaults = (evt) => {
-    evt.preventDefault();
-    const formData = new FormData(evt.target);
+  const submitUpdateSessionDefaults = (defaultPayload) => {
     const headers = getHeaders();
     if (!headers) {
       showLoginDialog();
@@ -1138,8 +1138,11 @@ export default function VideoEditorContainer(props) {
     }
     const payload = {
       sessionId: id,
-      defaults: Object.fromEntries(formData),
+      defaults: defaultPayload
     };
+
+    console.log(payload);
+
     axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers)
       .then((response) => {
         const updatedSession = response.data;
