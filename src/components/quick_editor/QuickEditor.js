@@ -151,10 +151,14 @@ export default function QuickEditor() {
       console.log(sessionData);
 
       if (sessionData.derivedJsonTheme) {
-        setDerivedJsonTheme(sessionData.derivedJsonTheme);
+        const prettyDerivedTheme = JSON.stringify(JSON.parse(sessionData.derivedJsonTheme), null, 2);
+        setDerivedJsonTheme(prettyDerivedTheme);
+        const prettyParentTheme = JSON.stringify(JSON.parse(sessionData.parentJsonTheme), null, 2);
+        setParentJsonTheme(prettyParentTheme);
         setThemeType('derivedJson');
       } else if (sessionData.parentJsonTheme) {
-        setParentJsonTheme(sessionData.parentJsonTheme);
+        const prettyParentTheme = JSON.stringify(JSON.parse(sessionData.parentJsonTheme), null, 2);
+        setParentJsonTheme(prettyParentTheme);
         setThemeType('parentJson');
       }
     });
