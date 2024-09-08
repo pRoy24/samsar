@@ -4,6 +4,7 @@ import AceEditor from 'react-ace';
 import TextareaAutosize from 'react-textarea-autosize';
 import { useColorMode } from '../../../contexts/ColorMode.js';
 import SecondaryButton from '../../common/SecondaryButton.tsx';
+import { cleanJsonTheme } from '../../../utils/web.js';
 
 import 'ace-builds/src-noconflict/mode-json';
 import 'ace-builds/src-noconflict/theme-monokai';
@@ -72,14 +73,15 @@ export default function VideoEditorDefaultsViewer(props) {
     let theme = '';
     let payload = {}
     if (themeType === 'derivedJson') {
+
       payload = {
-        'derivedJsonTheme': themeJson,
+        'derivedJsonTheme': cleanJsonTheme(themeJson),
         'defaultSceneDuration': evt.target.defaultSceneDuration.value
       }
     } else if (themeType === 'parentJson') {
 
       payload = {
-        'parentJsonTheme': themeJson,
+        'parentJsonTheme': cleanJsonTheme(themeJson),
         'defaultSceneDuration': evt.target.defaultSceneDuration.value
       }
     } else if (themeType === 'basic') {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AceEditor from 'react-ace';
+import { cleanJsonTheme } from '../../utils/web.js';
 
 import ace from 'ace-builds';
 import { popularLanguages, getFontFamilyForLanguage } from '../../utils/language.js';
@@ -147,6 +148,8 @@ export default function QuickEditor() {
       if (sessionData.videoLink) {
         setVideoLink(sessionData.videoLink);
       }
+      console.log(sessionData);
+
       if (sessionData.derivedJsonTheme) {
         setDerivedJsonTheme(sessionData.derivedJsonTheme);
         setThemeType('derivedJson');
@@ -156,6 +159,9 @@ export default function QuickEditor() {
       }
     });
   }, [id]); // This effect runs every time the id changes
+
+  console.log(derivedJsonTheme);
+  console.log(themeType);
 
   useEffect(() => {
     if (sessionDetails && sessionDetails.imageGenerationTheme) {
@@ -395,31 +401,9 @@ export default function QuickEditor() {
     }
 
     // Clean and stringify the JSON theme
-    const cleanJsonTheme = (obj) => {
-      if (typeof obj === 'string') {
-        return obj.trim();
-      } else if (typeof obj === 'object' && obj !== null) {
-        return Array.isArray(obj)
-          ? obj.map(cleanJsonTheme)
-          : Object.keys(obj).reduce((acc, key) => {
-            acc[key] = cleanJsonTheme(obj[key]);
-            return acc;
-          }, {});
-      } else {
-        return obj;
-      }
-    };
 
 
-    let finalJsonTheme = jsonTheme;
-
-    try {
-      const parsedTheme = JSON.parse(jsonTheme);
-      finalJsonTheme = JSON.stringify(cleanJsonTheme(parsedTheme), null, 2); // Clean and stringify
-    } catch (error) {
-      // Handle the case where jsonTheme is not a valid JSON string
-
-    }
+ 
 
     let addSubtitlesRequired = formData.get('addSubtitlesRequired') === 'on';
     const speechRequired = formData.get('speechRequired') === 'on';
@@ -440,6 +424,11 @@ export default function QuickEditor() {
       themeData = derivedJsonTheme;
     }
 
+
+    let finalJsonTheme = cleanJsonTheme(themeData);
+
+
+    console.log(finalJsonTheme);
 
     
     // Constructing the payload with all form elements
@@ -465,7 +454,7 @@ export default function QuickEditor() {
       speechNormalizationRequired: formData.get('speechNormalizationRequired') === 'on',
       addSubtitlesRequired: addSubtitlesRequired,
       themeType: themeType, // Include the selected theme type in the payload
-      themeData: themeData,
+      themeData: themeType === 'basic' ? theme : finalJsonTheme,
     };
 
     if (duration.value === 'auto') {
@@ -689,10 +678,11 @@ export default function QuickEditor() {
     evt.preventDefault();
     const headers = getHeaders();
 
+    const parentJson = cleanJsonTheme(parentJsonTheme);
     const payload = {
       sessionId: id,
       derivedTextTheme: derivedTextTheme,
-      parentJsonTheme: parentJsonTheme,
+      parentJsonTheme: parentJson,
     };
 
     console.log(payload);
@@ -752,8 +742,22 @@ export default function QuickEditor() {
     }
   } catch (e) {
 
+    console.log("CAUGHT ERROOR");
+    console.log(e);
   }
 
+  let isValidChildThemeJson = false;
+  try {
+    JSON.parse(derivedJsonTheme);
+    if (derivedJsonTheme && Object.keys(derivedJsonTheme).length > 1) {
+      isValidChildThemeJson = true;
+    }
+  } catch (e) {
+  
+  }
+
+  console.log(isValidParentThemeJson);
+  console.log(isValidChildThemeJson);
 
 
   let addThemeButtons = <span />;
@@ -784,12 +788,6 @@ export default function QuickEditor() {
     )
   }
 
-
-
-
-
-
-
   if (showTheme) {
     applyCustomThemeButton = (
       <div className=''>
@@ -801,7 +799,7 @@ export default function QuickEditor() {
   }
 
 
-  if (isValidParentThemeJson) {
+  if (isValidParentThemeJson || isValidChildThemeJson) {
 
     customThemeTypeItems = (
       <>

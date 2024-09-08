@@ -10,3 +10,13 @@ export function getHeaders() {
     }
   }
 }
+
+
+export const cleanJsonTheme = (payload) => {
+
+  try {
+    return JSON.stringify(JSON.parse(payload));
+  } catch (e) {
+    return payload.trim();
+  }
+};
