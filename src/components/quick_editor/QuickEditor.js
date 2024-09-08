@@ -756,14 +756,26 @@ export default function QuickEditor() {
   
   }
 
-  console.log(isValidParentThemeJson);
-  console.log(isValidChildThemeJson);
-
+  const resetDerivedJson = (evt) => {
+   evt.stopPropagation();
+    setDerivedJsonTheme(null);
+    setThemeType('parentJson');
+  }
 
   let addThemeButtons = <span />;
 
   if (derivedJsonTheme && themeType === 'derivedJson') {
-
+    addThemeButtons = (
+      <>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} >
+          Derived JSON
+        </div>
+        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex float-right ${themeType === 'custom' ? 'bg-gray-700' : ''}`}
+         onClick={(evt) => resetDerivedJson(evt)}>
+          Reset Derived theme
+        </div>
+      </>
+    )
   } else if (parentJsonTheme ) {
     addThemeButtons = (
       <>
@@ -790,7 +802,7 @@ export default function QuickEditor() {
 
   if (showTheme) {
     applyCustomThemeButton = (
-      <div className=''>
+      <div className='w-full'>
 
         {addThemeButtons}
         {editThemeButtons}
@@ -902,8 +914,6 @@ export default function QuickEditor() {
         </div>
       );
     } else {
-
-
 
       currentThemeView = (
         <div className='p-2 bg-gray-950 rounded mt-2'>
