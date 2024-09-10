@@ -148,6 +148,9 @@ export default function QuickEditor() {
       if (sessionData.videoLink) {
         setVideoLink(sessionData.videoLink);
       }
+      if (sessionData.sessionMessages) {
+        setSessionMessages(sessionData.sessionMessages);
+      }
       console.log(sessionData);
 
       if (sessionData.derivedJsonTheme) {
@@ -432,9 +435,7 @@ export default function QuickEditor() {
     let finalJsonTheme = cleanJsonTheme(themeData);
 
 
-    console.log(finalJsonTheme);
-
-    
+   
     // Constructing the payload with all form elements
     let payload = {
       sessionId: id,

@@ -151,6 +151,13 @@ export default function VideoEditorContainer(props) {
     y: 200,
   });
 
+  const [ showCreateNewPromptDisplay, setShowCreateNewPromptDisplay ] = useState(false);
+  const showCreateNewPrompt = () => {
+    setShowCreateNewPromptDisplay(true);
+
+  }
+
+
   const setCurrentViewDisplay = (view) => {
     setCurrentView(view);
   }
@@ -481,11 +488,15 @@ export default function VideoEditorContainer(props) {
 
     const pollStatus = pollStatusData.data;
 
+
     if (pollStatus.status === 'COMPLETED') {
 
       
       const layerData = pollStatus.layer;
       const imageSession = layerData.imageSession;
+      setCurrentLayerDefaultPrompt(layerData.prompt);
+      setShowCreateNewPromptDisplay(false);
+
 
       const generationImages = pollStatus.generationImages;
       if (generationImages && generationImages.length > 0) {
@@ -1141,8 +1152,6 @@ export default function VideoEditorContainer(props) {
       defaults: defaultPayload
     };
 
-    console.log(payload);
-
     axios.post(`${PROCESSOR_API_URL}/video_sessions/update_defaults`, payload, headers)
       .then((response) => {
         const updatedSession = response.data;
@@ -1271,6 +1280,10 @@ export default function VideoEditorContainer(props) {
           currentDefaultPrompt={currentLayerDefaultPrompt}
           submitGenerateRecreateRequest={submitGenerateRecreateRequest}
           submitGenerateNewRequest={submitGenerateNewRequest}
+          setShowCreateNewPromptDisplay={setShowCreateNewPromptDisplay}
+          showCreateNewPromptDisplay={showCreateNewPromptDisplay}
+          showCreateNewPrompt={showCreateNewPrompt}
+
         />
         <ToastContainer 
           position="bottom-center"

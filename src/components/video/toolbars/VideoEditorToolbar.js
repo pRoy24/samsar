@@ -80,6 +80,9 @@ export default function VideoEditorToolbar(props: any) {
     currentDefaultPrompt,
     submitGenerateNewRequest,
     submitGenerateRecreateRequest,
+    showCreateNewPrompt,
+    showCreateNewPromptDisplay,
+    
   } = props;
 
   
@@ -93,7 +96,7 @@ export default function VideoEditorToolbar(props: any) {
 
   const [ isPromptGenerated, setIsPromptGenerated ] = useState(false);
 
-  const [ showCreateNewPromptDisplay, setShowCreateNewPromptDisplay ] = useState(false);
+
 
   const submitAddText = () => {
     const payload = {
@@ -334,12 +337,6 @@ export default function VideoEditorToolbar(props: any) {
     }
   };
 
-
-
-  const showCreateNewPrompt = () => {
-    setShowCreateNewPromptDisplay(true);
-
-  }
   let generateDisplay = <span />;
   if (currentViewDisplay === CURRENT_TOOLBAR_VIEW.SHOW_GENERATE_DISPLAY) {
     if (currentDefaultPrompt && !showCreateNewPromptDisplay) {
