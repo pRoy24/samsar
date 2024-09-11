@@ -151,13 +151,14 @@ export default function QuickEditor() {
       if (sessionData.sessionMessages) {
         setSessionMessages(sessionData.sessionMessages);
       }
-      console.log(sessionData);
 
       if (sessionData.derivedJsonTheme) {
         const prettyDerivedTheme = JSON.stringify(JSON.parse(sessionData.derivedJsonTheme), null, 2);
         setDerivedJsonTheme(prettyDerivedTheme);
-        const prettyParentTheme = JSON.stringify(JSON.parse(sessionData.parentJsonTheme), null, 2);
-        setParentJsonTheme(prettyParentTheme);
+        if (sessionData.parentJsonTheme) {
+          const prettyParentTheme = JSON.stringify(JSON.parse(sessionData.parentJsonTheme), null, 2);
+          setParentJsonTheme(prettyParentTheme);
+        }
         setThemeType('derivedJson');
       } else if (sessionData.parentJsonTheme) {
         const prettyParentTheme = JSON.stringify(JSON.parse(sessionData.parentJsonTheme), null, 2);
@@ -167,12 +168,9 @@ export default function QuickEditor() {
     });
   }, [id]); // This effect runs every time the id changes
 
-  console.log(derivedJsonTheme);
-  console.log(themeType);
-
   useEffect(() => {
     if (sessionDetails && sessionDetails.imageGenerationTheme) {
-    //  setTheme(sessionDetails.imageGenerationTheme);
+      //  setTheme(sessionDetails.imageGenerationTheme);
     }
   }, [sessionDetails]);
 
@@ -189,7 +187,7 @@ export default function QuickEditor() {
         setDerivedJsonTheme(prettyTheme);
       } catch (e) {
         // If it's not JSON, handle it as a normal string (fallback)
-       // setJsonTheme(sessionDetails.imageGenerationTheme);
+        // setJsonTheme(sessionDetails.imageGenerationTheme);
       }
     } else if (sessionDetails && sessionDetails.parentJsonTheme) {
       try {
@@ -204,8 +202,9 @@ export default function QuickEditor() {
     }
   }, [sessionDetails]);
 
-  const handleJsonThemeChange = (value) => {
-    setJsonTheme(value);
+
+  const handleParentJsonThemeChange = (value) => {
+    setParentJsonTheme(value);
     try {
       // Attempt to parse the JSON to ensure it's valid
       const parsedTheme = JSON.parse(value);
@@ -214,8 +213,19 @@ export default function QuickEditor() {
       // If JSON is invalid, set an error message or handle it accordingly
       setErrorMessages("Invalid JSON format");
     }
-  };
+  }
 
+  const handleDerivedJsonThemeChange = (value) => {
+    setDerivedJsonTheme(value);
+    try {
+      // Attempt to parse the JSON to ensure it's valid
+      const parsedTheme = JSON.parse(value);
+      setErrorMessages(null); // Clear any previous error messages
+    } catch (e) {
+      // If JSON is invalid, set an error message or handle it accordingly
+      setErrorMessages("Invalid JSON format");
+    }
+  }
 
 
 
@@ -410,7 +420,7 @@ export default function QuickEditor() {
     // Clean and stringify the JSON theme
 
 
- 
+
 
     let addSubtitlesRequired = formData.get('addSubtitlesRequired') === 'on';
     const speechRequired = formData.get('speechRequired') === 'on';
@@ -435,7 +445,7 @@ export default function QuickEditor() {
     let finalJsonTheme = cleanJsonTheme(themeData);
 
 
-   
+
     // Constructing the payload with all form elements
     let payload = {
       sessionId: id,
@@ -671,14 +681,47 @@ export default function QuickEditor() {
           setParentJsonTheme(prettyTheme);
         } catch (e) {
           // If it's not JSON, handle it as a normal string (fallback)
-      //    setJsonTheme(imGenTheme);
+          //    setJsonTheme(imGenTheme);
         }
       }
     });
   };
 
-  const submitDerivedJsonTheme = (evt) => {
+  const updatePrimaryJsonTheme = (evt) => {
+    evt.preventDefault();
+    const headers = getHeaders();
 
+    const parentJson = cleanJsonTheme(parentJsonTheme);
+    const payload = {
+      sessionId: id,
+      parentJsonTheme: parentJson,
+    };
+
+    axios.post(`${PROCESSOR_API_URL}/quick_session/update_primary_json`, payload, headers).then(function (dataRes) {
+      const data = dataRes.data;
+
+    });
+
+  }
+
+  const updateDerivedJsonTheme = (evt) => {
+    evt.preventDefault();
+    const headers = getHeaders();
+
+    const derivedJson = cleanJsonTheme(derivedJsonTheme);
+    const payload = {
+      sessionId: id,
+      derivedJsonTheme: derivedJson,
+    };
+
+    axios.post(`${PROCESSOR_API_URL}/quick_session/update_derived_json`, payload, headers).then(function (dataRes) {
+      const data = dataRes.data;
+
+    });
+
+  }
+
+  const submitDerivedJsonTheme = (evt) => {
 
     evt.preventDefault();
     const headers = getHeaders();
@@ -689,9 +732,6 @@ export default function QuickEditor() {
       derivedTextTheme: derivedTextTheme,
       parentJsonTheme: parentJson,
     };
-
-    console.log(payload);
-
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/set_derived_theme`, payload, headers).then(function (dataRes) {
       const data = dataRes.data;
@@ -711,6 +751,7 @@ export default function QuickEditor() {
 
         }
       }
+
     });
 
   }
@@ -737,32 +778,10 @@ export default function QuickEditor() {
 
 
 
-  let isValidParentThemeJson = false;
-  try {
 
-
-    JSON.parse(parentJsonTheme);
-    if (parentJsonTheme && Object.keys(parentJsonTheme).length > 1) {
-      isValidParentThemeJson = true;
-    }
-  } catch (e) {
-
-    console.log("CAUGHT ERROOR");
-    console.log(e);
-  }
-
-  let isValidChildThemeJson = false;
-  try {
-    JSON.parse(derivedJsonTheme);
-    if (derivedJsonTheme && Object.keys(derivedJsonTheme).length > 1) {
-      isValidChildThemeJson = true;
-    }
-  } catch (e) {
-  
-  }
 
   const resetDerivedJson = (evt) => {
-   evt.stopPropagation();
+    evt.stopPropagation();
     setDerivedJsonTheme(null);
     setThemeType('parentJson');
   }
@@ -776,12 +795,12 @@ export default function QuickEditor() {
           Derived JSON
         </div>
         <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex float-right ${themeType === 'custom' ? 'bg-gray-700' : ''}`}
-         onClick={(evt) => resetDerivedJson(evt)}>
+          onClick={(evt) => resetDerivedJson(evt)}>
           Reset Derived theme
         </div>
       </>
     )
-  } else if (parentJsonTheme ) {
+  } else if (parentJsonTheme) {
     addThemeButtons = (
       <>
         <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "parentJson"))}>
@@ -816,7 +835,7 @@ export default function QuickEditor() {
   }
 
 
-  if (isValidParentThemeJson || isValidChildThemeJson) {
+  if (parentJsonTheme || derivedJsonTheme) {
 
     customThemeTypeItems = (
       <>
@@ -828,7 +847,7 @@ export default function QuickEditor() {
               theme="monokai"
               name="jsonThemeEditor"
               value={parentJsonTheme}
-              onChange={handleJsonThemeChange} // Updated to handle JSON changes
+              onChange={handleParentJsonThemeChange} // Updated to handle JSON changes
               fontSize={14}
               showPrintMargin={true}
               showGutter={true}
@@ -845,7 +864,7 @@ export default function QuickEditor() {
               height="200px"
               className="rounded"
             />
-
+            <SecondaryButton onClick={updatePrimaryJsonTheme}>Update Primary JSON</SecondaryButton>
           </>
         )}
         {themeType === 'derivedJson' && (
@@ -856,7 +875,9 @@ export default function QuickEditor() {
               theme="monokai"
               name="jsonThemeEditor"
               value={derivedJsonTheme}
-              onChange={handleJsonThemeChange} // Updated to handle JSON changes
+              onChange={handleDerivedJsonThemeChange}
+
+
               fontSize={14}
               showPrintMargin={true}
               showGutter={true}
@@ -873,6 +894,7 @@ export default function QuickEditor() {
               height="200px"
               className="rounded"
             />
+            <SecondaryButton onClick={updateDerivedJsonTheme}>Update Derived JSON</SecondaryButton>
 
           </>
         )}
