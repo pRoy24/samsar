@@ -18,6 +18,7 @@ import { FaTwitter, FaStar } from 'react-icons/fa6';
 import Register from '../auth/Register.tsx';
 import AuthContainer from '../auth/AuthContainer.js';
 import { getHeaders } from '../../utils/web.js';
+import AddCreditsDialog from "../account/AddCreditsDialog.js";
 
 const PROCESSOR_SERVER = process.env.REACT_APP_PROCESSOR_API;
 
@@ -25,7 +26,7 @@ export default function TopNav(props) {
   const { resetCurrentSession, addCustodyAddress } = props;
   const farcasterSignInButtonRef = useRef(null);
   const { colorMode } = useColorMode();
-  const location = useLocation(); 
+  const location = useLocation();
   const { openAlertDialog, closeAlertDialog } = useAlertDialog();
 
   let bgColor = 'from-cyber-black via-blue-900 to-neutral-900 text-neutral-50';
@@ -96,14 +97,14 @@ export default function TopNav(props) {
       const session = response.data;
       const sessionId = session._id.toString();
       localStorage.setItem('videoSessionId', sessionId);
-  
+
       navigate(`/video/${session._id}`);
 
 
 
     });
   };
-  
+
 
   const gotoViewSessionsPage = () => {
     navigate('/my_sessions');
@@ -112,7 +113,7 @@ export default function TopNav(props) {
   const createNewSessionDialog = () => {
 
     openAlertDialog(alertDialogComponent);
-  
+
   };
 
   const addNewExpressSession = () => {
@@ -124,7 +125,7 @@ export default function TopNav(props) {
       const session = response.data;
       const sessionId = session._id.toString();
       localStorage.setItem('videoSessionId', sessionId);
-  
+
       navigate(`/quick_video/${session._id}`);
 
     });
@@ -202,9 +203,45 @@ export default function TopNav(props) {
   const gotoHome = () => {
 
     openAlertDialog(alertDialogComponent);
-  
+
   };
 
+  const purchaseCreditsForUser = (amountToPurchase) => {
+    const purchaseAmountRequest = parseInt(amountToPurchase);
+    const headers = getHeaders();
+
+    const payload = {
+      amount: purchaseAmountRequest,
+    };
+
+    axios
+      .post(`${PROCESSOR_SERVER}/users/purchase_credits`, payload, headers)
+      .then(function (dataRes) {
+        console.log(dataRes);
+        const data = dataRes.data;
+
+        if (data.url) {
+          window.open(data.url, "_blank");
+        } else {
+          console.error("Failed to get Stripe payment URL");
+        }
+      })
+      .catch(function (error) {
+        console.error("Error during payment process", error);
+      });
+  };
+  
+  const requestApplyCreditsCoupon = (couponCode) => {
+    console.log("APPLY CREDITS COUPON " + couponCode);
+  }
+
+  const openPurchaseCreditsDialog = () => {
+    openAlertDialog(
+      <AddCreditsDialog purchaseCreditsForUser={purchaseCreditsForUser} 
+      requestApplyCreditsCoupon={requestApplyCreditsCoupon}/>
+    );
+
+  }
   let addSessionButton = <span />;
 
   if (user && user._id) {
@@ -212,7 +249,7 @@ export default function TopNav(props) {
       <div className="inline-flex float-right">
         <div className="inline-flex ml-2 mr-2">
           <AddSessionDropdown createNewSession={createNewSession} gotoViewSessionsPage={gotoViewSessionsPage}
-          addNewExpressSession={addNewExpressSession} />
+            addNewExpressSession={addNewExpressSession} />
         </div>
       </div>
     );
@@ -229,6 +266,19 @@ export default function TopNav(props) {
     userCreditsDisplay = <div>{userCredits} credits</div>;
   }
 
+  let errorMessageDisplay = <span />;
+  if (user && user._id) {
+    if (user.generationCredits <= 0) {
+      errorMessageDisplay = <div className="text-xs font-bold ">
+        <div className='text-red-500 '>
+          You are out of credits
+        </div>
+        <div className='underline text-green-600 cursor-pointer' onClick={openPurchaseCreditsDialog}>
+          Purchase More
+        </div>
+      </div>;
+    }
+  }
   return (
     <div className={`bg-gradient-to-r ${bgColor} h-[50px] fixed w-[100vw] shadow-lg z-10`}>
       <div className="grid grid-cols-2">
@@ -237,6 +287,7 @@ export default function TopNav(props) {
         </div>
         <div className="flex justify-end items-center pr-4">
           <div className="flex justify-end items-center space-x-4">
+            {errorMessageDisplay}
             <div>{addSessionButton}</div>
             <div className="text-xs text-left mr-2">
               <div>{userCreditsDisplay}</div>
