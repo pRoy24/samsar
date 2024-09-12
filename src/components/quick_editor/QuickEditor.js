@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import AceEditor from 'react-ace';
 import { cleanJsonTheme } from '../../utils/web.js';
-
+import { FaSpinner } from 'react-icons/fa6';
 import ace from 'ace-builds';
 import { popularLanguages, getFontFamilyForLanguage } from '../../utils/language.js';
 import { ANIMATION_OPTIONS } from '../../utils/animation.js';
@@ -97,6 +97,9 @@ export default function QuickEditor() {
 
   const [parentJsonTheme, setParentJsonTheme] = useState(null);
   const [derivedJsonTheme, setDerivedJsonTheme] = useState(null);
+
+  const [ parentJsonSubmitting, setParentJsonSubmitting] = useState(false);
+  const [ derivedJsonSubmitting, setDerivedJsonSubmitting] = useState(false);
 
 
   // State for theme type selection
@@ -672,9 +675,12 @@ export default function QuickEditor() {
       customTheme: customThemeText,
     };
 
+    setParentJsonSubmitting(true);
+
     axios.post(`${PROCESSOR_API_URL}/quick_session/set_base_theme`, payload, headers).then(function (dataRes) {
       const data = dataRes.data;
 
+      setParentJsonSubmitting(false);
       if (data.parentJsonTheme) {
 
 
@@ -704,8 +710,10 @@ export default function QuickEditor() {
       parentJsonTheme: parentJson,
     };
 
+    setParentJsonSubmitting(true);
     axios.post(`${PROCESSOR_API_URL}/quick_session/update_primary_json`, payload, headers).then(function (dataRes) {
       const data = dataRes.data;
+      setParentJsonSubmitting(false);
 
     });
 
@@ -713,6 +721,7 @@ export default function QuickEditor() {
 
   const updateDerivedJsonTheme = (evt) => {
     evt.preventDefault();
+    setDerivedJsonSubmitting(true);
     const headers = getHeaders();
 
     const derivedJson = cleanJsonTheme(derivedJsonTheme);
@@ -722,6 +731,7 @@ export default function QuickEditor() {
     };
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/update_derived_json`, payload, headers).then(function (dataRes) {
+      setDerivedJsonSubmitting(false);
       const data = dataRes.data;
 
     });
@@ -731,6 +741,7 @@ export default function QuickEditor() {
   const submitDerivedJsonTheme = (evt) => {
 
     evt.preventDefault();
+    setDerivedJsonSubmitting(true);
     const headers = getHeaders();
 
     const parentJson = cleanJsonTheme(parentJsonTheme);
@@ -742,6 +753,7 @@ export default function QuickEditor() {
 
     axios.post(`${PROCESSOR_API_URL}/quick_session/set_derived_theme`, payload, headers).then(function (dataRes) {
       const data = dataRes.data;
+      setDerivedJsonSubmitting(false);
 
       if (data.derivedJsonTheme) {
 
@@ -871,7 +883,7 @@ export default function QuickEditor() {
               height="200px"
               className="rounded"
             />
-            <SecondaryButton onClick={updatePrimaryJsonTheme}>Update Primary JSON</SecondaryButton>
+            <SecondaryButton onClick={updatePrimaryJsonTheme} isPending={parentJsonSubmitting}>Update Primary JSON</SecondaryButton>
           </>
         )}
         {themeType === 'derivedJson' && (
@@ -901,7 +913,7 @@ export default function QuickEditor() {
               height="200px"
               className="rounded"
             />
-            <SecondaryButton onClick={updateDerivedJsonTheme}>Update Derived JSON</SecondaryButton>
+            <SecondaryButton onClick={updateDerivedJsonTheme} isPending={derivedJsonSubmitting}>Update Derived JSON</SecondaryButton>
 
           </>
         )}
@@ -917,7 +929,8 @@ export default function QuickEditor() {
               name="derivedTextTheme"
               value={derivedTextTheme}
               onChange={(e) => setDerivedTextTheme(e.target.value)} />
-            <SecondaryButton onClick={submitDerivedJsonTheme}>Apply Derived Theme</SecondaryButton>
+            <SecondaryButton onClick={submitDerivedJsonTheme}
+            isPending={derivedJsonSubmitting}>Apply Derived Theme</SecondaryButton>
           </>
         )}
 
@@ -977,7 +990,7 @@ export default function QuickEditor() {
                 value={customThemeText}
                 onChange={(e) => setCustomThemeText(e.target.value)}
               />
-              <SecondaryButton onClick={submitCustomTheme}>Apply Custom Theme</SecondaryButton>
+              <SecondaryButton onClick={submitCustomTheme} isPending={parentJsonSubmitting}>Apply Custom Theme</SecondaryButton>
             </>
 
           )}
