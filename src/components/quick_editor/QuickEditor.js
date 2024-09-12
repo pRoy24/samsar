@@ -138,6 +138,13 @@ export default function QuickEditor() {
     setShowTheme(false);
     setErrorMessages(null);
     setImageGenerationTheme(null);
+    setParentJsonTheme(null);
+    setDerivedJsonTheme(null);
+    setDerivedTextTheme(null);
+    setBasicTextTheme(null);
+    setParentTextTheme(null);
+
+
 
 
     const headers = getHeaders();
