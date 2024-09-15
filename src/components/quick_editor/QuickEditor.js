@@ -492,6 +492,7 @@ export default function QuickEditor() {
     }
 
     setExpressGenerationStatus(null);
+    setVideoLink(null);
 
 
     axios
