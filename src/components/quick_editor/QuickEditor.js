@@ -76,7 +76,7 @@ export default function QuickEditor() {
 
   const [updateCustomThemeText, setUpdateCustomThemeText] = useState('');
 
-  const [errorMessages, setErrorMessages] = useState(null);
+
 
 
 
@@ -98,8 +98,8 @@ export default function QuickEditor() {
   const [parentJsonTheme, setParentJsonTheme] = useState(null);
   const [derivedJsonTheme, setDerivedJsonTheme] = useState(null);
 
-  const [ parentJsonSubmitting, setParentJsonSubmitting] = useState(false);
-  const [ derivedJsonSubmitting, setDerivedJsonSubmitting] = useState(false);
+  const [parentJsonSubmitting, setParentJsonSubmitting] = useState(false);
+  const [derivedJsonSubmitting, setDerivedJsonSubmitting] = useState(false);
 
 
   // State for theme type selection
@@ -139,16 +139,13 @@ export default function QuickEditor() {
     setJsonTheme('');
     setTheme('');
     setShowTheme(false);
-    setErrorMessages(null);
+    setErrorMessage(null);
     setImageGenerationTheme(null);
     setParentJsonTheme(null);
     setDerivedJsonTheme(null);
     setDerivedTextTheme(null);
     setBasicTextTheme(null);
     setParentTextTheme(null);
-
-
-
 
     const headers = getHeaders();
 
@@ -184,6 +181,12 @@ export default function QuickEditor() {
     }
   }, [sessionDetails]);
 
+  const getButtonClasses = (buttonType) => {
+    const baseClasses = "rounded-lg pl-2 pr-2 pt-1 pb-1 inline-flex cursor-pointer";
+    const selectedClasses = themeType === buttonType ? "bg-gray-700 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:text-white";
+    return `${baseClasses} ${selectedClasses}`;
+  };
+
   const toggleThemeTextBox = (type) => {
     setThemeType(type);
   };
@@ -218,10 +221,10 @@ export default function QuickEditor() {
     try {
       // Attempt to parse the JSON to ensure it's valid
       const parsedTheme = JSON.parse(value);
-      setErrorMessages(null); // Clear any previous error messages
+      setErrorMessage(null); // Clear any previous error messages
     } catch (e) {
       // If JSON is invalid, set an error message or handle it accordingly
-      setErrorMessages("Invalid JSON format");
+      setErrorMessage("Invalid JSON format");
     }
   }
 
@@ -230,10 +233,10 @@ export default function QuickEditor() {
     try {
       // Attempt to parse the JSON to ensure it's valid
       const parsedTheme = JSON.parse(value);
-      setErrorMessages(null); // Clear any previous error messages
+      setErrorMessage(null); // Clear any previous error messages
     } catch (e) {
       // If JSON is invalid, set an error message or handle it accordingly
-      setErrorMessages("Invalid JSON format");
+      setErrorMessage("Invalid JSON format");
     }
   }
 
@@ -452,9 +455,18 @@ export default function QuickEditor() {
     }
 
 
+    setErrorMessage(null);
+    setErrorState(false);
+
     let finalJsonTheme = cleanJsonTheme(themeData);
 
 
+    if (!finalJsonTheme) {
+      setErrorState(true);
+      setErrorMessage('Invalid JSON format for theme.');
+      setIsGenerationPending(false);
+      return;
+    }
 
     // Constructing the payload with all form elements
     let payload = {
@@ -704,8 +716,18 @@ export default function QuickEditor() {
   const updatePrimaryJsonTheme = (evt) => {
     evt.preventDefault();
     const headers = getHeaders();
+    setErrorMessage(null);
+    setErrorState(false);
 
     const parentJson = cleanJsonTheme(parentJsonTheme);
+
+    if (!parentJson) {
+
+      setErrorState(true);
+      setErrorMessage("Invalid JSON format for parent theme.");
+      setParentJsonSubmitting(false);
+      return;
+    }
     const payload = {
       sessionId: id,
       parentJsonTheme: parentJson,
@@ -724,8 +746,15 @@ export default function QuickEditor() {
     evt.preventDefault();
     setDerivedJsonSubmitting(true);
     const headers = getHeaders();
+    setErrorMessage(null);
+    setErrorState(false);
 
     const derivedJson = cleanJsonTheme(derivedJsonTheme);
+    if (!derivedJson) {
+      setErrorMessage("Invalid JSON format for derived theme.");
+      setDerivedJsonSubmitting(false);
+      return;
+    }
     const payload = {
       sessionId: id,
       derivedJsonTheme: derivedJson,
@@ -745,7 +774,17 @@ export default function QuickEditor() {
     setDerivedJsonSubmitting(true);
     const headers = getHeaders();
 
+    setErrorMessage(null);
+    setErrorState(false);
+
     const parentJson = cleanJsonTheme(parentJsonTheme);
+
+    if (!parentJson) {
+      setErrorMessage("Invalid JSON format for parent theme.");
+      setDerivedJsonSubmitting(false);
+      return;
+    }
+
     const payload = {
       sessionId: id,
       derivedTextTheme: derivedTextTheme,
@@ -796,10 +835,6 @@ export default function QuickEditor() {
 
   let customThemeTypeItems = <span />;
 
-
-
-
-
   const resetDerivedJson = (evt) => {
     evt.stopPropagation();
     setDerivedJsonTheme(null);
@@ -808,25 +843,30 @@ export default function QuickEditor() {
 
   let addThemeButtons = <span />;
 
-  if (derivedJsonTheme && themeType === 'derivedJson') {
+  if (derivedJsonTheme && (themeType === 'derivedJson' || themeType === 'derivedParentJson')) {
     addThemeButtons = (
       <>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} >
+        <div className={getButtonClasses('derivedParentJson')}
+          onClick={(evt) => (toggleThemeButton(evt, "derivedParentJson"))}>
+          Parent JSON
+        </div>
+
+        <div className={getButtonClasses('derivedJson')} 
+        onClick={(evt) => (toggleThemeButton(evt, "derivedJson"))}>
           Derived JSON
         </div>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex float-right ${themeType === 'custom' ? 'bg-gray-700' : ''}`}
-          onClick={(evt) => resetDerivedJson(evt)}>
-          Reset Derived theme
-        </div>
+
       </>
     )
   } else if (parentJsonTheme) {
     addThemeButtons = (
       <>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "parentJson"))}>
+        <div className={getButtonClasses('parentJson')}
+          onClick={(evt) => (toggleThemeButton(evt, "parentJson"))}>
           Parent JSON
         </div>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'custom' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "addDerivedJson"))}>
+        <div className={getButtonClasses('addDerivedJson')}
+          onClick={(evt) => (toggleThemeButton(evt, "addDerivedJson"))}>
           Add Derived theme text
         </div>
       </>
@@ -834,10 +874,12 @@ export default function QuickEditor() {
   } else {
     addThemeButtons = (
       <>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'basic' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "basic"))}>
+        <div className={getButtonClasses('basic')}
+          onClick={(evt) => (toggleThemeButton(evt, "basic"))}>
           Basic
         </div>
-        <div className={`button rounded-lg bg-gray-800 pl-2 pr-2 pt-1 pb-1 inline-flex ${themeType === 'custom' ? 'bg-gray-700' : ''}`} onClick={(evt) => (toggleThemeButton(evt, "custom"))}>
+        <div className={getButtonClasses('custom')}
+          onClick={(evt) => (toggleThemeButton(evt, "custom"))}>
           Custom
         </div>
       </>
@@ -855,11 +897,13 @@ export default function QuickEditor() {
   }
 
 
+
   if (parentJsonTheme || derivedJsonTheme) {
+
 
     customThemeTypeItems = (
       <>
-        {themeType === 'parentJson' && (
+        {(themeType === 'parentJson' || themeType === 'derivedParentJson') && (
           <>
             <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1">Enter JSON for custom theme (will override all other theme settings):</label>
             <AceEditor
@@ -914,7 +958,14 @@ export default function QuickEditor() {
               height="200px"
               className="rounded"
             />
+                        <div className={getButtonClasses('resetDerivedJson')}
+                        style={{'float': 'left'}}
+              onClick={(evt) => resetDerivedJson(evt)}>
+              Reset Derived theme
+            </div>
             <SecondaryButton onClick={updateDerivedJsonTheme} isPending={derivedJsonSubmitting}>Update Derived JSON</SecondaryButton>
+
+
 
           </>
         )}
@@ -931,7 +982,7 @@ export default function QuickEditor() {
               value={derivedTextTheme}
               onChange={(e) => setDerivedTextTheme(e.target.value)} />
             <SecondaryButton onClick={submitDerivedJsonTheme}
-            isPending={derivedJsonSubmitting}>Apply Derived Theme</SecondaryButton>
+              isPending={derivedJsonSubmitting}>Apply Derived Theme</SecondaryButton>
           </>
         )}
 
@@ -1000,6 +1051,10 @@ export default function QuickEditor() {
       );
     }
   }
+
+  console.log(errorMessage);
+  console.log(errorState);
+
 
   return (
     <div className='relative w-full'>

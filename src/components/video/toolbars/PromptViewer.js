@@ -22,7 +22,8 @@ export default function PromptViewer(props) {
   return (
     <div className="flex flex-col items-center space-y-4 bg-[#374151] p-4 rounded-lg">
       <TextareaAutosize
-        className="text-center max-h-64 overflow-y-auto w-full px-4 py-2 border rounded bg-[#171717] text-[#fafafa]"
+        className="text-left max-h-64 overflow-y-auto w-full px-2 py-2 border rounded bg-[#171717] text-[#fafafa]
+        "
         value={promptText}
         onChange={handleInputChange}
         minRows={3} // Adjusts the minimum number of rows
