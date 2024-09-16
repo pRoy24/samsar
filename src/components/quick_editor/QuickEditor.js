@@ -458,15 +458,13 @@ export default function QuickEditor() {
     setErrorMessage(null);
     setErrorState(false);
 
-    let finalJsonTheme = cleanJsonTheme(themeData);
+    let finalJsonTheme = themeData;
 
-
-    if (!finalJsonTheme) {
-      setErrorState(true);
-      setErrorMessage('Invalid JSON format for theme.');
-      setIsGenerationPending(false);
-      return;
+    const cleanedJsonData = cleanJsonTheme(themeData);
+    if (cleanedJsonData && cleanedJsonData.length > 0) {
+      finalJsonTheme = cleanedJsonData;
     }
+
 
     // Constructing the payload with all form elements
     let payload = {
