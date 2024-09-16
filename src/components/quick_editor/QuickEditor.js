@@ -458,15 +458,15 @@ export default function QuickEditor() {
     setErrorMessage(null);
     setErrorState(false);
 
-    let finalJsonTheme = cleanJsonTheme(themeData);
+    let finalJsonTheme = themeData;
 
-
-    if (!finalJsonTheme) {
-      setErrorState(true);
-      setErrorMessage('Invalid JSON format for theme.');
-      setIsGenerationPending(false);
-      return;
+    const cleanedJson = cleanJsonTheme(themeData);
+    if (cleanedJson && cleanedJson.length > 0) {
+      finalJsonTheme = cleanedJson;
     }
+
+
+
 
     // Constructing the payload with all form elements
     let payload = {
@@ -492,6 +492,7 @@ export default function QuickEditor() {
       addSubtitlesRequired: addSubtitlesRequired,
       themeType: themeType, // Include the selected theme type in the payload
       themeData: themeType === 'basic' ? theme : finalJsonTheme,
+      addTranscriptionsRequired: formData.get('addTranscriptionsRequired') === 'on',
     };
 
     if (duration.value === 'auto') {
@@ -777,6 +778,7 @@ export default function QuickEditor() {
     setErrorMessage(null);
     setErrorState(false);
 
+
     const parentJson = cleanJsonTheme(parentJsonTheme);
 
     if (!parentJson) {
@@ -784,6 +786,7 @@ export default function QuickEditor() {
       setDerivedJsonSubmitting(false);
       return;
     }
+
 
     const payload = {
       sessionId: id,
@@ -851,8 +854,8 @@ export default function QuickEditor() {
           Parent JSON
         </div>
 
-        <div className={getButtonClasses('derivedJson')} 
-        onClick={(evt) => (toggleThemeButton(evt, "derivedJson"))}>
+        <div className={getButtonClasses('derivedJson')}
+          onClick={(evt) => (toggleThemeButton(evt, "derivedJson"))}>
           Derived JSON
         </div>
 
@@ -958,8 +961,8 @@ export default function QuickEditor() {
               height="200px"
               className="rounded"
             />
-                        <div className={getButtonClasses('resetDerivedJson')}
-                        style={{'float': 'left'}}
+            <div className={getButtonClasses('resetDerivedJson')}
+              style={{ 'float': 'left' }}
               onClick={(evt) => resetDerivedJson(evt)}>
               Reset Derived theme
             </div>
@@ -1051,9 +1054,6 @@ export default function QuickEditor() {
       );
     }
   }
-
-  console.log(errorMessage);
-  console.log(errorState);
 
 
   return (
@@ -1207,6 +1207,16 @@ export default function QuickEditor() {
                         </div>
                         <input type="checkbox"
                           name="addSubtitlesRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
+                          defaultChecked={true} />
+                      </div>
+                    </div>
+                    <div>
+                      <div>
+                        <div className='text-xs'>
+                          Create Transcription
+                        </div>
+                        <input type="checkbox"
+                          name="addTranscriptionsRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
                           defaultChecked={true} />
                       </div>
                     </div>
