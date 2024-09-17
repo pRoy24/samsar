@@ -1,4 +1,5 @@
 export const ANIMATION_OPTIONS = [
+  {value: 'preset_short_animation', label: 'Preset Short Animation'},
   { value: 'pan_left_to_right', label: 'Pan Left to Right' },
   { value: 'pan_right_to_left', label: 'Pan Right to Left' },
   { value: 'pan_top_to_bottom', label: 'Pan Top to Bottom' },

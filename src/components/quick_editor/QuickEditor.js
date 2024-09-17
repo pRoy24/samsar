@@ -46,7 +46,7 @@ export default function QuickEditor() {
 
   // State variables
   const [videoType, setVideoType] = useState({ value: 'Slideshow', label: 'Slideshow' });
-  const [animation, setAnimation] = useState({ value: 'alternate_zoom', label: 'Alternate Zoom' });
+  const [animation, setAnimation] = useState({ value: 'preset_short_animation', label: 'Preset Short Animation' });
   const [duration, setDuration] = useState({ value: 'auto', label: 'Auto' });
   const [customDuration, setCustomDuration] = useState('');
   const [sessionDetails, setSessionDetails] = useState(null);
@@ -110,7 +110,7 @@ export default function QuickEditor() {
   // Effect to reset state when id changes
   useEffect(() => {
     setVideoType({ value: 'Slideshow', label: 'Slideshow' });
-    setAnimation({ value: 'alternate_zoom', label: 'Alternate Zoom' });
+    setAnimation({ value: 'preset_short_animation', label: 'Preset Short Animation' });
     setDuration({ value: 'auto', label: 'Auto' });
     setCustomDuration('');
 
@@ -180,6 +180,18 @@ export default function QuickEditor() {
       //  setTheme(sessionDetails.imageGenerationTheme);
     }
   }, [sessionDetails]);
+
+  useEffect(() => {
+    if (speechLanguage.value !== subtitlesLanguage.value || speechLanguage.value !== 'eng') {
+      // remove preset_short_animation from animation options
+      const newAnimationOptions = ANIMATION_OPTIONS.filter((option) => option.value !== 'preset_short_animation');
+      setAnimationOptions(newAnimationOptions);
+      if (animation && animation.value === 'preset_short_animation') {
+        const alternateZoomAnimation = ANIMATION_OPTIONS.find((option) => option.value === 'alternate_zoom');
+        setAnimation(alternateZoomAnimation);
+      }
+    }
+  }, [speechLanguage, subtitlesLanguage]);
 
   const getButtonClasses = (buttonType) => {
     const baseClasses = "rounded-lg pl-2 pr-2 pt-1 pb-1 inline-flex cursor-pointer";
@@ -460,11 +472,10 @@ export default function QuickEditor() {
 
     let finalJsonTheme = themeData;
 
-    const cleanedJsonData = cleanJsonTheme(themeData);
-    if (cleanedJsonData && cleanedJsonData.length > 0) {
-      finalJsonTheme = cleanedJsonData;
+    const cleanedJson = cleanJsonTheme(themeData);
+    if (cleanedJson && cleanedJson.length > 0) {
+      finalJsonTheme = cleanedJson;
     }
-
 
     // Constructing the payload with all form elements
     let payload = {
@@ -490,6 +501,7 @@ export default function QuickEditor() {
       addSubtitlesRequired: addSubtitlesRequired,
       themeType: themeType, // Include the selected theme type in the payload
       themeData: themeType === 'basic' ? theme : finalJsonTheme,
+      addTranscriptionsRequired: formData.get('addTranscriptionsRequired') === 'on',
     };
 
     if (duration.value === 'auto') {
@@ -775,6 +787,7 @@ export default function QuickEditor() {
     setErrorMessage(null);
     setErrorState(false);
 
+
     const parentJson = cleanJsonTheme(parentJsonTheme);
 
     if (!parentJson) {
@@ -782,6 +795,7 @@ export default function QuickEditor() {
       setDerivedJsonSubmitting(false);
       return;
     }
+
 
     const payload = {
       sessionId: id,
@@ -849,8 +863,8 @@ export default function QuickEditor() {
           Parent JSON
         </div>
 
-        <div className={getButtonClasses('derivedJson')} 
-        onClick={(evt) => (toggleThemeButton(evt, "derivedJson"))}>
+        <div className={getButtonClasses('derivedJson')}
+          onClick={(evt) => (toggleThemeButton(evt, "derivedJson"))}>
           Derived JSON
         </div>
 
@@ -956,8 +970,8 @@ export default function QuickEditor() {
               height="200px"
               className="rounded"
             />
-                        <div className={getButtonClasses('resetDerivedJson')}
-                        style={{'float': 'left'}}
+            <div className={getButtonClasses('resetDerivedJson')}
+              style={{ 'float': 'left' }}
               onClick={(evt) => resetDerivedJson(evt)}>
               Reset Derived theme
             </div>
@@ -1049,9 +1063,6 @@ export default function QuickEditor() {
       );
     }
   }
-
-  console.log(errorMessage);
-  console.log(errorState);
 
 
   return (
@@ -1208,6 +1219,18 @@ export default function QuickEditor() {
                           defaultChecked={true} />
                       </div>
                     </div>
+                    {(speechLanguage.value === subtitlesLanguage.value && speechLanguage.value === 'eng' && 
+                    (<div>
+                      <div>
+                        <div className='text-xs'>
+                          Create Transcription
+                        </div>
+                        <input type="checkbox"
+                          name="addTranscriptionsRequired" className="custom-checkbox form-checkbox h-5 w-5 text-gray-600"
+                          defaultChecked={true} />
+                      </div>
+                    </div>) )}
+
                     <div className='w-1/3'>
                       <label className="whitespace-nowrap block text-xs text-left pl-2 pb-1 text-white">Speech Language:</label>
                       <SingleSelect
