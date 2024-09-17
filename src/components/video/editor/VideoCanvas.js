@@ -38,8 +38,11 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
     eraserToolbarPosition, eraserWidthRef, toolbarShapeProps, setToolbarShapeProps, paintToolbarPosition,
     paintToolbarVisible, isDrawing, shapeSet, showPencil, pencilLines, overlayImage, shapeSelectToolbarVisible,
     shapeSelectToolbarPosition, enableSegmentationMask, segmentationData, setSegmentationData,
-    isExpressGeneration
+    isExpressGeneration, currentLayerSeek
   } = props;
+
+  console.log(currentLayer.durationOffset);
+
 
   const [maskImage, setMaskImage] = useState(null);
   const [maskData, setMaskData] = useState(null);
@@ -199,6 +202,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
       }
 
       return <ActiveRenderItem
+      currentLayerSeek={currentLayerSeek}
         item={item}
         index={index}
         selectedId={selectedId}
@@ -214,6 +218,7 @@ const VideoCanvas = forwardRef((props: any, ref: any) => {
         updateTargetShapeActiveLayerConfig={updateTargetShapeActiveLayerConfig}
         onChange={onChange}
         sessionId={sessionId}
+        durationOffset={currentLayer.durationOffset}
       />
     }).filter(Boolean);
   }

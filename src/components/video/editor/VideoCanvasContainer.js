@@ -15,7 +15,6 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
     selectedLayerSelectShape, isLayerSeeking, applyFinalFilter, isExpressGeneration
   } = props;
 
-
   const shapeSelectTransformerCircleRef = useRef();
   const shapeSelectTransformerRectangleRef = useRef();
 
@@ -395,7 +394,17 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
   const applyAnimationsToNode = (node, item, elapsedTime, duration, durationOffset) => {
     if (!item.animations) return;
     let isAnimating = false;
+
+
+
     const { x, y, width, height } = item;
+
+
+    let startTime, endTime;
+
+
+
+
     let requiresTranslation = false;
     let initialX = x;
     let initialY = y;
@@ -407,12 +416,24 @@ const VideoCanvasContainer = forwardRef((props, ref) => {
     });
 
     item.animations.forEach(animation => {
-      const { type, params } = animation;
+      const { type, params, frameDuration, frameOffset } = animation;
 
+      console.log(params);
+
+      let startTime;
+      let endTime;
       if (params && type) {
-        const startTime = (params.startTime || 0) + (durationOffset || 0);
-        const endTime = (params.endTime || duration) + (durationOffset || 0);
+
+        if (frameOffset !== undefined && frameDuration !== undefined) {
+          // startTime = durationOffset + frameOffset / 30;
+          // endTime =  startTime + frameDuration / 30;
+        } else {
+          startTime = (params.startTime || 0) + (durationOffset || 0);
+          endTime = (params.endTime || duration) + (durationOffset || 0);
+        }
         const animationElapsed = Math.max(0, Math.min(elapsedTime - startTime, endTime - startTime));
+
+        console.log("Elapsed" + animationElapsed);
 
         if (animationElapsed >= 0 && animationElapsed <= (endTime - startTime)) {
           isAnimating = true;

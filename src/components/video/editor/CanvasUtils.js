@@ -5,6 +5,7 @@ import ResizablePolygon from "../../editor/shapes/ResizablePolygon.tsx";
 import ResizableCircle from "../../editor/shapes/ResizableCircle.tsx";
 import ResizableDialogBubble from "../../editor/shapes/ResizableDialogBubble.tsx";
 
+const FPS = 30;
 
 export function ActiveRenderItem(props) {
   const {
@@ -22,9 +23,17 @@ export function ActiveRenderItem(props) {
     selectLayer,
     updateTargetShapeActiveLayerConfig,
     onChange,
-    sessionId
+    sessionId,
+    currentLayerSeek,
+    durationOffset
 
   } = props;
+
+
+
+  const currentRelativeFrame = currentLayerSeek - (durationOffset * FPS);
+
+  console.log("Current relative frame", currentRelativeFrame);
 
   if (item.type === 'image') {
     return (
@@ -44,17 +53,38 @@ export function ActiveRenderItem(props) {
       />
     );
   } else if (item.type === 'text') {
-    return (
-      <ResizableText
-        {...item}
-        isSelected={selectedId === item.id}
-        onSelect={() => setSelectedLayer(item)}
-        onUnselect={() => setSelectedId(null)}
-        updateToolbarButtonPosition={updateToolbarButtonPosition}
-        isDraggable={isDraggable}
-        updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
-      />
-    );
+    console.log(item);
+    const frameDuration = item.config.frameDuration;
+    const frameOffset = item.config.frameOffset;
+
+    if (item.config && !item.config.frameDuration) {
+      return (
+        <ResizableText
+          {...item}
+          isSelected={selectedId === item.id}
+          onSelect={() => setSelectedLayer(item)}
+          onUnselect={() => setSelectedId(null)}
+          updateToolbarButtonPosition={updateToolbarButtonPosition}
+          isDraggable={isDraggable}
+          updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
+        />
+      );
+    } else {
+      
+      if (currentRelativeFrame >= frameOffset && currentRelativeFrame <= frameOffset + frameDuration) {
+        return (
+          <ResizableText
+            {...item}
+            isSelected={selectedId === item.id}
+            onSelect={() => setSelectedLayer(item)}
+            onUnselect={() => setSelectedId(null)}
+            updateToolbarButtonPosition={updateToolbarButtonPosition}
+            isDraggable={isDraggable}
+            updateTargetActiveLayerConfig={updateTargetShapeActiveLayerConfig}
+          />
+        );
+      }
+    }
   } else if (item.type === 'shape') {
     if (item.shape === 'circle') {
       return (
