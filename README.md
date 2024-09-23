@@ -1,9 +1,12 @@
+
+## This repo is now archived.
+## Hosted version is available [here](https://app.samsar.one)
+
 ## Samsar is a video & image editor with generative image, music and speech.
 
-This is the code for the samsar motion pictures client.
-This client is built primarily using ReactJS and Konva-JS.
 
-## Hosted version is available [here](https://app.samsar.gg)
+This is a stale commit for the samsar motion pictures client.
+This client is built primarily using ReactJS and Konva-JS.
 
 In the hosted version, you can create, 30 FPS 1024x1024 px videos, upto 2 minutes in duration.
 
