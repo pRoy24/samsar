@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  ai-video-layer-service:
+    image: samsaronetestregistry.azurecr.io/samsar_one-ai-video-layer-service:latest
+    volumes:
+      - assets:/assets
+      - license-data:/secure:ro
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  generator:
+    image: samsaronetestregistry.azurecr.io/samsar_one-generator:latest
+    volumes:
+      - assets:/assets
+      - license-data:/secure:ro
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  express-video-listener:
+    image: samsaronetestregistry.azurecr.io/samsar_one-express-video-listener:latest
+    volumes:
+      - assets:/assets
+      - license-data:/secure:ro
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  audio-generator:
+    image: samsaronetestregistry.azurecr.io/samsar_one-audio-generator:latest
+    volumes:
+      - assets:/assets
+      - license-data:/secure:ro
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  client:
+    image: samsaronetestregistry.azurecr.io/samsar_one-client:latest
+    volumes:
+      - license-data:/secure:ro
+    ports:
+      - "3000:3000"
+    networks:
+      - app-net
+
+  frames-processor:
+    image: samsaronetestregistry.azurecr.io/samsar_one-frames-processor:latest
+    volumes:
+      - assets:/assets
+      - license-data:/secure:ro
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  video_generator:
+    image: samsaronetestregistry.azurecr.io/samsar_one-video_generator:latest
+    volumes:
+      - assets:/assets
+      - license-data:/secure:ro
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  assistant-query-processor:
+    image: samsaronetestregistry.azurecr.io/samsar_one-assistant-query-processor:latest
+    volumes:
+      - license-data:/secure:ro
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  processor:
+    image: samsaronetestregistry.azurecr.io/samsar_one-processor:latest
+    volumes:
+      - assets:/assets
+      - license-data:/secure:ro
+      - persistent-data:/persistent
+    ports:
+      - "3002:3002"
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  audio_utils:
+    image: samsaronetestregistry.azurecr.io/samsar_one-audio_utils:latest
+    volumes:
+      - assets:/assets
+      - license-data:/secure:ro
+    ports:
+      - "5005:5005"
+    networks:
+      - app-net
+    env_file:
+      - .env.docker
+
+  gentle-aligner:
+    image: lowerquality/gentle
+    platform: linux/amd64
+    ports:
+      - "8765:8765"
+    volumes:
+      - assets:/assets
+    networks:
+      - app-net
+
+networks:
+  app-net:
+
+volumes:
+  assets:
+  license-data:
+  persistent-data:
