@@ -1,6 +1,14 @@
-# Full-Stack Generative Agent + Studio Pipeline (Test Preview)
+# Full-Stack Generative Server with Agent and Studio (Test Preview)
+
+Run your private generative cloud with your own API keys.
+Full-control over access and storage.
+One-time purchase license, downnload minor updates for free.
+We also provide support regarding models and configurations.
+Join our discord for support.
 
 ⚠️ **Currently in test-preview.** Message us for access.
+
+Visit our GA web-app at https://app.samsar.one
 
 Join our [Discord community](https://discord.gg/MSGZCuxx) for early access and updates.
 
