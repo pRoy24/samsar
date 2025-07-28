@@ -5,7 +5,8 @@ services:
     image: samsaronetestregistry.azurecr.io/samsar_one-ai-video-layer-service:latest
     volumes:
       - assets:/assets
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     networks:
       - app-net
     env_file:
@@ -15,7 +16,8 @@ services:
     image: samsaronetestregistry.azurecr.io/samsar_one-generator:latest
     volumes:
       - assets:/assets
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     networks:
       - app-net
     env_file:
@@ -25,7 +27,8 @@ services:
     image: samsaronetestregistry.azurecr.io/samsar_one-express-video-listener:latest
     volumes:
       - assets:/assets
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     networks:
       - app-net
     env_file:
@@ -35,7 +38,8 @@ services:
     image: samsaronetestregistry.azurecr.io/samsar_one-audio-generator:latest
     volumes:
       - assets:/assets
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     networks:
       - app-net
     env_file:
@@ -44,7 +48,8 @@ services:
   client:
     image: samsaronetestregistry.azurecr.io/samsar_one-client:latest
     volumes:
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     ports:
       - "3000:3000"
     networks:
@@ -54,7 +59,8 @@ services:
     image: samsaronetestregistry.azurecr.io/samsar_one-frames-processor:latest
     volumes:
       - assets:/assets
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     networks:
       - app-net
     env_file:
@@ -64,7 +70,8 @@ services:
     image: samsaronetestregistry.azurecr.io/samsar_one-video_generator:latest
     volumes:
       - assets:/assets
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     networks:
       - app-net
     env_file:
@@ -73,7 +80,8 @@ services:
   assistant-query-processor:
     image: samsaronetestregistry.azurecr.io/samsar_one-assistant-query-processor:latest
     volumes:
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     networks:
       - app-net
     env_file:
@@ -83,7 +91,8 @@ services:
     image: samsaronetestregistry.azurecr.io/samsar_one-processor:latest
     volumes:
       - assets:/assets
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
       - persistent-data:/persistent
     ports:
       - "3002:3002"
@@ -96,7 +105,8 @@ services:
     image: samsaronetestregistry.azurecr.io/samsar_one-audio_utils:latest
     volumes:
       - assets:/assets
-      - license-data:/secure:ro
+      - license-data:/secure
+      - ./public.pem:/secure/public.pem
     ports:
       - "5005:5005"
     networks:
