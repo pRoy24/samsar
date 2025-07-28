@@ -1,30 +1,66 @@
-# The containers for our Generative Agent + Studio pipeline.
-Currently in test-preview. Message for access.
+# Full-Stack Generative Agent + Studio Pipeline (Test Preview)
 
-Join our discord [here](https://discord.gg/MSGZCuxx) for early access. 
+⚠️ **Currently in test-preview.** Message us for access.
 
-### Download and run these images in professional/enterprise server settings with your own environment.
- 
-## To Install simply run Docker, get the environment keys for models that you like and run docker compose
+Join our [Discord community](https://discord.gg/MSGZCuxx) for early access and updates.
 
+---
 
-## Environemnt variables-
+## 🧠 Overview
 
-### OpenAI Keys
-Agent uses OpenAI models for inference. You can choose inference model in the studio.
+This repository provides containers for running the **Generative Agent + Studio pipeline** in professional or enterprise server environments.
 
-### Fal AI Keys
-Most media models use FalAI for inference. You'll need to add a Fal API key.
+Download and run the Docker images with your own environment configurations.
 
-### Azure Keys
-## To enable specific Azure endpoints add the url and the key
-For Sora go to [Foundry Sora Link](https://ai.azure.com/explore/models/sora/version/2025-05-02/registry/azure-openai)
-Similarly for other models, get links for connection string.
+---
 
-### Replicate
-If you want to run Audiocraft as music model you'll need replicate keys
+## 🚀 Installation
 
-## Storage for videos and frame images.
-You'll need to add AWS keys for media storage. Cloudfront URL for access.
+1. Ensure Docker is installed on your system.
+2. Acquire the API keys for the models you wish to use.
+3. Run the containers using:
 
+```bash
+docker compose up
+```
 
+---
+
+## 🔐 Environment Variables Setup
+
+Configure the following environment variables before starting:
+
+### 🔹 OpenAI Keys
+
+* Required for agent inference.
+* The studio lets you choose between different OpenAI models.
+
+### 🔹 Fal AI Keys
+
+* Most media models (image, video, etc.) use Fal AI for inference.
+* Add your **Fal API key** to the environment.
+
+### 🔹 Azure Keys
+
+* Required for using models like **Sora**.
+* Add both the **Azure endpoint URL** and the **API key**.
+
+> Example:
+> Access Sora via [Azure Foundry Sora](https://ai.azure.com/explore/models/sora/version/2025-05-02/registry/azure-openai)
+
+> For other models, get the corresponding connection strings and endpoints from Azure.
+
+### 🔹 Replicate Keys
+
+* Needed if you plan to use **Audiocraft** as the music generation model.
+
+---
+
+## 📦 Storage Configuration
+
+* Add **AWS Access Keys** for storing media (videos, frame images, etc.).
+* Also configure a **CloudFront URL** for accessing stored assets.
+
+---
+
+Let me know if you want this version saved as a file or want it tailored to a specific use case (e.g. enterprise onboarding, local dev setup, etc.).
