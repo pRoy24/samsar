@@ -62,6 +62,10 @@ Configure the following environment variables before starting:
 
 > For other models, get the corresponding connection strings and endpoints from Azure.
 
+### 🔹 RunwayML Keys
+
+* Needed if you plan to use **RunwayML** as video generation model.
+* 
 ### 🔹 Replicate Keys
 
 * Needed if you plan to use **Audiocraft** as the music generation model.
