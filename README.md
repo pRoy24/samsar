@@ -1,9 +1,13 @@
 # Full-Stack Generative Server with Agent and Studio (Test Preview)
 
 Run your private generative cloud with your own API keys.
+
 Full-control over access and storage.
-One-time purchase license, downnload minor updates for free.
+
+One-time purchase license, downnload minor updates free.
+
 We also provide support regarding models and configurations.
+
 Join our discord for support.
 
 ⚠️ **Currently in test-preview.** Message us for access.
