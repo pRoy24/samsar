@@ -1,4 +1,4 @@
-# Full-Stack Generative Server with Agent and Studio (Test Preview)
+# Full-Stack Generative Server with Agent and Studio
 
 Run your private generative cloud with your own API keys.
 
